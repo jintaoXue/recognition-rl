@@ -202,7 +202,8 @@ class supervise__bottleneck__adaptive__given_number(ModelPath):
         config.set('description', config.description + f'--from--{model_exp}-{config.model_num}')
     method = 'IndependentSACsupervise'
     model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveSingleAgent/2022-11-26-12:32:44----Nothing--supervise-hrz30-act10/saved_models_method'
-
+    
+    model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveSingleAgent/2022-11-30-15:05:17----Nothing--supervise-hrz10-act10/saved_models_method'
 ################################################################################
 ###### intersection ############################################################
 ################################################################################

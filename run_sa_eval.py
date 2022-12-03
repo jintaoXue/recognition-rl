@@ -535,11 +535,19 @@ def _main(model_num) :
     import gallery_sa_eval as gallery
     import models_sa, models_ma
     version = config.version
-    if version == 'v6-5':
+    if version == 'v6-5-0':
         if mode != 'evaluate':
             raise NotImplementedError
 
         config.description += '--supervise__four_background__bottleneck-hr30act10'
+        models_sa.supervise__bottleneck__adaptive__given_number().update(config, model_num)
+        env_master = gallery.evaluate__supervise__four_background__bottleneck(config, mode)
+
+    if version == 'v6-5-1':
+        if mode != 'evaluate':
+            raise NotImplementedError
+
+        config.description += '--supervise__four_background__bottleneck-hr10act10'
         models_sa.supervise__bottleneck__adaptive__given_number().update(config, model_num)
         env_master = gallery.evaluate__supervise__four_background__bottleneck(config, mode)
 
@@ -567,8 +575,9 @@ if __name__ == '__main__':
     # for ego_svo in range(0, 11):
     #     for other_svo in range(0, 11):
     #         main(ego_svo, other_svo)
-    for num in range(1, 5):
-        model_num = 2700000 - num*100000
+    eval_end_num = 3300000
+    for num in range(1, 10):
+        model_num = eval_end_num - num*50000
         _main(model_num)
     # main()
     
