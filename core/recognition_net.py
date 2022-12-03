@@ -125,6 +125,75 @@ class RecognitionNet(rllib.template.Model):
 
         return outputs
 
+class RecognitionNetSample(RecognitionNet):
+    def forward(self, state: rllib.basic.Data, **kwargs):
+        state_ = sample_state(state)
+        # breakpoint()
+        batch_size = state_.ego.shape[0]
+        num_agents = state_.obs.shape[1]
+        num_lanes = state_.lane.shape[1]
+        num_bounds = state_.bound.shape[1]
+        
+        ### data generation
+        ego = state_.ego[:,-1]
+        ego_mask = state_.ego_mask.to(torch.bool)[:,[-1]]
+        obs = state_.obs[:,:,-1]
+        obs_mask = state_.obs_mask[:,:,-1].to(torch.bool)
+        # obs_character = state.obs_character[:,:,-1]
+        route = state_.route
+        route_mask = state_.route_mask.to(torch.bool)
+        lane = state_.lane
+        lane_mask = state_.lane_mask.to(torch.bool)
+        bound = state_.bound
+        bound_mask = state_.bound_mask.to(torch.bool)
+
+        ### embedding
+        ego_embedding = torch.cat([
+            self.ego_embedding(state_.ego, state_.ego_mask.to(torch.bool)),
+            self.ego_embedding_v1(ego),
+            self.character_embedding(state_.character.unsqueeze(1))
+        ], dim=1)
+
+        obs = torch.where(obs == np.inf, torch.tensor(0, dtype=torch.float32, device=obs.device), obs)
+
+        obs_embedding = torch.cat([
+            self.agent_embedding(state_.obs.flatten(end_dim=1), state_.obs_mask.to(torch.bool).flatten(end_dim=1)).view(batch_size,num_agents, self.dim_embedding //2),
+            self.agent_embedding_v1(obs)
+        ], dim=2)
+
+        route_embedding = self.static_embedding(route, route_mask)
+
+        lane_embedding = self.static_embedding(lane.flatten(end_dim=1), lane_mask.flatten(end_dim=1))
+        lane_embedding = lane_embedding.view(batch_size,num_lanes, self.dim_embedding)
+
+        bound_embedding = self.static_embedding(bound.flatten(end_dim=1), bound_mask.flatten(end_dim=1))
+        bound_embedding = bound_embedding.view(batch_size,num_bounds, self.dim_embedding)
+
+
+        ### global head recognition
+        invalid_polys = ~torch.cat([
+            ego_mask,
+            obs_mask,
+            route_mask.any(dim=1, keepdim=True),
+            lane_mask.any(dim=2),
+            bound_mask.any(dim=2),
+        ], dim=1)
+        all_embs = torch.cat([ego_embedding.unsqueeze(1), obs_embedding, route_embedding.unsqueeze(1), lane_embedding, bound_embedding], dim=1)
+        type_embedding = self.type_embedding(state_)
+
+        outputs, attns = self.global_head_recognition(all_embs, type_embedding, invalid_polys, num_agents)
+        # self.attention = attns.detach().clone().cpu()
+        
+
+        outputs = self.tanh(outputs)
+        outputs = (1 + self.tanh(outputs))/2
+        #(num_agents, batch, 1) -> (batch, num_agents, 1)
+        outputs = outputs.transpose(0, 1)
+
+        return outputs
+
+
+
 class RecognitionWoAttention(rllib.template.Model):
     def __init__(self, config, model_id=0):
         super().__init__(config, model_id)
@@ -519,6 +588,16 @@ def cut_state(state: rllib.basic.Data) :
     # state_.obs_character = state_.obs_character[:,:,-horizon:,-1]
     return state_
 
+def sample_state(state: rllib.basic.Data) :
+    state_ = copy.deepcopy(state)
+    #hrz30 -> 10
+    interval = 3
+    state_.ego = torch.cat((state_.ego[:,interval-1:-1:interval,:], state_.ego[:,-1:,:]), 1)  
+    state_.ego_mask = torch.cat((state_.ego_mask[:,interval-1:-1:interval], state_.ego_mask[:,-1:]), 1) 
 
+    state_.obs = torch.cat((state_.obs[:,:,interval-1:-1:interval,:], state_.obs[:,:,-1:,:]), 2)  
+    state_.obs_mask = torch.cat((state_.obs_mask[:,:,interval-1:-1:interval], state_.obs_mask[:,:,-1:]), 2)  
+    # state_.obs_character = state_.obs_character[:,:,-horizon:,-1]
+    return state_
 
 

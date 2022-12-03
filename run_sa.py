@@ -156,9 +156,19 @@ def main():
         config.description += '--isac_recog__adaptive'
         writer, env_master, method = gallery.ray_isac_recog__adaptive_background__bottleneck(config, mode, scale)
 
-    elif version == 'v6-5':
+    elif version == 'v6-5-0':
         scale = 10
         config.description += '--supervise-hrz10-act10'
+        writer, env_master, method = gallery.ray_supervise__adaptive_background__bottleneck(config, mode, scale)
+
+    elif version == 'v6-5-1':
+        scale = 10
+        config.description += '--supervise-hrz30-act10'
+        writer, env_master, method = gallery.ray_supervise__adaptive_background__bottleneck(config, mode, scale)
+
+    elif version == 'v6-5-2':
+        scale = 10
+        config.description += '--supervise-sampling-hrz10-act10'
         writer, env_master, method = gallery.ray_supervise__adaptive_background__bottleneck(config, mode, scale)
 
     elif version == 'v6-6':

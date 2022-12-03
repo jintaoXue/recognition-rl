@@ -86,7 +86,7 @@ class AgentListMaster(universe.AgentsMaster):
     # xue in 2022/12/2
     def __init__(self, config: rllib.basic.YamlConfig, topology_map: TopologyMap, **kwargs):
         super().__init__(config, topology_map, **kwargs)
-        self.horizon = 10
+        self.horizon = 30
         
     class GetVehicleState(object):
         dim_state = 5
