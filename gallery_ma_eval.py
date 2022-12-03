@@ -1,0 +1,829 @@
+import rllib
+import universe
+import ray
+
+import os
+import copy
+import torch
+
+
+
+
+def init(config, mode, Env) -> universe.EnvMaster_v1:
+    repos = ['~/github/zdk/rl-lib', '~/github/ali/universe', '~/github/zdk/recognition-rl']
+    config.set('github_repos', repos)
+
+    from core.method_isac_v0 import IndependentSAC_v0 as Method
+
+    model_name = Method.__name__ + '-' + Env.__name__
+    writer_cls = rllib.basic.PseudoWriter
+    writer = rllib.basic.create_dir(config, model_name, mode=mode, writer_cls=writer_cls)
+    
+    from core.method_evaluate import EvaluateIndependentSAC as Method
+
+    from universe import EnvMaster_v1 as EnvMaster
+    env_master = EnvMaster(config, writer, env_cls=Env, method_cls=Method)
+    return env_master
+
+
+
+
+
+
+
+
+
+################################################################################################
+##### evaluate, training setting ###############################################################
+################################################################################################
+
+
+def evaluate_ray_isac_adaptive_character__bottleneck(config, mode='evaluate', scale=5):
+    from universe import EnvInteractiveMultiAgent as Env
+
+    ### env param
+    from config.bottleneck_evaluate import config_env__with_character
+    config.set('envs', [config_env__with_character] *scale)
+
+    ### method param
+    from config.method import config_isac__adaptive_character as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env)
+
+
+
+def evaluate_ray_isac_adaptive_character__intersection(config, mode='evaluate', scale=5):
+    from universe import EnvInteractiveMultiAgent as Env
+
+    ### env param
+    from config.intersection_evaluate import config_env__with_character
+    config_env__with_character.set('scenario_name', 'intersection_v2')
+    config.set('envs', [config_env__with_character] *scale)
+
+    ### method param
+    from config.method import config_isac__adaptive_character as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env)
+
+
+
+def evaluate_ray_isac_adaptive_character__merge(config, mode='evaluate', scale=5):
+    from universe import EnvInteractiveMultiAgent as Env
+
+    ### env param
+    from config.merge_evaluate import config_env__with_character
+    config.set('envs', [config_env__with_character] *scale)
+
+    ### method param
+    from config.method import config_isac__adaptive_character as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env)
+
+
+
+def evaluate_ray_isac_adaptive_character__roundabout(config, mode='evaluate', scale=5):
+    from universe import EnvInteractiveMultiAgent as Env
+
+    ### env param
+    from config.roundabout_evaluate import config_env__with_character
+    config.set('envs', [config_env__with_character] *scale)
+
+    ### method param
+    from config.method import config_isac__adaptive_character as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env)
+
+
+
+################################################################################################
+##### evaluate, training setting robust ########################################################
+################################################################################################
+
+
+
+def evaluate_ray_isac_robust_character__bottleneck(config, mode='evaluate', scale=5):
+    from universe import EnvInteractiveMultiAgent as Env
+
+    ### env param
+    from config.bottleneck_evaluate import config_env__with_character
+    config.set('envs', [config_env__with_character] *scale)
+
+    ### method param
+    from config.method import config_isac__robust_character as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env)
+
+
+
+def evaluate_ray_isac_robust_character__intersection(config, mode='evaluate', scale=5):
+    from universe import EnvInteractiveMultiAgent as Env
+
+    ### env param
+    from config.intersection_evaluate import config_env__with_character
+    config_env__with_character.set('scenario_name', 'intersection_v2')
+    config.set('envs', [config_env__with_character] *scale)
+
+    ### method param
+    from config.method import config_isac__robust_character as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env)
+
+
+
+def evaluate_ray_isac_robust_character__merge(config, mode='evaluate', scale=5):
+    from universe import EnvInteractiveMultiAgent as Env
+
+    ### env param
+    from config.merge_evaluate import config_env__with_character
+    config.set('envs', [config_env__with_character] *scale)
+
+    ### method param
+    from config.method import config_isac__robust_character as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env)
+
+
+
+def evaluate_ray_isac_robust_character__roundabout(config, mode='evaluate', scale=5):
+    from universe import EnvInteractiveMultiAgent as Env
+
+    ### env param
+    from config.roundabout_evaluate import config_env__with_character
+    config.set('envs', [config_env__with_character] *scale)
+
+    ### method param
+    from config.method import config_isac__robust_character as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env)
+
+
+
+
+################################################################################################
+##### evaluate, training setting copo ##########################################################
+################################################################################################
+
+
+
+
+
+from gallery_sa import get_sac__bottleneck__robust_character_config
+from gallery_sa import get_sac__intersection__robust_character_config
+from gallery_sa import get_sac__merge__robust_character_config
+from gallery_sa import get_sac__roundabout__robust_character_config
+
+
+
+
+def evaluate_ray_isac_robust_character_copo__bottleneck(config, mode='evaluate', scale=5):
+    from universe import EnvInteractiveMultiAgent as Env
+
+    ### env param
+    from utils.agents_master_copo import NeuralVehicleTuneSVO as neural_vehicle_cls
+    from utils.agents_master_copo import AgentListMasterTuneSVO as agents_master_cls
+    from utils.reward import RewardFunctionGlobalCoordination as reward_func
+
+    from config.bottleneck_evaluate import config_env__with_character
+    config_env__with_character.set('neural_vehicle_cls', neural_vehicle_cls)
+    config_env__with_character.set('agents_master_cls', agents_master_cls)
+    config_env__with_character.set('reward_func', reward_func)
+    config_env__with_character.set('config_neural_policy', get_sac__bottleneck__robust_character_config(config))
+
+    config.set('envs', [config_env__with_character] *scale)
+
+    ### method param
+    from config.method import config_isac__no_character as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env)
+
+
+
+def evaluate_ray_isac_robust_character_copo__intersection(config, mode='evaluate', scale=5):
+    from universe import EnvInteractiveMultiAgent as Env
+
+    ### env param
+    from utils.agents_master_copo import NeuralVehicleTuneSVO as neural_vehicle_cls
+    from utils.agents_master_copo import AgentListMasterTuneSVO as agents_master_cls
+    from utils.reward import RewardFunctionGlobalCoordination as reward_func
+
+    from config.intersection_evaluate import config_env__with_character
+    config_env__with_character.set('neural_vehicle_cls', neural_vehicle_cls)
+    config_env__with_character.set('agents_master_cls', agents_master_cls)
+    config_env__with_character.set('reward_func', reward_func)
+    config_env__with_character.set('config_neural_policy', get_sac__intersection__robust_character_config(config))
+    config_env__with_character.set('scenario_name', 'intersection_v2')
+
+    config.set('envs', [config_env__with_character] *scale)
+
+    ### method param
+    from config.method import config_isac__no_character as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env)
+
+
+
+def evaluate_ray_isac_robust_character_copo__merge(config, mode='evaluate', scale=5):
+    from universe import EnvInteractiveMultiAgent as Env
+
+    ### env param
+    from utils.agents_master_copo import NeuralVehicleTuneSVO as neural_vehicle_cls
+    from utils.agents_master_copo import AgentListMasterTuneSVO as agents_master_cls
+    from utils.reward import RewardFunctionGlobalCoordination as reward_func
+
+    from config.merge_evaluate import config_env__with_character
+    config_env__with_character.set('neural_vehicle_cls', neural_vehicle_cls)
+    config_env__with_character.set('agents_master_cls', agents_master_cls)
+    config_env__with_character.set('reward_func', reward_func)
+    config_env__with_character.set('config_neural_policy', get_sac__merge__robust_character_config(config))
+
+    config.set('envs', [config_env__with_character] *scale)
+
+    ### method param
+    from config.method import config_isac__no_character as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env)
+
+
+
+def evaluate_ray_isac_robust_character_copo__roundabout(config, mode='evaluate', scale=5):
+    from universe import EnvInteractiveMultiAgent as Env
+
+    ### env param
+    from utils.agents_master_copo import NeuralVehicleTuneSVO as neural_vehicle_cls
+    from utils.agents_master_copo import AgentListMasterTuneSVO as agents_master_cls
+    from utils.reward import RewardFunctionGlobalCoordination as reward_func
+
+    from config.roundabout_evaluate import config_env__with_character
+    config_env__with_character.set('neural_vehicle_cls', neural_vehicle_cls)
+    config_env__with_character.set('agents_master_cls', agents_master_cls)
+    config_env__with_character.set('reward_func', reward_func)
+    config_env__with_character.set('config_neural_policy', get_sac__roundabout__robust_character_config(config))
+
+    config.set('envs', [config_env__with_character] *scale)
+
+    ### method param
+    from config.method import config_isac__no_character as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env)
+
+
+
+
+
+
+
+
+
+################################################################################################
+##### evaluate, training setting no ############################################################
+################################################################################################
+
+
+
+def evaluate_ray_isac_no_character__bottleneck(config, mode='evaluate', scale=5):
+    from universe import EnvInteractiveMultiAgent as Env
+
+    ### env param
+    from config.bottleneck_evaluate import config_env__with_character
+    config.set('envs', [config_env__with_character] *scale)
+
+    ### method param
+    from config.method import config_isac__no_character as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env)
+
+
+
+def evaluate_ray_isac_no_character__intersection(config, mode='evaluate', scale=5):
+    from universe import EnvInteractiveMultiAgent as Env
+
+    ### env param
+    from config.intersection_evaluate import config_env__with_character
+    config_env__with_character.set('scenario_name', 'intersection_v2')
+    config.set('envs', [config_env__with_character] *scale)
+
+    ### method param
+    from config.method import config_isac__no_character as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env)
+
+
+
+def evaluate_ray_isac_no_character__merge(config, mode='evaluate', scale=5):
+    from universe import EnvInteractiveMultiAgent as Env
+
+    ### env param
+    from config.merge_evaluate import config_env__with_character
+    config.set('envs', [config_env__with_character] *scale)
+
+    ### method param
+    from config.method import config_isac__no_character as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env)
+
+
+
+def evaluate_ray_isac_no_character__roundabout(config, mode='evaluate', scale=5):
+    from universe import EnvInteractiveMultiAgent as Env
+
+    ### env param
+    from config.roundabout_evaluate import config_env__with_character
+    config.set('envs', [config_env__with_character] *scale)
+
+    ### method param
+    from config.method import config_isac__no_character as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env)
+
+
+
+
+
+
+
+
+################################################################################################
+##### evaluate, training setting copo adv ######################################################
+################################################################################################
+
+
+
+
+def evaluate_ray_isac_robust_character_copo_adv__bottleneck(config, mode='evaluate', scale=5):
+    from universe import EnvInteractiveMultiAgent as Env
+
+    ### env param
+    from utils.agents_master_copo import NeuralVehicleTuneSVO as neural_vehicle_cls
+    from utils.agents_master_copo import AgentListMasterTuneSVOAdv as agents_master_cls
+    from utils.reward import RewardFunctionGlobalCoordination as reward_func
+
+    from config.bottleneck_evaluate import config_env__with_character
+    config_env__with_character.set('neural_vehicle_cls', neural_vehicle_cls)
+    config_env__with_character.set('agents_master_cls', agents_master_cls)
+    config_env__with_character.set('reward_func', reward_func)
+    config_env__with_character.set('config_neural_policy', get_sac__bottleneck__robust_character_config(config))
+
+    config.set('envs', [config_env__with_character] *scale)
+
+    ### method param
+    from config.method import config_isac__no_character as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env)
+
+
+
+def evaluate_ray_isac_robust_character_copo_adv__intersection(config, mode='evaluate', scale=5):
+    from universe import EnvInteractiveMultiAgent as Env
+
+    ### env param
+    from utils.agents_master_copo import NeuralVehicleTuneSVO as neural_vehicle_cls
+    from utils.agents_master_copo import AgentListMasterTuneSVOAdv as agents_master_cls
+    from utils.reward import RewardFunctionGlobalCoordination as reward_func
+
+    from config.intersection_evaluate import config_env__with_character
+    config_env__with_character.set('neural_vehicle_cls', neural_vehicle_cls)
+    config_env__with_character.set('agents_master_cls', agents_master_cls)
+    config_env__with_character.set('reward_func', reward_func)
+    config_env__with_character.set('config_neural_policy', get_sac__intersection__robust_character_config(config))
+    config_env__with_character.set('scenario_name', 'intersection_v2')
+
+    config.set('envs', [config_env__with_character] *scale)
+
+    ### method param
+    from config.method import config_isac__no_character as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env)
+
+
+
+def evaluate_ray_isac_robust_character_copo_adv__merge(config, mode='evaluate', scale=5):
+    from universe import EnvInteractiveMultiAgent as Env
+
+    ### env param
+    from utils.agents_master_copo import NeuralVehicleTuneSVO as neural_vehicle_cls
+    from utils.agents_master_copo import AgentListMasterTuneSVOAdv as agents_master_cls
+    from utils.reward import RewardFunctionGlobalCoordination as reward_func
+
+    from config.merge_evaluate import config_env__with_character
+    config_env__with_character.set('neural_vehicle_cls', neural_vehicle_cls)
+    config_env__with_character.set('agents_master_cls', agents_master_cls)
+    config_env__with_character.set('reward_func', reward_func)
+    config_env__with_character.set('config_neural_policy', get_sac__merge__robust_character_config(config))
+
+    config.set('envs', [config_env__with_character] *scale)
+
+    ### method param
+    from config.method import config_isac__no_character as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env)
+
+
+
+def evaluate_ray_isac_robust_character_copo_adv__roundabout(config, mode='evaluate', scale=5):
+    from universe import EnvInteractiveMultiAgent as Env
+
+    ### env param
+    from utils.agents_master_copo import NeuralVehicleTuneSVO as neural_vehicle_cls
+    from utils.agents_master_copo import AgentListMasterTuneSVOAdv as agents_master_cls
+    from utils.reward import RewardFunctionGlobalCoordination as reward_func
+
+    from config.roundabout_evaluate import config_env__with_character
+    config_env__with_character.set('neural_vehicle_cls', neural_vehicle_cls)
+    config_env__with_character.set('agents_master_cls', agents_master_cls)
+    config_env__with_character.set('reward_func', reward_func)
+    config_env__with_character.set('config_neural_policy', get_sac__roundabout__robust_character_config(config))
+
+    config.set('envs', [config_env__with_character] *scale)
+
+    ### method param
+    from config.method import config_isac__no_character as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+################################################################################################
+##### evaluate, idm ############################################################################
+################################################################################################
+
+
+
+
+def evaluate_ray_isac_idm__bottleneck(config, mode='evaluate', scale=5):
+    from universe import EnvInteractiveMultiAgent as Env
+
+    ### env param
+    from config.bottleneck_evaluate import config_env__with_character
+    config.set('envs', [config_env__with_character] *scale)
+
+    ### method param
+    from config.method import config_isac__no_character as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env)
+
+
+
+def evaluate_ray_isac_idm__intersection(config, mode='evaluate', scale=5):
+    from universe import EnvInteractiveMultiAgent as Env
+
+    ### env param
+    from config.intersection_evaluate import config_env__with_character
+    config_env__with_character.set('scenario_name', 'intersection_v2')
+    config.set('envs', [config_env__with_character] *scale)
+
+    ### method param
+    from config.method import config_isac__no_character as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env)
+
+
+
+def evaluate_ray_isac_idm__merge(config, mode='evaluate', scale=5):
+    from universe import EnvInteractiveMultiAgent as Env
+
+    ### env param
+    from config.merge_evaluate import config_env__with_character
+    config.set('envs', [config_env__with_character] *scale)
+
+    ### method param
+    from config.method import config_isac__no_character as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env)
+
+
+
+def evaluate_ray_isac_idm__roundabout(config, mode='evaluate', scale=5):
+    from universe import EnvInteractiveMultiAgent as Env
+
+    ### env param
+    from config.roundabout_evaluate import config_env__with_character
+    config.set('envs', [config_env__with_character] *scale)
+
+    ### method param
+    from config.method import config_isac__no_character as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+################################################################################################
+##### evaluate, assign character, adaptive #####################################################
+################################################################################################
+
+
+
+def evaluate_ray_isac_adaptive_character_assign__bottleneck(config, mode='evaluate', scale=5):
+    from universe import EnvInteractiveMultiAgent as Env
+
+    ### env param
+    from config.bottleneck_evaluate import config_env__with_character_assign
+    config.set('envs', [config_env__with_character_assign] *scale)
+
+    ### method param
+    from config.method import config_isac__adaptive_character as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env)
+
+
+def evaluate_ray_isac_adaptive_character_assign__intersection(config, mode='evaluate', scale=5):
+    from universe import EnvInteractiveMultiAgent as Env
+
+    ### env param
+    from config.intersection_evaluate import config_env__with_character_assign
+    config_env__with_character_assign.set('scenario_name', 'intersection_v2')
+    config.set('envs', [config_env__with_character_assign] *scale)
+
+    ### method param
+    from config.method import config_isac__adaptive_character as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env)
+
+
+def evaluate_ray_isac_adaptive_character_assign__merge(config, mode='evaluate', scale=5):
+    from universe import EnvInteractiveMultiAgent as Env
+
+    ### env param
+    from config.merge_evaluate import config_env__with_character_assign
+    config.set('envs', [config_env__with_character_assign] *scale)
+
+    ### method param
+    from config.method import config_isac__adaptive_character as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env)
+
+
+def evaluate_ray_isac_adaptive_character_assign__roundabout(config, mode='evaluate', scale=5):
+    from universe import EnvInteractiveMultiAgent as Env
+
+    ### env param
+    from config.roundabout_evaluate import config_env__with_character_assign
+    config.set('envs', [config_env__with_character_assign] *scale)
+
+    ### method param
+    from config.method import config_isac__adaptive_character as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env)
+
+
+
+
+################################################################################################
+##### evaluate, assign character, robust #######################################################
+################################################################################################
+
+
+
+def evaluate_ray_isac_robust_character_assign__bottleneck(config, mode='evaluate', scale=5):
+    from universe import EnvInteractiveMultiAgent as Env
+
+    ### env param
+    from config.bottleneck_evaluate import config_env__with_character_assign
+    config.set('envs', [config_env__with_character_assign] *scale)
+
+    ### method param
+    from config.method import config_isac__robust_character as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env)
+
+
+def evaluate_ray_isac_robust_character_assign__intersection(config, mode='evaluate', scale=5):
+    from universe import EnvInteractiveMultiAgent as Env
+
+    ### env param
+    from config.intersection_evaluate import config_env__with_character_assign
+    config_env__with_character_assign.set('scenario_name', 'intersection_v2')
+    config.set('envs', [config_env__with_character_assign] *scale)
+
+    ### method param
+    from config.method import config_isac__robust_character as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env)
+
+
+def evaluate_ray_isac_robust_character_assign__merge(config, mode='evaluate', scale=5):
+    from universe import EnvInteractiveMultiAgent as Env
+
+    ### env param
+    from config.merge_evaluate import config_env__with_character_assign
+    config.set('envs', [config_env__with_character_assign] *scale)
+
+    ### method param
+    from config.method import config_isac__robust_character as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env)
+
+
+def evaluate_ray_isac_robust_character_assign__roundabout(config, mode='evaluate', scale=5):
+    from universe import EnvInteractiveMultiAgent as Env
+
+    ### env param
+    from config.roundabout_evaluate import config_env__with_character_assign
+    config.set('envs', [config_env__with_character_assign] *scale)
+
+    ### method param
+    from config.method import config_isac__robust_character as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env)
+
+
+
+
+
+
+################################################################################################
+##### evaluate, diversity ######################################################################
+################################################################################################
+
+
+
+def evaluate_ray_isac_adaptive_character_diversity__bottleneck(config, mode='evaluate', scale=5):
+    from universe import EnvInteractiveMultiAgent as Env
+    from core.method_evaluate import EvaluateIndependentSACMean as Method
+    # from core.method_evaluate import EvaluateIndependentSAC as Method
+
+    config.set('num_episodes', 11)
+    ### env param
+    from config.bottleneck_evaluate import config_env__with_character
+
+    from utils.scenarios_bottleneck import ScenarioBottleneckEvaluate_fix_others as scenario_cls
+    config_env__with_character.set('scenario_cls', scenario_cls)
+
+    config_env__with_character.set('num_vehicles_range', rllib.basic.BaseData(min=20, max=20))
+    config_env__with_character.set('recorder_cls', universe.Recorder)
+    config_env__with_character.set('randomization_index', 15)
+    config.description += f'--data-{config_env__with_character.randomization_index}'
+    config.set('envs', [config_env__with_character] *scale)
+
+    ### method param
+    from config.method import config_isac__adaptive_character as config_method
+    config.set('methods', [config_method])
+
+    ### ! todo: set method
+    env_master = init(config, mode, Env)
+    for config_method in env_master.config_methods:
+        config_method.set('method_cls', Method)
+    return env_master
+
+
+
+
+
+
+
+
+
+
+################################################################################################
+##### evaluate, social behaviour ###############################################################
+################################################################################################
+
+
+def evaluate_ray_isac_adaptive_character__social_behavior__bottleneck(config, mode='evaluate', scale=5):
+    from core.env_eval import EnvInteractiveMultiAgent_v1 as Env
+
+    ### env param
+    from config.bottleneck_evaluate import config_env__with_character
+    config_env__with_character.set('num_steps', 200)
+    config_env__with_character.set('num_vehicles_range', rllib.basic.BaseData(min=10, max=10))
+    config_env__with_character.set('recorder_cls', universe.Recorder)
+    config_env__with_character.set('spawn_interval', 2)
+    config.set('envs', [config_env__with_character] *scale)
+
+    ### method param
+    from config.method import config_isac__adaptive_character as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env)
+
+
+def evaluate_ray_isac_adaptive_character__social_behavior__intersection(config, mode='evaluate', scale=5):
+    from core.env_eval import EnvInteractiveMultiAgent_v1 as Env
+
+    ### env param
+    from config.intersection_evaluate import config_env__with_character
+    config_env__with_character.set('num_steps', 200)
+    config_env__with_character.set('num_vehicles_range', rllib.basic.BaseData(min=10, max=10))
+    config_env__with_character.set('recorder_cls', universe.Recorder)
+    config_env__with_character.set('spawn_interval', 1)
+    config.set('envs', [config_env__with_character] *scale)
+
+    ### method param
+    from config.method import config_isac__adaptive_character as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env)
+
+
+def evaluate_ray_isac_adaptive_character__social_behavior__merge(config, mode='evaluate', scale=5):
+    from core.env_eval import EnvInteractiveMultiAgent_v1 as Env
+
+    ### env param
+    from config.merge_evaluate import config_env__with_character
+    config_env__with_character.set('num_steps', 200)
+    config_env__with_character.set('num_vehicles_range', rllib.basic.BaseData(min=10, max=10))
+    config_env__with_character.set('recorder_cls', universe.Recorder)
+    config_env__with_character.set('spawn_interval', 2)
+    config.set('envs', [config_env__with_character] *scale)
+
+    ### method param
+    from config.method import config_isac__adaptive_character as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env)
+
+
+def evaluate_ray_isac_adaptive_character__social_behavior__roundabout(config, mode='evaluate', scale=5):
+    from core.env_eval import EnvInteractiveMultiAgent_v1 as Env
+
+    ### env param
+    from config.roundabout_evaluate import config_env__with_character
+    config_env__with_character.set('num_steps', 200)
+    config_env__with_character.set('num_vehicles_range', rllib.basic.BaseData(min=10, max=10))
+    config_env__with_character.set('recorder_cls', universe.Recorder)
+    config_env__with_character.set('spawn_interval', 1)
+    config.set('envs', [config_env__with_character] *scale)
+
+    ### method param
+    from config.method import config_isac__adaptive_character as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
