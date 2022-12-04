@@ -8,7 +8,7 @@ from universe.common.vehicle import Vehicle
 from universe.common.vehicle_neural import EndToEndVehicle
 from universe.common.vehicle_rule import IdmVehicle, RuleVehicle
 from universe.common.topology_map import TopologyMap
-
+from universe.perception import Perception
 
 
 class EndToEndVehicleWithCharacter(EndToEndVehicle):
@@ -83,11 +83,12 @@ class EndToEndVehicleWithCharacterBackground(RuleVehicle):
 
 
 class AgentListMaster(universe.AgentsMaster):
-    # xue in 2022/12/2
+    # change in 2022/12/2
     def __init__(self, config: rllib.basic.YamlConfig, topology_map: TopologyMap, **kwargs):
         super().__init__(config, topology_map, **kwargs)
-        self.horizon = 30
-        
+        self.horizon = 10
+        perception_cls = config.get('perception_cls', Perception)
+        self.perception = perception_cls(config, topology_map, self.dim_vehicle_state, self.horizon)
     class GetVehicleState(object):
         dim_state = 5
         def run_step(self, vehicle: Vehicle):

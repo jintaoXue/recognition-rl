@@ -576,7 +576,7 @@ if __name__ == '__main__':
     #     for other_svo in range(0, 11):
     #         main(ego_svo, other_svo)
     eval_end_num = 3300000
-    for num in range(1, 10):
+    for num in range(0, 10):
         model_num = eval_end_num - num*50000
         _main(model_num)
     # main()
