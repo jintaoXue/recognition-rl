@@ -591,7 +591,9 @@ def cut_state(state: rllib.basic.Data) :
 def sample_state(state: rllib.basic.Data) :
     state_ = copy.deepcopy(state)
     #hrz30 -> 10
-    interval = 3
+    horizon = 10
+    raw_horizon = 30
+    interval = int(raw_horizon / horizon)
     state_.ego = torch.cat((state_.ego[:,interval-1:-1:interval,:], state_.ego[:,-1:,:]), 1)  
     state_.ego_mask = torch.cat((state_.ego_mask[:,interval-1:-1:interval], state_.ego_mask[:,-1:]), 1) 
 

@@ -518,7 +518,7 @@ def main():
 
 
 # def _main(ego_svo, other_svo) :
-def _main(model_num) :
+def _main() :
     config = rllib.basic.YamlConfig()
     from config.args import generate_args
     args = generate_args()
@@ -550,6 +550,28 @@ def _main(model_num) :
         config.description += '--supervise__four_background__bottleneck-hr10act10'
         models_sa.supervise__bottleneck__adaptive__given_number().update(config, model_num)
         env_master = gallery.evaluate__supervise__four_background__bottleneck(config, mode)
+    
+    if version == 'v6-5-2':
+        if mode != 'evaluate':
+            raise NotImplementedError
+        # debug = Debug()
+        eval_end_num = 2250000
+        interval = 10000
+        for num in range(0, 20):
+            model_num = eval_end_num - num*interval
+            config.description = '--supervise-sampling__four_background__bottleneck-hr10act10'
+            models_sa.supervise_smapling__bottleneck__adaptive__given_number().update(config, model_num)
+            env_master = gallery.evaluate__supervise__four_background__bottleneck(config, mode)
+            try:
+                env_master.create_tasks(func=run_one_episode)
+                ray.get([t.run.remote(n_iters=200) for t in env_master.tasks])
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
+        # debug = Debug()
+    ray.shutdown()
+
+        
 
     # if version == 'v7-2':
     #     if mode != 'evaluate':
@@ -558,26 +580,15 @@ def _main(model_num) :
     #     config.description = 'evaluate' + '--fix_{}_{}__two_background__bottleneck'.format(0.1*ego_svo, 0.1*other_svo)
     #     models_sa.isac__bottleneck__adaptive().update(config)
     #     env_master = gallery.evaluate__fix_svo__two_background__bottleneck(config, 0.1*ego_svo, 0.1*other_svo,mode)
-
-    try:
-        # debug = Debug()
-        env_master.create_tasks(func=run_one_episode)
-
-        ray.get([t.run.remote(n_iters=200) for t in env_master.tasks])
-
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-    finally:
-        ray.shutdown()
+    
 
 if __name__ == '__main__':
     # for ego_svo in range(0, 11):
     #     for other_svo in range(0, 11):
     #         main(ego_svo, other_svo)
-    eval_end_num = 2990000
-    for num in range(0, 20):
-        model_num = eval_end_num - num*20000
-        _main(model_num)
+    # eval_end_num = 2990000
+    # for num in range(0, 20):
+    #     model_num = eval_end_num - num*20000
+    _main()
     # main()
     
