@@ -773,12 +773,30 @@ def ray_supervise__adaptive_background__bottleneck(config, mode='train', scale=1
 
     return init(config, mode, Env, Method)
 
-def ray_supervise_sample__adaptive_background__bottleneck(config, mode='train', scale=1):
+def ray_supervise_sample_trj__adaptive_background__bottleneck(config, mode='train', scale=1):
     from universe import EnvInteractiveSingleAgent as Env
     #todo
     from core.method_supervise import IndependentSACsupervise as Method
     ### env param
     from config.bottleneck import config_env__neural_background as config_bottleneck
+    config_bottleneck.set('config_neural_policy', get_sac__bottleneck__adaptive_character_config(config))
+
+    config.set('envs', [
+        config_bottleneck
+    ] *scale)
+
+    ### method param
+    from config.method import config_supervise_sample as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env, Method)
+
+def ray_supervise_sample__adaptive_background__bottleneck(config, mode='train', scale=1):
+    from universe import EnvInteractiveSingleAgent as Env
+    #todo
+    from core.method_supervise import IndependentSACsupervise as Method
+    ### env param
+    from config.bottleneck import config_env__neural_background_sampling as config_bottleneck
     config_bottleneck.set('config_neural_policy', get_sac__bottleneck__adaptive_character_config(config))
 
     config.set('envs', [
