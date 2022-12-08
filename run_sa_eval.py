@@ -589,6 +589,7 @@ if __name__ == '__main__':
     # eval_end_num = 2990000
     # for num in range(0, 20):
     #     model_num = eval_end_num - num*20000
-    _main()
+    main()
+    # _main()
     # main()
     

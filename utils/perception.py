@@ -1,4 +1,10 @@
+import imp
+from operator import index
+from random import sample
+from turtle import color
+from cv2 import sampsonDistance
 import rllib
+from torch import float32
 import universe
 
 import numpy as np
@@ -8,8 +14,8 @@ from typing import List
 
 
 from universe.common.topology_map import transform_poses, transform_points
-
-
+from universe.common.geo import Transform
+from universe.common.global_path import calc_curvature_with_yaw_diff
 
 
 
@@ -191,6 +197,37 @@ class PerceptionPointNet(object):
 
 
 
+class PerceptionPointNetAdaptiveResolution(PerceptionPointNet):
+
+    def __init__(self, config, topology_map: universe.common.TopologyMap, dim_vehicle_state, horizon):
+
+        self.config = config
+        self.decision_frequency = config.decision_frequency
+        self.perception_range = config.perception_range
+        self.horizon = horizon
+        self.sampling_resolution = 4.0
+        self.sampling_curvature_up_bound = 0.1
+        
+        # self.num_vehicles = num_vehicles
+        self.num_agents_max = self.config.num_vehicles_range.max  ### ! warning
+
+
+        self.historical_timestamps = -np.array([range(self.horizon)], dtype=np.float32).T[::-1] /self.decision_frequency
+
+        self.perp_route = PerceptionVectorizedRoute(config, sampling_resolution=self.sampling_resolution)
+        self.perp_map = MapAdaptiveResolution(config, topology_map, self.sampling_resolution, self.sampling_curvature_up_bound)
+
+
+        # self.dim_state = rllib.basic.BaseData(agent=dim_vehicle_state, static=self.perp_map.dim_state)
+
+
+        '''viz'''
+        self.default_colors = rllib.basic.Data(
+            ego='r', obs='g', route='b',
+            lane='#D3D3D3',  ### lightgray
+            bound='#800080', ### purple
+        )
+        return 
 
 
 class PerceptionVectorizedRoute(object):
@@ -233,9 +270,6 @@ class PerceptionVectorizedRoute(object):
         return rllib.basic.Data(route=route, route_mask=route_mask)
 
 
-
-
-
 class PerceptionVectorizedMap(object):
     invalid_value = np.inf
     dim_state = 4
@@ -244,6 +278,16 @@ class PerceptionVectorizedMap(object):
         self.config = config
         self.topology_map = topology_map
         self.perception_range = config.perception_range
+
+        # self.max_curvature = 0.1
+        # self.max_resolution = 4.0
+        # centerline, _= sample_array(self.topology_map.centerline, self.topology_map.centerline_mask,self.max_curvature,self.max_resolution)
+        # sideline, _ = sample_array(self.topology_map.sideline, self.topology_map.sideline_mask,self.max_curvature,self.max_resolution)
+        # #debug
+        # print("centerline shape before sampling: {}, after sampling: {}\n".format(self.topology_map.centerline.shape, centerline.shape))
+        # print("sideline shape before sampling: {}, after sampling: {}\n".format(self.topology_map.sideline.shape, sideline.shape))
+        # self.topology_map = universe.common.TopologyMap(centerline,sideline)
+        
         return
 
 
@@ -356,3 +400,68 @@ class PerceptionVectorizedMap(object):
         return cross_point_check_res
 
 
+class MapAdaptiveResolution(PerceptionVectorizedMap):
+    def __init__(self, config, topology_map: universe.common.TopologyMap, sampling_resolution, sampling_curvature_up_bound):
+        self.config = config
+        self.topology_map = topology_map
+        self.perception_range = config.perception_range
+
+        self.max_curvature = sampling_curvature_up_bound
+        self.max_resolution = sampling_resolution
+        centerline, _= sample_array(self.topology_map.centerline, self.topology_map.centerline_mask,self.max_curvature,self.max_resolution)
+        sideline, _ = sample_array(self.topology_map.sideline, self.topology_map.sideline_mask,self.max_curvature,self.max_resolution)
+        #debug
+        print("centerline shape before sampling: {}, after sampling: {}\n".format(self.topology_map.centerline.shape, centerline.shape))
+        print("sideline shape before sampling: {}, after sampling: {}\n".format(self.topology_map.sideline.shape, sideline.shape))
+        self.topology_map = universe.common.TopologyMap(centerline,sideline)
+
+
+
+def sample_array(array : np.ndarray, mask : np.ndarray, max_curvature, max_resolution):
+    def sample_line(line : np.ndarray, mask : np.ndarray):
+            length = mask.sum()
+            x, y = line[:length,0], line[:length,1]
+            dx, dy = np.diff(x), np.diff(y)
+            theta = np.arctan2(dy, dx)
+            theta = np.append(theta, theta[-1])
+            curvatures, distances = calc_curvature_with_yaw_diff(x, y, theta)
+            curvatures = np.absolute(curvatures)
+            sampled_line = line[:1]
+            start_index = 0
+            end_index = 1
+            assert length >= 3 , "the line length is too short"
+            while end_index < length:
+                d_curvature = curvatures[start_index:end_index].sum()
+                d_distances = distances[start_index:end_index].sum()
+
+                if d_curvature > max_curvature or d_distances> max_resolution:
+                    if (end_index - start_index) > 1: 
+                        sampled_line = np.concatenate([sampled_line, line[end_index-1:end_index]], axis = 0)
+                        start_index = end_index - 1
+                    else:
+                        sampled_line = np.concatenate([sampled_line, line[end_index:end_index+1]], axis = 0)
+                        start_index = end_index
+                        end_index += 1
+                else: end_index += 1      
+
+            sampled_line = np.concatenate([sampled_line, line[-1:]], axis = 0)
+
+            return sampled_line
+        
+        # _,_,_ = caculate_resolution_2(topology_map.centerline,topology_map.centerline_mask)
+    sampled_lines = []
+    for line, mask in zip(array, mask):
+        sampled_lines.append(sample_line(line,mask)) 
+
+    lens = [len(line) for line in sampled_lines]
+    max_len = max(lens)
+    arr = np.zeros((len(sampled_lines),max_len,3),np.float32)
+    mask = np.arange(max_len) < np.array(lens)[:,None]
+    mask = np.expand_dims(mask, axis=-1).repeat(3, axis=-1)
+    for index in np.arange(0, len(sampled_lines)):
+        pad_len = max_len - sampled_lines[index].shape[0]
+        pad_array = np.full((pad_len,3), np.inf)
+        sampled_lines[index] = np.concatenate([sampled_lines[index],pad_array],axis=0)
+
+    sampled_array = np.array(sampled_lines, dtype=np.float32)
+    return sampled_array, mask[...,0]
