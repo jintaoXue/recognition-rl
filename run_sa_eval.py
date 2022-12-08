@@ -560,7 +560,7 @@ def _main() :
         for num in range(0, 20):
             model_num = eval_end_num - num*interval
             config.description = '--supervise-sampling__four_background__bottleneck-hr10act10'
-            models_sa.supervise_smapling__bottleneck__adaptive__given_number().update(config, model_num)
+            models_sa.supervise_sampling__bottleneck__adaptive__given_number().update(config, model_num)
             env_master = gallery.evaluate__supervise__four_background__bottleneck(config, mode)
             try:
                 env_master.create_tasks(func=run_one_episode)
