@@ -202,7 +202,7 @@ class PerceptionVectorizedRoute(object):
         self.sampling_resolution = sampling_resolution
 
 
-    def run_step(self, vehicle: universe.common.Vehicle):
+    def run_step(self, vehicle: universe.common.Vehicle):        
         state0 = vehicle.get_state()
         global_path = vehicle.global_path
         global_path.step_coverage(vehicle.get_transform())
@@ -223,7 +223,13 @@ class PerceptionVectorizedRoute(object):
         ### normalize
         route[:,:2] /= self.perception_range
         route[:,2] /= np.pi
-
+        #debug viz
+        # for lane, num in zip(route, np.arange(0,route.shape[0])):
+        #     lane_x, lane_y = lane[:,0], lane[:,1]
+        route_x, route_y = route[:,0], route[:,1]
+        plt.plot(route_x, route_x, '-', color='#000000')
+        plt.show()
+        breakpoint()
         return rllib.basic.Data(route=route, route_mask=route_mask)
 
 
