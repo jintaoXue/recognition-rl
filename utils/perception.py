@@ -264,9 +264,6 @@ class PerceptionVectorizedRoute(object):
         # for lane, num in zip(route, np.arange(0,route.shape[0])):
         #     lane_x, lane_y = lane[:,0], lane[:,1]
         route_x, route_y = route[:,0], route[:,1]
-        plt.plot(route_x, route_x, '-', color='#000000')
-        plt.show()
-        breakpoint()
         return rllib.basic.Data(route=route, route_mask=route_mask)
 
 
