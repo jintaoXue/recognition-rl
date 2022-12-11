@@ -800,8 +800,8 @@ def ray_supervise_sample__adaptive_background__bottleneck(config, mode='train', 
     from utils.topology_map import TopologyMapSampled
     
     config_bottleneck.set('config_neural_policy', get_sac__bottleneck__adaptive_character_config(config))
+    config_bottleneck.set('topology_map', TopologyMapSampled)
 
-    config.set('topology_map', TopologyMapSampled)
     config.set('envs', [
         config_bottleneck
     ] *scale)

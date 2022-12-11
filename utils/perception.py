@@ -37,7 +37,10 @@ class PerceptionPointNet(object):
 
 
         self.historical_timestamps = -np.array([range(self.horizon)], dtype=np.float32).T[::-1] /self.decision_frequency
-        sampling_resolution = 2.0
+        # sampling_resolution = 4.0
+        '''route resolution before sampling: 2.059351921081543, after sampling: 2.0951883792877197'''
+        sampling_resolution = 4.2
+        '''route resolution before sampling: 2.059351921081543, after sampling: 4.252692222595215'''
 
         self.perp_route = PerceptionVectorizedRoute(config, sampling_resolution=sampling_resolution)
         self.perp_map = PerceptionVectorizedMap(config, topology_map)
@@ -256,6 +259,10 @@ class PerceptionVectorizedRoute(object):
         ], axis=0)
         route_mask = np.where(route < np.inf, 1,0).all(axis=-1)
         route = transform_poses(route, state0)
+        #debug
+        # route_ = np.expand_dims(route, axis=0)
+        # print("route resolution before sampling: {}, after sampling: {}\n".format(\
+        #     global_path.sampling_resolution, caculate_resolution(route_, np.where(route_ < np.inf, True, False).all(axis=-1))))
 
         ### normalize
         route[:,:2] /= self.perception_range
@@ -264,6 +271,7 @@ class PerceptionVectorizedRoute(object):
         # for lane, num in zip(route, np.arange(0,route.shape[0])):
         #     lane_x, lane_y = lane[:,0], lane[:,1]
         route_x, route_y = route[:,0], route[:,1]
+
         return rllib.basic.Data(route=route, route_mask=route_mask)
 
 
@@ -310,12 +318,12 @@ class PerceptionVectorizedMap(object):
     def check_in_bound(self, agent: universe.common.EndToEndVehicle, bound):
         #检测严格程度[0.1, 1]
         scale = 0.6
-        #设定碰撞检测范围就是10m
+        #设定碰撞检测范围就是30m
         range = 30.0
         state0 = agent.get_state()
         bounds = bound[..., :2]
 
-        #取距离小于10m的bound
+        #取距离小于30m的bound
         dist = np.sqrt(bounds[...,0]**2 + bounds[...,1]**2)
 
         ### ! warning
@@ -460,3 +468,21 @@ def sample_array(array : np.ndarray, mask : np.ndarray, max_curvature, max_resol
 
     sampled_array = np.array(sampled_lines, dtype=np.float32)
     return sampled_array, mask[...,0]
+
+def caculate_resolution(array : np.ndarray, mask : np.ndarray):
+    '''array : shape is (num_lines, num_points, num_features), left align'''
+    def one_line_resolution(line : np.ndarray, mask : np.ndarray):
+            length = mask.sum()
+            x, y = line[:length,0], line[:length,1]
+            dx, dy = np.diff(x), np.diff(y)
+            theta = np.arctan2(dy, dx)
+            theta = np.append(theta, theta[-1])
+            _, distances = calc_curvature_with_yaw_diff(x, y, theta)
+            return distances
+        
+    distances = np.empty((0,), dtype=np.float32)
+    for line, mask_ in zip(array, mask):
+        distances = np.concatenate([distances, one_line_resolution(line,mask_)], axis=0)  
+    distance = np.average(distances)
+
+    return distance
