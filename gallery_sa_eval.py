@@ -661,7 +661,7 @@ def evaluate__fix_svo__four_background__bottleneck(config, mode='train', scale=1
         return init(config, mode, Env, Method)
 
 def evaluate__fix_svo__two_background__bottleneck(config, ego_svo, other_svo, mode='train',scale=1):
-        from universe import EnvInteractiveSingleAgent_fix_svo as Env
+        from universe import EnvInteractiveSingleAgentFixSvo as Env
 
         from core.method_isac_v0 import IndependentSAC_v0 as Method
 

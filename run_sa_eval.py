@@ -568,10 +568,6 @@ def _main() :
             except Exception as e:
                 import traceback
                 traceback.print_exc()
-        # debug = Debug()
-    ray.shutdown()
-
-
 
     # if version == 'v7-2':
     #     if mode != 'evaluate':
