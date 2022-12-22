@@ -70,6 +70,12 @@ config_sac_attn = rllib.basic.YamlConfig(
 )
 
 
+config_sac__adaptive_character = rllib.basic.YamlConfig(
+    net_actor_fe=PointNetWithCharactersAgentHistory,
+    net_critic_fe=PointNetWithCharactersAgentHistory,
+    buffer=ReplayBufferSingleAgent,
+    **config_meta.to_dict(),
+)
 
 ########################################################################
 #### PPO ###############################################################

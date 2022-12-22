@@ -12,7 +12,6 @@ class ReplayBufferMultiWorker(object):
         self.buffers = {i: ReplayBuffer(config, capacity //num_workers, batch_size, device) for i in range(num_workers)}
         return
 
-
     def __len__(self):
         lengths = [len(b) for b in self.buffers.values()]
         return sum(lengths)

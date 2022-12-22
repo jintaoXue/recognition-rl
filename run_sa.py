@@ -176,6 +176,16 @@ def main():
         config.description += '--supervise-sampling-hrz10-act10'
         writer, env_master, method = gallery.ray_supervise_sample__adaptive_background__bottleneck(config, mode, scale)
 
+    elif version == 'v6-5-4':
+        scale = 1
+        config.description += '--supervise-sampling-hrz1-act10'
+        writer, env_master, method = gallery.ray_supervise__new_adaptive_background__bottleneck(config, mode, scale)
+
+    elif version == 'v6-5-5':
+        scale = 1
+        config.description += '--supervise-offline-hrz1-act10'
+        writer, env_master, method = gallery.ray_supervise_offline__new_adaptive_background__bottleneck(config, mode, scale)
+
     elif version == 'v6-6':
         scale = 10
         config.description += '--supervise-roll-hrz10-act10'
@@ -202,16 +212,6 @@ def main():
     elif version == 'v10':
         scale = 1
         writer, env_master, method = gallery.ray_sac__roundabout__adaptive_background(config, mode, scale)
-
-
-
-
-
-
-
-
-
-
 
 
     else:

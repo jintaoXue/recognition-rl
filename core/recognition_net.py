@@ -574,8 +574,8 @@ def pad_data(data: torch.Tensor, pad_size: torch.Size, pad_value=np.inf):
 
 def cut_state(state: rllib.basic.Data) :
     state_ = copy.deepcopy(state)
-    horizon = 10
-    raw_horizon = 30
+    horizon = 1
+    raw_horizon = 10
     state_.ego = state_.ego[:,-horizon:,:]
     #change horizon stamp from raw_horizon to custom horizon
     state_.ego[...,-1] = state_.ego[...,-1]*raw_horizon/horizon
@@ -592,7 +592,7 @@ def sample_state(state: rllib.basic.Data) :
     state_ = copy.deepcopy(state)
     #hrz30 -> 10
     horizon = 10
-    raw_horizon = 30
+    raw_horizon = 10
     interval = int(raw_horizon / horizon)
     state_.ego = torch.cat((state_.ego[:,interval-1:-1:interval,:], state_.ego[:,-1:,:]), 1)  
     state_.ego_mask = torch.cat((state_.ego_mask[:,interval-1:-1:interval], state_.ego_mask[:,-1:]), 1) 

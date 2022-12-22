@@ -23,10 +23,10 @@ class IndependentSAC_v0(rllib.template.MethodSingleAgent):
 
     tau = 0.005
 
-    buffer_size = 10000
+    buffer_size = 300000
     batch_size = 128
 
-    start_timesteps = 10
+    start_timesteps = 0
     # start_timesteps = 1000  ## ! warning
     before_training_steps = 0
 
@@ -55,6 +55,7 @@ class IndependentSAC_v0(rllib.template.MethodSingleAgent):
         self.buffer: rllib.buffer.ReplayBuffer = config.get('buffer', rllib.buffer.ReplayBuffer)(config, self.buffer_size, self.batch_size, self.device)
 
     def update_parameters(self):
+
         if len(self.buffer) < self.start_timesteps + self.before_training_steps:
             return
         self.update_parameters_start()
@@ -122,9 +123,20 @@ class IndependentSAC_v0(rllib.template.MethodSingleAgent):
             action, _, _ = self.actor.sample(states.to(self.device))
             action = action.cpu()
         return action
-    
+
+    @torch.no_grad()
+    def select_action(self, state):
+        self.select_action_start()
+        if self.step_select < self.start_timesteps:
+            action = torch.Tensor(1,self.dim_action).uniform_(-1,1)
+        else:
+            action, _, _ = self.actor.sample(state.to(self.device))
+            action = action.cpu()
+        return action
+
     def _update_model(self):
         # print('[update_parameters] soft update')
         rllib.utils.soft_update(self.critic_target, self.critic, self.tau)
 
-
+    def _get_buffer_len(self):
+        return self.buffer.__len__()

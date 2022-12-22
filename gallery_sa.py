@@ -37,7 +37,29 @@ def init(config, mode, Env, Method) -> Tuple[rllib.basic.Writer, universe.EnvMas
 ##### model adaptive ###########################################################################
 ################################################################################################
 
+def get_sac__new_bottleneck__adaptive_character_config(config):
+    from core.method_isac_v0 import IndependentSAC_v0 as Method
+    from core.model_vectornet import ReplayBufferMultiAgentMultiWorker as ReplayBuffer
+    from core.model_vectornet import PointNetWithCharactersAgentHistory as FeatureExtractor
+    config_neural_policy = rllib.basic.YamlConfig(
+        evaluate=config.evaluate,
+        method_name=Method.__name__,
 
+        # model_dir='~/github/zdk/recognition-rl/results/IndependentSAC_v0-EnvInteractiveMultiAgent/2022-09-11-15:19:29----ray_isac_adaptive_character__multi_scenario--buffer-rate-0.2/saved_models_method',
+        # model_dir='~/github/zdk/recognition-rl/models/IndependentSAC_v0-EnvInteractiveMultiAgent/2022-09-11-15:19:29----ray_isac_adaptive_character__multi_scenario--buffer-rate-0.2/saved_models_method',
+        
+        model_dir = '~/github/zdk/recognition-rl/models/origin_no_history_bottleneck/',
+
+        # model_num=865800
+        model_num=445600,
+
+
+        device=torch.device('cuda:0' if torch.cuda.is_available() else 'cpu'),
+        net_actor_fe=FeatureExtractor,
+        net_critic_fe=FeatureExtractor,
+        buffer=ReplayBuffer,
+    )
+    return config_neural_policy
 
 
 def get_sac__bottleneck__adaptive_character_config(config):
@@ -50,6 +72,8 @@ def get_sac__bottleneck__adaptive_character_config(config):
 
         # model_dir='~/github/zdk/recognition-rl/results/IndependentSAC_v0-EnvInteractiveMultiAgent/2022-09-11-15:19:29----ray_isac_adaptive_character__multi_scenario--buffer-rate-0.2/saved_models_method',
         model_dir='~/github/zdk/recognition-rl/models/IndependentSAC_v0-EnvInteractiveMultiAgent/2022-09-11-15:19:29----ray_isac_adaptive_character__multi_scenario--buffer-rate-0.2/saved_models_method',
+        
+
         model_num=865800,
 
 
@@ -808,6 +832,27 @@ def ray_supervise_sample__adaptive_background__bottleneck(config, mode='train', 
 
     ### method param
     from config.method import config_supervise_sample as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env, Method)
+
+def ray_supervise__new_adaptive_background__bottleneck(config, mode='train', scale=1):
+    from universe import EnvInteractiveSingleAgent as Env
+    #todo
+    from core.method_supervise import IndependentSACsupervise as Method
+    ### env param
+    from config.bottleneck import config_env__neural_background_sampling as config_bottleneck
+    from utils.topology_map import TopologyMapSampled
+    
+    config_bottleneck.set('config_neural_policy', get_sac__new_bottleneck__adaptive_character_config(config))
+    config_bottleneck.set('topology_map', TopologyMapSampled)
+
+    config.set('envs', [
+        config_bottleneck
+    ] *scale)
+
+    ### method param
+    from config.method import config_supervise as config_method
     config.set('methods', [config_method])
 
     return init(config, mode, Env, Method)

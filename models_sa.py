@@ -1,5 +1,6 @@
 
 from statistics import mode
+from charset_normalizer import models
 
 from ray import method
 from models_ma import ModelPath
@@ -102,9 +103,12 @@ class isac__bottleneck__robust_copo(ModelPath):
 class isac__bottleneck__adaptive(ModelPath):
     method = 'IndependentSAC_v0'
 
-    #xue in 2022.10.10 test in 116 server
+    #2022.10.10 test in 116 server
     model_dir = '~/github/zdk/recognition-rl/models/IndependentSAC_v0-EnvInteractiveMultiAgent/2022-09-11-15:19:29----ray_isac_adaptive_character__multi_scenario--buffer-rate-0.2/saved_models_method'
     model_num = 865800
+    #2022/12/21
+    model_dir = '/home/caichicken/github/zdk/recognition-rl/models/origin_no_history_bottleneck'
+    model_num = 445600
 
 class isac_recog__bottleneck__idm(ModelPath):
     # method = 'IndependentSAC_v0'
@@ -178,8 +182,7 @@ class supervise__bottleneck__adaptive(ModelPath):
     model_dir = '~/github/zdk/recognition-rl/results/IndependentSAC_supervise-EnvInteractiveSingleAgent/2022-11-20-17:19:13----Nothing--supervise-hrz30-act10/saved_models_method'
     #2022-11-19
     method = 'IndependentSACsupervise'
-    model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveSingleAgent/2022-11-26-12:32:44----Nothing--supervise-hrz30-act10/saved_models_method'
-    
+    model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveSingleAgent/2022-11-26-12:32:44----Nothing--supervise-hrz30-act10/saved_models_method'    
     model_num = 312000
     model_num = 224000
     model_num = 187000
@@ -190,6 +193,7 @@ class supervise__bottleneck__adaptive(ModelPath):
     model_num = 2900000
     model_num = 2800000
     model_num = 2700000
+
 
 class supervise__bottleneck__adaptive__given_number(ModelPath):
     def update(self, config: rllib.basic.YamlConfig, model_num):

@@ -19,12 +19,15 @@ from torch.distributions import Normal, MultivariateNormal
 from rllib.utils import init_weights
 
 import rllib
-from rllib.basic import prefix
+from rllib.basic import prefix, Data as Experience
+# from rllib.buffer.tools import stack_data
 from rllib.template import MethodSingleAgent, Model
 from rllib.template.model import FeatureExtractor, FeatureMapper
 
 from core.recognition_net import RecognitionNet
-from .model_vectornet import RolloutBufferSingleAgentMultiWorker
+from .model_vectornet import RolloutBufferSingleAgentMultiWorker, pad_state_with_characters
+import pickle
+from typing import List
 
 class IndependentSACsupervise(MethodSingleAgent):
     dim_reward = 2
@@ -65,10 +68,13 @@ class IndependentSACsupervise(MethodSingleAgent):
         self.actor.model_dir = '~/github/zdk/recognition-rl/models/origin_no_history_bottleneck/'
         self.actor.model_num = 445600
         self.models_to_load = [self.actor]
-        
         # [model.load_model() for model in self.models_to_load]
         [load_model(model) for model in self.models_to_load]
         self.actor.method_name = 'IndependentSACsupervise'
+
+        self.training_data_path = config.training_data_path
+
+        self.data_size = 2019
         #todo
         self.actor_target = copy.deepcopy(self.actor)
         self.models_to_save = [self.actor]
@@ -86,18 +92,23 @@ class IndependentSACsupervise(MethodSingleAgent):
         self.buffer: rllib.buffer.ReplayBuffer = config.get('buffer', rllib.buffer.ReplayBuffer)(config, self.buffer_size, self.batch_size, self.device)
 
     def update_parameters(self):
-        if len(self.buffer) < self.start_timesteps + self.before_training_steps:
-            return
-        self.update_parameters_start()
-        self.writer.add_scalar(f'{self.tag_name}/buffer_size', len(self.buffer), self.step_update)
-
         '''load data batch'''
-        experience = self.buffer.sample()
-        state = experience.state
-        # action = experience.action
-        # next_state = experience.next_state
-        # reward = experience.reward
-        # done = experience.done
+        t1 = time.time()
+        indices = np.random.randint(0, self.data_size, size=self.batch_size)
+        batch_data: List[Experience] = []
+        for indice in indices :
+            # file_path = os.path.join(self.training_data_path+f'{indice}.txt')
+            # '~/dataset/carla/scenario_offline/bottleneck/1.txt'
+            file_path = os.path.join(self.training_data_path, f'{indice}.txt')
+            with open(file_path, 'rb') as f: 
+                batch_data.append(pickle.load(f))
+        experience = self._batch_stack(batch_data)
+        state = experience.state.to(self.device)
+        t2 = time.time()
+        t = t2 - t1
+        # if len(self.buffer) < self.start_timesteps + self.before_training_steps:
+        #     return
+        self.update_parameters_start()
 
         '''character MSE'''
         t1 = time.time()
@@ -164,70 +175,30 @@ class IndependentSACsupervise(MethodSingleAgent):
         # print('[update_parameters] soft update')
         rllib.utils.soft_update(self.actor_target, self.actor, self.tau)
 
+    def _batch_stack(self, batch):
+        result = rllib.buffer.stack_data(batch)
+
+        state, next_state = result.state, result.next_state
+
+        self.pad_state(state)
+        self.pad_state(next_state)
+        state.pop('agent_masks')
+        state.pop('vehicle_masks')
+        next_state.pop('agent_masks')
+        next_state.pop('vehicle_masks')
+        result.update(state=state)
+        result.update(next_state=next_state)
+
+        result = result.cat(dim=0)
+        result.vi.unsqueeze_(1)
+        result.reward.unsqueeze_(1)
+        result.done.unsqueeze_(1)
+        return result
+
+    def pad_state(self, state: rllib.basic.Data):
+        pad_state_with_characters(state)
 
 
-
-
-
-class IndependentSACsuperviseRoll(IndependentSACsupervise):
-    def __init__(self, config: rllib.basic.YamlConfig, writer):
-        super().__init__(config, writer)
-        self.buffer_size = 80000
-        self.sample_reuse = 8
-        self.batch_size = 128
-        self.gamma = 0.99
-        self.num_iters = int(self.buffer_size / self.batch_size) * self.sample_reuse
-        self.buffer: rllib.buffer.RolloutBuffer = config.get('buffer', rllib.buffer.RolloutBuffer)(config, self.device, self.batch_size)
-        self.save_model_interval = 500
-    
-    def update_parameters(self):
-        if len(self.buffer) < self.buffer_size:
-            return
-        self.update_parameters_start()
-        print(prefix(self) + 'update step: ', self.step_update)
-
-        for _ in range(self.num_iters):
-            self.step_train += 1
-            '''load data batch'''   
-            experience = self.buffer.sample(self.gamma)
-            state = experience.state
-
-            '''character MSE'''
-            t1 = time.time()
-            recog_character = self.actor.recog(state)  
-            t2 = time.time()
-            real_character = state.obs_character[:,:,-1]
-            recog_character = recog_character[~torch.isinf(real_character)]
-            real_character = real_character[~torch.isinf(real_character)]
-            
-            # breakpoint()
-            # real_character = torch.where(real_character == np.inf, torch.tensor(-1, dtype=torch.float32, device=state.obs.device), real_character)
-            # recog_character = torch.where(recog_character == np.inf, torch.tensor(-1, dtype=torch.float32, device=state.obs.device), recog_character)
-            character_loss = self.recog_loss(recog_character, real_character)
-            RMSE_loss = torch.sqrt(character_loss)
-            self.recog_optimizer.zero_grad()
-            # character_loss.backward()
-            RMSE_loss.backward()    
-            self.recog_optimizer.step()
-
-            file = open(self.output_dir + '/' + 'character.txt', 'w')
-            write_character(file, recog_character)
-            write_character(file, real_character)
-            write_character(file, recog_character - real_character)
-            file.write('*******************************\n')
-            file.close()
-
-            self.writer.add_scalar(f'{self.tag_name}/loss_character',  RMSE_loss.detach().item(), self.step_train)   
-            self.writer.add_scalar(f'{self.tag_name}/recog_time', t2-t1, self.step_train)
-
-        self._update_model()
-        if self.step_update % self.save_model_interval == 0:
-            self._save_model()
-
-        self._save_model()
-
-        self.buffer.clear()
-        return
 
 class Actor(rllib.template.Model):
     logstd_min = -5
@@ -307,11 +278,14 @@ class Actor(rllib.template.Model):
 
         return action, logprob, mean
 
+    def close(self):
+        return
+
 
 def load_model(initial_model, model_num=None, model_dir=None):
     if model_dir == None:
         model_dir = initial_model.model_dir
-    if model_num == None:
+    if model_num == None:   
         model_num = initial_model.model_num
 
     model_dir = os.path.expanduser(model_dir)

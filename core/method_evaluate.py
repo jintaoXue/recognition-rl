@@ -100,7 +100,7 @@ class EvaluateIndependentSAC(rllib.EvaluateSingleAgent):
         self.critic = config.get('net_critic', sac.Critic)(config).to(self.device)
         self.actor = config.get('net_actor', sac.Actor)(config).to(self.device)
         self.models_to_load = [self.critic, self.actor]
-
+        self.buffer_len = 0
         return
 
 
@@ -138,7 +138,10 @@ class EvaluateIndependentSAC(rllib.EvaluateSingleAgent):
 
 
     def store(self, experience, **kwargs):
+        self.buffer_len += 1
         return
+    def _get_buffer_len(self):
+        return self.buffer_len
 
 
 

@@ -38,7 +38,8 @@ if __name__ == "__main__":
         config.seed += 1
     rllib.basic.setup_seed(config.seed)
 
-
+    version = config.version
+    
     from universe import EnvInteractiveMultiAgent as Env
     from config import bottleneck, intersection, merge, roundabout
     config.set('envs', [
@@ -71,3 +72,5 @@ if __name__ == "__main__":
         traceback.print_exc()
     finally:
         ray.shutdown()
+
+
