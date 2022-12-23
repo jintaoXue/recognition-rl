@@ -841,6 +841,27 @@ def ray_supervise__new_adaptive_background__bottleneck(config, mode='train', sca
     #todo
     from core.method_supervise import IndependentSACsupervise as Method
     ### env param
+    from config.bottleneck import config_env__neural_background as config_bottleneck
+    from utils.topology_map import TopologyMapSampled
+    
+    config_bottleneck.set('config_neural_policy', get_sac__new_bottleneck__adaptive_character_config(config))
+    config_bottleneck.set('topology_map', TopologyMapSampled)
+
+    config.set('envs', [
+        config_bottleneck
+    ] *scale)
+
+    ### method param
+    from config.method import config_supervise as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env, Method)
+
+def ray_supervise_sampling__new_adaptive_background__bottleneck(config, mode='train', scale=1):
+    from universe import EnvInteractiveSingleAgent as Env
+    #todo
+    from core.method_supervise import IndependentSACsupervise as Method
+    ### env param
     from config.bottleneck import config_env__neural_background_sampling as config_bottleneck
     from utils.topology_map import TopologyMapSampled
     

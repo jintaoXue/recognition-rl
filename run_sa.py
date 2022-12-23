@@ -183,8 +183,8 @@ def main():
 
     elif version == 'v6-5-5':
         scale = 1
-        config.description += '--supervise-offline-hrz1-act10'
-        writer, env_master, method = gallery.ray_supervise_offline__new_adaptive_background__bottleneck(config, mode, scale)
+        config.description += '--supervise-sampling2-hrz1-act10'
+        writer, env_master, method = gallery.ray_supervise_sampling__new_adaptive_background__bottleneck(config, mode, scale)
 
     elif version == 'v6-6':
         scale = 10

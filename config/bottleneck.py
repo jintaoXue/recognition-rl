@@ -10,7 +10,7 @@ from universe.carla.dataset import DatasetInteractive as dataset_cls
 from utils import scenarios_template
 from utils import scenarios_bottleneck
 from utils import agents_master
-from utils import perception
+from utils import perception, perception_downsample
 from utils import reward
 from utils import topology_map
 
@@ -101,5 +101,5 @@ config_env__neural_background_sampling = copy.copy(config_env)
 config_env__neural_background_sampling.scenario_randomization_cls = scenarios_template.ScenarioRandomizationWithoutMismatch
 config_env__neural_background_sampling.agents_master_cls = agents_master.AgentListMasterNeuralBackground
 config_env__neural_background_sampling.rule_vehicle_cls = agents_master.EndToEndVehicleWithCharacterBackground
-# config_env__neural_background_sampling.perception_cls = perception.PerceptionPointNetAdaptiveResolution
+config_env__neural_background_sampling.perception_cls = perception_downsample.PerceptionPointNetDownSample
 # config_env__neural_background_sampling.topology_map_cls = topology_map.TopologyMapSampled
