@@ -151,11 +151,16 @@ def main():
         config.description += '--isac_recog__robust'
         writer, env_master, method = gallery.ray_isac_recog__robust_background__bottleneck(config, mode, scale)
 
-    elif version == 'v6-4':
+    elif version == 'v6-4-0':
         scale = 10
         config.description += '--isac_recog__adaptive'
         writer, env_master, method = gallery.ray_isac_recog__adaptive_background__bottleneck(config, mode, scale)
 
+    elif version == 'v6-4-1':
+        scale = 8
+        config.description += '--isac_recog__downsample_adaptive'
+        writer, env_master, method = gallery.ray_isac_recog__downsample_adaptive_background__bottleneck(config, mode, scale)
+    
     elif version == 'v6-5-0':
         scale = 1
         config.description += '--supervise-hrz10-act10'
