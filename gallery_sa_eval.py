@@ -577,6 +577,25 @@ def evaluate__isac_recog__adaptive_background__bottleneck(config, mode='train', 
 
     return init(config, mode, Env, Method)
 
+def evaluate__isac_recog__one_background__bottleneck(config, mode='train', scale=1):
+        from universe import EnvInteractiveSingleAgent as Env
+        from core.method_isac_recog import IndependentSAC_recog as Method
+
+        from config.bottleneck_evaluate import config_env__neural_background
+
+        ### adaptive
+        config_env__adaptive = copy.deepcopy(config_env__neural_background)
+        config_env__adaptive.set('config_neural_policy', get_sac__new_bottleneck__adaptive_character_config(config))
+
+        config.set('envs', [
+            config_env__adaptive,
+        ])
+        
+        ### method param
+        from config.method import config_isac_recog as config_method
+        config.set('methods', [config_method])
+
+        return init(config, mode, Env, Method)
 
 def evaluate__isac_recog__four_background__bottleneck(config, mode='train', scale=1):
         from universe import EnvInteractiveSingleAgent as Env
@@ -602,7 +621,7 @@ def evaluate__isac_recog__four_background__bottleneck(config, mode='train', scal
 
         ### adaptive
         config_env__adaptive = copy.deepcopy(config_env__neural_background_sampling)
-        config_env__adaptive.set('config_neural_policy', get_sac__bottleneck__adaptive_character_config(config))
+        config_env__adaptive.set('config_neural_policy', get_sac__new_bottleneck__adaptive_character_config(config))
 
 
 
