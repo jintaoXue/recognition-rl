@@ -45,8 +45,8 @@ class PerceptionPointNetDownSample(PerceptionPointNet):
 
 
 # interval = 1
-# interval = 2
-interval = 4
+interval = 2
+# interval = 4
 
 class PerceptionVectorizedRouteDownSample(PerceptionVectorizedRoute):
     dim_state = 4
