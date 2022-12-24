@@ -39,7 +39,7 @@ class IndependentSAC_recog(MethodSingleAgent):
 
     tau = 0.005
 
-    buffer_size = 1000000
+    buffer_size = 300000
     batch_size = 128
 
     start_timesteps = 30000
