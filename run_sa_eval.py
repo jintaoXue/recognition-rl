@@ -461,11 +461,19 @@ def main():
         if mode != 'evaluate':
             raise NotImplementedError
 
-        config.description += '--isac_recog_hr10act1__four_background__bottleneck'
+        config.description += '--isac_recog_hr10act1__adaptive_background__bottleneck'
         models_sa.isac_recog__bottleneck__adaptive().update(config)
         env_master = gallery.evaluate__isac_recog__one_background__bottleneck(config, mode)
 
-    elif version == 'v6-4-2':  ### adaptive + four backgrounds
+    elif version == 'v6-4-2':  ### adaptive + one backgrounds + downsample
+        if mode != 'evaluate':
+            raise NotImplementedError
+
+        config.description += '--recog_hr10act1__adaptive_background_downsample__bottleneck'
+        models_sa.isac_recog__bottleneck__adaptive().update(config)
+        env_master = gallery.evaluate__recog__one_background_downsample__bottleneck(config, mode)
+
+    elif version == 'v6-4-3':  ### adaptive + four backgrounds
         if mode != 'evaluate':
             raise NotImplementedError
 
