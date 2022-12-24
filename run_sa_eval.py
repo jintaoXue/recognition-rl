@@ -456,6 +456,14 @@ def main():
         config.description += '--isac_recog__four_background__bottleneck'
         models_sa.isac_recog__bottleneck__adaptive().update(config)
         env_master = gallery.evaluate__isac_recog__four_background__bottleneck(config, mode)
+    
+    elif version == 'v6-4-1':  ### adaptive + four backgrounds
+        if mode != 'evaluate':
+            raise NotImplementedError
+
+        config.description += '--isac_recog_hr10act1__four_background__bottleneck'
+        models_sa.isac_recog__bottleneck__adaptive().update(config)
+        env_master = gallery.evaluate__isac_recog__four_background__bottleneck(config, mode)
 
     elif version == 'v6-5':  ### adaptive + supervise + four backgrounds
         if mode != 'evaluate':
@@ -492,7 +500,7 @@ def main():
             for other_svo in range(0, 11):
                 config.description = 'evaluate' + '--fix_{}_{}__two_background__bottleneck'.format(0.1*ego_svo, 0.1*other_svo)
                 models_sa.isac__bottleneck__adaptive().update(config)
-                env_master = gallery.evaluate__fix_svo__two_background__bottleneck(config, 0.1*ego_svo, 0.1*other_svo,mode)
+                env_master = gallery.evaluate__fix_svo__new_one_background__bottleneck(config, 0.1*ego_svo, 0.1*other_svo,mode)
                 env_master.create_tasks(func=run_one_episode)
                 ray.get([t.run.remote(n_iters=200) for t in env_master.tasks])
                 del env_master

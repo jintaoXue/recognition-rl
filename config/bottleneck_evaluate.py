@@ -9,7 +9,7 @@ import universe
 from universe.carla.dataset import DatasetInteractive as dataset_cls
 from utils import scenarios_template
 from utils import scenarios_bottleneck
-
+from utils import perception_downsample
 
 from config import bottleneck
 
@@ -63,3 +63,8 @@ config_env__neural_background_fix.scenario_cls = scenarios_bottleneck.ScenarioBo
 config_env__idm_background_fix = copy.copy(bottleneck.config_env)
 config_env__idm_background_fix.update(config_env_evaluate)
 config_env__idm_background_fix.scenario_cls = scenarios_bottleneck.ScenarioBottleneckEvaluate_fix_our_others
+
+config_env__neural_background_sampling = copy.copy(bottleneck.config_env__neural_background)
+config_env__neural_background_sampling.update(config_env_evaluate)
+config_env__neural_background_sampling.scenario_cls = scenarios_bottleneck.ScenarioBottleneckEvaluate_without_mismatch
+config_env__neural_background_sampling.perception_cls = perception_downsample.PerceptionPointNetDownSample
