@@ -395,13 +395,29 @@ def main():
         models_sa.isac__bottleneck__robust_copo().update(config)
         env_master = gallery.evaluate__isac_roubust__four_background__bottleneck(config, mode)
 
-    elif version == 'v5-2':  ### adaptive
+    elif version == 'v5-2':  ### adaptive + four backgrounds
         if mode != 'evaluate':
             raise NotImplementedError
 
         config.description += '--adaptive'
         models_sa.isac__bottleneck__adaptive().update(config)
         env_master = gallery.evaluate__isac_adaptive__four_background__bottleneck(config, mode)
+    
+    elif version == 'v5-2-1':  ### adaptive + one backgrounds 
+        if mode != 'evaluate':
+            raise NotImplementedError
+
+        config.description += '--adaptive'
+        models_sa.isac__bottleneck__adaptive().update(config)
+        env_master = gallery.evaluate__isac_adaptive__adaptive_background__bottleneck(config, mode)
+    
+    elif version == 'v5-2-2':  ### adaptive + one backgrounds + down sample
+        if mode != 'evaluate':
+            raise NotImplementedError
+
+        config.description += '--adaptive'
+        models_sa.isac__bottleneck__adaptive().update(config)
+        env_master = gallery.evaluate__isac__adaptive_background_downsample_bottleneck(config, mode)
     
     elif version == 'v5-3':  ### 
         if mode != 'evaluate':
