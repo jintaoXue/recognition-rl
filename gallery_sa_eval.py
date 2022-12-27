@@ -455,6 +455,46 @@ def evaluate__isac_roubust__four_background__bottleneck(config, mode='train', sc
     return init(config, mode, Env, Method)
 
 
+def evaluate__isac_adaptive__adaptive_background__bottleneck(config, mode='train', scale=1):
+    from universe import EnvInteractiveSingleAgent as Env
+    from core.method_isac_v0 import IndependentSAC_v0 as Method
+
+    ### env param
+    from config.bottleneck_evaluate import config_env__idm_background
+    from config.bottleneck_evaluate import config_env__neural_background
+
+    ### idm
+    config_env__idm = config_env__idm_background
+
+    ### no character
+    config_env__no_svo = copy.deepcopy(config_env__neural_background)
+    config_env__no_svo.set('config_neural_policy', get_sac__bottleneck__no_character_config(config))
+
+    ### robust copo
+    config_env__copo = copy.deepcopy(config_env__neural_background)
+    config_env__copo.set('config_neural_policy', get_sac__bottleneck__robust_character_config(config))
+
+    from utils.agents_master import AgentListMasterNeuralBackgroundManualTuneSVOCoPO as agents_master_cls
+    config_env__copo.set('agents_master_cls', agents_master_cls)
+
+    ### adaptive
+    config_env__adaptive = copy.deepcopy(config_env__neural_background)
+    config_env__adaptive.set('config_neural_policy', get_sac__bottleneck__adaptive_character_config(config))
+
+
+
+    config.set('envs', [
+        config_env__idm,
+        config_env__no_svo,
+        config_env__copo,
+        config_env__adaptive,
+    ])
+    
+    ### method param
+    from config.method import config_isac__robust_character as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env, Method)
 
 def evaluate__isac_adaptive__four_background__bottleneck(config, mode='train', scale=1):
         from universe import EnvInteractiveSingleAgent as Env
