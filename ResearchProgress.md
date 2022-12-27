@@ -120,10 +120,13 @@ tensor([[-0.900000, -0.800000, -0.700000, -0.600000, -0.500000, -0.400000, -0.30
 
 修改ScenarioBottleneckEvaluate_without_mismatch的ego svo 为0.7试试
 
-看看和ego_svo为0之间的区别，看看性能差距是否很大？
+看看和ego_svo为0之间的区别，看看性能差距是否很大？有差距，但是还是定为0
 
+> 2022-12-26-22:01:02----Nothing--isac_recog__downsample_new_adaptive
+>
+> 验证downsample+rl+buffersize=300000的结果：
 
+验证Isac+downsample的测试性能：发现性能有所下降：
 
-验证Isac+downsample的测试性能
+> duplicity-rarl/results/Mine/12-27-isac-background
 
-验证downsample+rl+buffersize=300000的结果：

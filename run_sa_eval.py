@@ -576,6 +576,24 @@ def _main() :
     import gallery_sa_eval as gallery
     import models_sa, models_ma
     version = config.version
+
+    if version == 'v6-4-2':
+        if mode != 'evaluate':
+            raise NotImplementedError
+        # debug = Debug()
+        eval_end_num = 577000
+        interval = 1000
+        for num in range(0, 100):
+            model_num = eval_end_num - num*interval
+            config.description = 'recog_hr10act1__adaptive_background_downsample__bottleneck'
+            models_sa.supervise_sampling__bottleneck__adaptive__given_number().update(config, model_num)
+            env_master = gallery.evaluate__supervise__four_background__bottleneck(config, mode)
+            try:
+                env_master.create_tasks(func=run_one_episode)
+                ray.get([t.run.remote(n_iters=200) for t in env_master.tasks])
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
     if version == 'v6-5-0':
         if mode != 'evaluate':
             raise NotImplementedError
@@ -609,6 +627,7 @@ def _main() :
             except Exception as e:
                 import traceback
                 traceback.print_exc()
+    
 
     # if version == 'v7-2':
     #     if mode != 'evaluate':
