@@ -227,6 +227,21 @@ class supervise_sampling__bottleneck__adaptive__given_number(ModelPath):
     method = 'IndependentSACsupervise'
     model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveSingleAgent/2022-12-05-13:05:38----Nothing--supervise-sampling-hrz10-act10/saved_models_method'
     model_dir = '~/github/zdk/recognition-rl/results/IndependentSAC_recog-EnvInteractiveSingleAgent/2022-12-26-22:01:02----Nothing--isac_recog__downsample_new_adaptive/saved_models_method'
+
+class recog_rl__bottleneck__adaptive__given_number(ModelPath):
+    def update(self, config: rllib.basic.YamlConfig, model_num):
+        self.model_num = model_num
+        config.set('method', self.method)
+        config.set('model_dir', self.model_dir)
+        config.set('model_num', self.model_num)
+        if config.model_index != None:
+            config.set('model_num',  config.model_index)
+        model_exp = config.model_dir.split('/')[-2]
+        config.set('description', config.description + f'--from--{model_exp}-{config.model_num}')
+    method = 'IndependentSAC_recog'
+    model_dir = '~/github/zdk/recognition-rl/results/IndependentSAC_recog-EnvInteractiveSingleAgent/2022-12-26-22:01:02----Nothing--isac_recog__downsample_new_adaptive/saved_models_method'
+
+
 ################################################################################
 ###### intersection ############################################################
 ################################################################################

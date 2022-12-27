@@ -586,8 +586,8 @@ def _main() :
         for num in range(0, 100):
             model_num = eval_end_num - num*interval
             config.description = 'recog_hr10act1__adaptive_background_downsample__bottleneck'
-            models_sa.supervise_sampling__bottleneck__adaptive__given_number().update(config, model_num)
-            env_master = gallery.evaluate__supervise__four_background__bottleneck(config, mode)
+            models_sa.recog_rl__bottleneck__adaptive__given_number().update(config, model_num)
+            env_master = gallery.evaluate__recog__one_background_downsample_bottleneck(config, mode)
             try:
                 env_master.create_tasks(func=run_one_episode)
                 ray.get([t.run.remote(n_iters=200) for t in env_master.tasks])

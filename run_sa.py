@@ -156,16 +156,16 @@ def main():
         config.description += '--isac_recog__adaptive'
         writer, env_master, method = gallery.ray_isac_recog__adaptive_background__bottleneck(config, mode, scale)
 
-    elif version == 'v6-4-1':
-        scale = 8
-        config.description += '--isac_recog__downsample_new_adaptive'
-        writer, env_master, method = gallery.ray_isac_recog__downsample_adaptive_background__bottleneck(config, mode, scale)
 
-    elif version == 'v6-4-2':
+    elif version == 'v6-4-1':
         scale = 8
         config.description += '--isac_recog__new_adaptive'
         writer, env_master, method = gallery.ray_isac_recog__new_adaptive_background__bottleneck(config, mode, scale)
-    
+
+    elif version == 'v6-4-2':
+        scale = 8
+        config.description += '--isac_recog__downsample_new_adaptive'
+        writer, env_master, method = gallery.ray_isac_recog__downsample_adaptive_background__bottleneck(config, mode, scale)
     
     elif version == 'v6-5-0':
         scale = 1

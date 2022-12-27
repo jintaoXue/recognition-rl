@@ -796,6 +796,7 @@ def ray_isac_recog__new_adaptive_background__bottleneck(config, mode='train', sc
     config.set('methods', [config_method])
 
     return init(config, mode, Env, Method)
+    
 def ray_isac_recog__downsample_adaptive_background__bottleneck(config, mode='train', scale=1):
     from universe import EnvInteractiveSingleAgent as Env
     #todo
