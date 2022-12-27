@@ -112,11 +112,17 @@ tensor([[-0.900000, -0.800000, -0.700000, -0.600000, -0.500000, -0.400000, -0.30
 
 ![](./imgs/2022-12-27-0.png)
 
-结果符合预期
+以上图的结果符合预期
 
-修改ScenarioBottleneckEvaluate_without_mismatch的ego svo 为0.8试试
+
 
 验证isac的测试性能：
+
+修改ScenarioBottleneckEvaluate_without_mismatch的ego svo 为0.7试试
+
+看看和ego_svo为0之间的区别，看看性能差距是否很大？
+
+
 
 验证Isac+downsample的测试性能
 
