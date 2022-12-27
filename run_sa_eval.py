@@ -415,7 +415,7 @@ def main():
         if mode != 'evaluate':
             raise NotImplementedError
 
-        config.description += '--adaptive'
+        config.description += '--adaptive-downsample'
         models_sa.isac__bottleneck__adaptive().update(config)
         env_master = gallery.evaluate__isac__adaptive_background_downsample_bottleneck(config, mode)
     
