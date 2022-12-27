@@ -505,7 +505,7 @@ def evaluate__isac_adaptive__adaptive_background__bottleneck(config, mode='train
 
     ### adaptive
     config_env__adaptive = copy.deepcopy(config_env__neural_background)
-    config_env__adaptive.set('config_neural_policy', get_sac__bottleneck__adaptive_character_config(config))
+    config_env__adaptive.set('config_neural_policy', get_sac__new_bottleneck__adaptive_character_config(config))
 
     config.set('envs', [
         config_env__adaptive,
@@ -527,7 +527,7 @@ def evaluate__isac__adaptive_background_downsample_bottleneck(config, mode='trai
 
     ### adaptive
     config_env__adaptive = copy.deepcopy(config_env__neural_background_sampling)
-    config_env__adaptive.set('config_neural_policy', get_sac__bottleneck__adaptive_character_config(config))
+    config_env__adaptive.set('config_neural_policy', get_sac__new_bottleneck__adaptive_character_config(config))
 
     config.set('envs', [
         config_env__adaptive,
