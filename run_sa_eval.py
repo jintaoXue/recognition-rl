@@ -585,7 +585,7 @@ def _main() :
         interval = 1000
         for num in range(100, 101):
             # model_num = eval_end_num - num*interval
-            model_num = 125000
+            model_num = 200000
             config.description = 'recog_hr10act1__adaptive_background_downsample__bottleneck'
             models_sa.recog_rl__bottleneck__adaptive__given_number().update(config, model_num)
             env_master = gallery.evaluate__recog__one_background_downsample_bottleneck(config, mode)
