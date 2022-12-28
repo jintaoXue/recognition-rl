@@ -112,21 +112,42 @@ tensor([[-0.900000, -0.800000, -0.700000, -0.600000, -0.500000, -0.400000, -0.30
 
 ![](./imgs/2022-12-27-0.png)
 
-以上图的结果符合预期
+以上图的结果符合预期（数据来源12-27fixsvo)
 
 
 
-验证isac的测试性能：
+验证hr=1的MARL的isac的测试性能：
 
-修改ScenarioBottleneckEvaluate_without_mismatch的ego svo 为0.7试试
+不同的电脑上：
 
-看看和ego_svo为0之间的区别，看看性能差距是否很大？有差距，但是还是定为0
+> 12-27fixsvo_from127对比发现在不同的电脑上验证结果会不一样
+
+修改ScenarioBottleneckEvaluate_without_mismatch的ego svo 为0.7试试，看看和ego_svo为0之间的区别，看看性能差距是否很大？
+
+> 12-27-isac-background发现有差距，但是还是定为0
+
+验证MARL的isac(不进行downsample训练好)在downsample的验证测试性能：
+
+> duplicity-rarl/results/Mine/12-27-isac-background
+>
+> 结论是发现性能有所下降：
+
+训练recog + rl + downsample：
 
 > 2022-12-26-22:01:02----Nothing--isac_recog__downsample_new_adaptive
 >
 > 验证downsample+rl+buffersize=300000的结果：
 
-验证Isac+downsample的测试性能：发现性能有所下降：
 
-> duplicity-rarl/results/Mine/12-27-isac-background
 
+12/28继续验证recog + rl + downsample+buffersize = 300000能不能训练出来
+
+> 可以训出来
+
+监督学习也可以开始，问问堃哥那个内存的事情，尽快把内存条加到3060上
+
+
+
+关于写论文：
+
+1.核心思想是用rl+recognition的方式去做性格辨识，有点就在于性能好，

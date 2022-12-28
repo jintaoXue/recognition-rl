@@ -11,8 +11,8 @@ import torch
 
 
 def init(config, mode, Env, Method) -> universe.EnvMaster_v1:
-    repos = ['~/github/zdk/rl-lib', '~/github/ali/universe', '~/github/zdk/recognition-rl']
-    config.set('github_repos', repos)
+    # repos = ['~/github/zdk/rl-lib', '~/github/ali/universe', '~/github/zdk/recognition-rl']
+    # config.set('github_repos', repos)
 
     model_name = Method.__name__ + '-' + Env.__name__
     writer_cls = rllib.basic.PseudoWriter

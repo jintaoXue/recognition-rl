@@ -583,7 +583,7 @@ def _main() :
         # debug = Debug()
         eval_end_num = 577000
         interval = 1000
-        for num in range(0, 100):
+        for num in range(40, 41):
             model_num = eval_end_num - num*interval
             config.description = 'recog_hr10act1__adaptive_background_downsample__bottleneck'
             models_sa.recog_rl__bottleneck__adaptive__given_number().update(config, model_num)
