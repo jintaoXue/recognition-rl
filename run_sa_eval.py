@@ -581,10 +581,10 @@ def _main() :
         if mode != 'evaluate':
             raise NotImplementedError
         # debug = Debug()
-        eval_end_num = 577000
-        interval = 1000
-        for num in range(100, 101):
-            # model_num = eval_end_num - num*interval
+        eval_end_num = 211000
+        interval = 2000
+        for num in range(0, 100):
+            model_num = eval_end_num - num*interval
             model_num = 100000
             config.description = 'recog_hr10act1__adaptive_background_downsample__bottleneck'
             models_sa.recog_rl__bottleneck__adaptive__given_number().update(config, model_num)

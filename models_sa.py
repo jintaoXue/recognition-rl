@@ -240,8 +240,9 @@ class recog_rl__bottleneck__adaptive__given_number(ModelPath):
         config.set('description', config.description + f'--from--{model_exp}-{config.model_num}')
     method = 'IndependentSAC_recog'
     model_dir = '~/github/zdk/recognition-rl/results/IndependentSAC_recog-EnvInteractiveSingleAgent/2022-12-26-22:01:02----Nothing--isac_recog__downsample_new_adaptive/saved_models_method'
+    model_dir = '~/github/zdk/recognition-rl/results/IndependentSAC_recog-EnvInteractiveSingleAgent/2022-12-28-21:59:09----Nothing--isac_recog__new_adaptive/saved_models_method'
 
-
+    
 ################################################################################
 ###### intersection ############################################################
 ################################################################################
