@@ -158,7 +158,7 @@ def main():
 
 
     elif version == 'v6-4-1':
-        scale = 8
+        scale = 7
         config.description += '--isac_recog__new_adaptive'
         writer, env_master, method = gallery.ray_isac_recog__new_adaptive_background__bottleneck(config, mode, scale)
 
