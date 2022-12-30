@@ -589,12 +589,11 @@ def _main() :
             config.description = 'recog_hr10act1__adaptive_background_downsample__bottleneck'
             models_sa.recog_rl__bottleneck__adaptive__given_number().update(config, model_num)
             env_master = gallery.evaluate__recog__one_background_downsample_bottleneck(config, mode)
-            try:
-                env_master.create_tasks(func=run_one_episode)
-                ray.get([t.run.remote(n_iters=200) for t in env_master.tasks])
-            except Exception as e:
-                import traceback
-                traceback.print_exc()
+            env_master.create_tasks(func=run_one_episode)
+            ray.get([t.run.remote(n_iters=200) for t in env_master.tasks])
+            del env_master
+            ray.shutdown()
+            ray.init(num_cpus=psutil.cpu_count(), num_gpus=torch.cuda.device_count(), include_dashboard=False)
     if version == 'v6-5-0':
         if mode != 'evaluate':
             raise NotImplementedError

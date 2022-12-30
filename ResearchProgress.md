@@ -169,5 +169,19 @@ tensor([[-0.900000, -0.800000, -0.700000, -0.600000, -0.500000, -0.400000, -0.30
 > 要不要动Actor的参数，进行两步训练结构（能不能叫做meta-learning？）
 >
 > 要不要修改loss函数，改为reward base的
->
-> 
+
+
+
+control oriented meta learning这篇论文交流
+
+1.搞清基本思路 2.类比咱们的方法 3.梯度反传
+
+理论支撑的点就在于虽然参数不准确但是性能可以
+
+这篇论文以及meta learning带来的启发
+
+咱们的方法要是效仿meta learning的话那就是
+
+2.rl 的loss是否要做改变？变成expec cumulative reward
+
+3.我打算做几个实验，一个是随机生成svo给actor，一个是idm做辨识
