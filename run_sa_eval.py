@@ -576,7 +576,24 @@ def _main() :
     import gallery_sa_eval as gallery
     import models_sa, models_ma
     version = config.version
-
+    if version == 'v6-4-1':
+        if mode != 'evaluate':
+            raise NotImplementedError
+        # debug = Debug()
+        eval_end_num = 211000
+        interval = 2000
+        for num in range(0, 100):
+            model_num = eval_end_num - num*interval
+            # model_num = 100000
+            config.description = 'recog_hr10act1__adaptive_background__bottleneck'
+            models_sa.recog_rl__bottleneck__adaptive__given_number().update(config, model_num)
+            env_master = gallery.evaluate__recog__one_background_bottleneck(config, mode)
+            env_master.create_tasks(func=run_one_episode)
+            ray.get([t.run.remote(n_iters=200) for t in env_master.tasks])
+            del env_master
+            ray.shutdown()
+            ray.init(num_cpus=psutil.cpu_count(), num_gpus=torch.cuda.device_count(), include_dashboard=False)
+    
     if version == 'v6-4-2':
         if mode != 'evaluate':
             raise NotImplementedError
@@ -594,6 +611,7 @@ def _main() :
             del env_master
             ray.shutdown()
             ray.init(num_cpus=psutil.cpu_count(), num_gpus=torch.cuda.device_count(), include_dashboard=False)
+
     if version == 'v6-5-0':
         if mode != 'evaluate':
             raise NotImplementedError
