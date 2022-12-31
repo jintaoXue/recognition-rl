@@ -223,7 +223,8 @@ class EvaluateSACRecog(rllib.EvaluateSingleAgent):
             def forward(self, state):
                 #add character into state
                 obs_character = self.recog(state)
-                breakpoint()
+                print(obs_character)
+                # breakpoint()
                 #####
                 x = self.fe(state, obs_character)
                 mean = self.mean_no(self.mean(x))
