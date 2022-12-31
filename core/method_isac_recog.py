@@ -142,11 +142,12 @@ class IndependentSAC_recog(MethodSingleAgent):
         # recog_charater = torch.where(recog_charater == np.inf, torch.tensor(-1, dtype=torch.float32, device=state.obs.device), recog_charater)
         character_loss = self.character_loss(recog_charater, real_character)
 
-        # file = open(self.output_dir + '/' + 'character.txt', 'w')
-        # write_character(file, recog_charater)
-        # write_character(file, recog_charater - real_character)
-        # file.write('*******************************\n')
-        # file.close()
+        file = open(self.output_dir + '/' + 'character.txt', 'w')
+        write_character(file, recog_charater)
+        file.write('*******************************\n')
+        write_character(file, recog_charater - real_character)
+
+        file.close()
         self.writer.add_scalar(f'{self.tag_name}/loss_character', character_loss.detach().item(), self.step_update)   
         self.writer.add_scalar(f'{self.tag_name}/loss_critic', critic_loss.detach().item(), self.step_update)
         self.writer.add_scalar(f'{self.tag_name}/loss_actor', actor_loss.detach().item(), self.step_update)
