@@ -208,6 +208,7 @@ class Actor(rllib.template.Model):
     def forward(self, state):
         #add character into state
         obs_character = self.recog(state)
+        print(obs_character)
         #####
         x = self.fe(state, obs_character)
         mean = self.mean_no(self.mean(x))

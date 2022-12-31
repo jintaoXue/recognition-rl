@@ -219,18 +219,18 @@ class EvaluateSACRecog(rllib.EvaluateSingleAgent):
         config, method_name = self.config, self.method_name
 
         from core.method_isac_recog import Actor, Critic
-        class Actor(Actor):
-            def forward(self, state):
-                #add character into state
-                obs_character = self.recog(state)
-                print(obs_character)
-                # breakpoint()
-                #####
-                x = self.fe(state, obs_character)
-                mean = self.mean_no(self.mean(x))
-                logstd = self.std_no(self.std(x))
-                logstd = (self.logstd_max-self.logstd_min) * logstd + (self.logstd_max+self.logstd_min)
-                return mean, logstd *0.5
+        # class Actor(Actor):
+        #     def forward(self, state):
+        #         #add character into state
+        #         obs_character = self.recog(state)
+        #         print(obs_character)
+        #         # breakpoint()
+        #         #####
+        #         x = self.fe(state, obs_character)
+        #         mean = self.mean_no(self.mean(x))
+        #         logstd = self.std_no(self.std(x))
+        #         logstd = (self.logstd_max-self.logstd_min) * logstd + (self.logstd_max+self.logstd_min)
+        #         return mean, logstd *0.5
         # self.critic = config.get('net_critic', Critic)(config).to(self.device)
         self.actor = config.get('net_actor', Actor)(config).to(self.device)
         # self.models_to_load = [self.critic, self.actor]
