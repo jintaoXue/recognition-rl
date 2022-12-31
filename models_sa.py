@@ -165,6 +165,10 @@ class isac_recog__bottleneck__adaptive(ModelPath):
     #2022/12/23
     model_dir = '~/github/zdk/recognition-rl/results/IndependentSAC_recog-EnvInteractiveSingleAgent/2022-12-23-13:31:17----Nothing--isac_recog__downsample_adaptive/saved_models_method'
     model_num = 280000
+    #2022/12/30
+    model_dir = '~/github/zdk/recognition-rl/results/IndependentSAC_recog-EnvInteractiveSingleAgent/2022-12-28-21:59:09----Nothing--isac_recog__new_adaptive/saved_models_method'
+    model_num = 211000
+
 class isac_recog__bottleneck__robust(ModelPath):
 
     method = 'IndependentSAC_recog'
@@ -242,7 +246,7 @@ class recog_rl__bottleneck__adaptive__given_number(ModelPath):
     model_dir = '~/github/zdk/recognition-rl/results/IndependentSAC_recog-EnvInteractiveSingleAgent/2022-12-26-22:01:02----Nothing--isac_recog__downsample_new_adaptive/saved_models_method'
     model_dir = '~/github/zdk/recognition-rl/results/IndependentSAC_recog-EnvInteractiveSingleAgent/2022-12-28-21:59:09----Nothing--isac_recog__new_adaptive/saved_models_method'
 
-    
+
 ################################################################################
 ###### intersection ############################################################
 ################################################################################

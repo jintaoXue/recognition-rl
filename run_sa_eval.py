@@ -497,6 +497,14 @@ def main():
         models_sa.isac_recog__bottleneck__adaptive().update(config)
         env_master = gallery.evaluate__isac_recog__four_background__bottleneck(config, mode)
 
+    elif version == 'v6-4-4':  ### adaptive + one backgrounds + random svo
+        if mode != 'evaluate':
+            raise NotImplementedError
+
+        config.description += '--isac_recog_hr10act1__adaptive_background__bottleneck'
+        models_sa.isac_recog__bottleneck__adaptive().update(config)
+        env_master = gallery.evaluate__recog_random_svo_one_background__bottleneck(config, mode)
+
     elif version == 'v6-5':  ### adaptive + supervise + four backgrounds
         if mode != 'evaluate':
             raise NotImplementedError
@@ -587,7 +595,7 @@ def _main() :
             # model_num = 100000
             config.description = 'recog_hr10act1__adaptive_background__bottleneck'
             models_sa.recog_rl__bottleneck__adaptive__given_number().update(config, model_num)
-            env_master = gallery.evaluate__recog__one_background_bottleneck(config, mode)
+            env_master = gallery.evaluate__isac_recog__one_background__bottleneck(config, mode)
             env_master.create_tasks(func=run_one_episode)
             ray.get([t.run.remote(n_iters=200) for t in env_master.tasks])
             del env_master
@@ -605,7 +613,7 @@ def _main() :
             # model_num = 100000
             config.description = 'recog_hr10act1__adaptive_background_downsample__bottleneck'
             models_sa.recog_rl__bottleneck__adaptive__given_number().update(config, model_num)
-            env_master = gallery.evaluate__recog__one_background_downsample_bottleneck(config, mode)
+            env_master = gallery.evaluate__recog__one_background_downsample__bottleneck(config, mode)
             env_master.create_tasks(func=run_one_episode)
             ray.get([t.run.remote(n_iters=200) for t in env_master.tasks])
             del env_master

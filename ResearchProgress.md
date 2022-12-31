@@ -185,3 +185,11 @@ control oriented meta learning这篇论文交流
 2.rl 的loss是否要做改变？变成expec cumulative reward
 
 3.我打算做几个实验，一个是随机生成svo给actor，一个是idm做辨识
+
+
+
+2022/12/30
+
+验证发现new adaptive的性能在87.5， 加入recg性能下降为84.5. 下降三个点。
+
+待验证：随机svo
