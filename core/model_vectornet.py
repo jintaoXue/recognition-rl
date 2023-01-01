@@ -847,7 +847,7 @@ def pad_data(data: torch.Tensor, pad_size: torch.Size, pad_value=np.inf):
 
 def cut_state(state: rllib.basic.Data) :
     state_ = copy.deepcopy(state)
-    horizon = 1
+    horizon = 10
     raw_horizon = 10
     state_.ego = state_.ego[:,-horizon:,:]
     #change horizon stamp from raw_horizon to custom horizon

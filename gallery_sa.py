@@ -46,12 +46,12 @@ def get_sac__new_bottleneck__adaptive_character_config(config):
         method_name=Method.__name__,
 
         # model_dir='~/github/zdk/recognition-rl/results/IndependentSAC_v0-EnvInteractiveMultiAgent/2022-09-11-15:19:29----ray_isac_adaptive_character__multi_scenario--buffer-rate-0.2/saved_models_method',
-        # model_dir='~/github/zdk/recognition-rl/models/IndependentSAC_v0-EnvInteractiveMultiAgent/2022-09-11-15:19:29----ray_isac_adaptive_character__multi_scenario--buffer-rate-0.2/saved_models_method',
+        model_dir='~/github/zdk/recognition-rl/models/IndependentSAC_v0-EnvInteractiveMultiAgent/2022-09-11-15:19:29----ray_isac_adaptive_character__multi_scenario--buffer-rate-0.2/saved_models_method',
         
-        model_dir = '~/github/zdk/recognition-rl/models/origin_no_history_bottleneck/',
+        # model_dir = '~/github/zdk/recognition-rl/models/origin_no_history_bottleneck/',
 
-        # model_num=865800,
-        model_num=445600,
+        model_num=865800,
+        # model_num=445600,
 
 
         device=torch.device('cuda:0' if torch.cuda.is_available() else 'cpu'),

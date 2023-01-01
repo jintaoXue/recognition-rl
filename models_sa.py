@@ -162,12 +162,15 @@ class isac_recog__bottleneck__adaptive(ModelPath):
     model_dir = '~/github/zdk/recognition-rl/results/IndependentSAC_recog-EnvInteractiveSingleAgent/2022-10-29-16:18:08----Nothing--isac_recog__adaptive/saved_models_method'
     model_num = 25800
 
-    #2022/12/23
-    model_dir = '~/github/zdk/recognition-rl/results/IndependentSAC_recog-EnvInteractiveSingleAgent/2022-12-23-13:31:17----Nothing--isac_recog__downsample_adaptive/saved_models_method'
-    model_num = 280000
-    #2022/12/30
-    model_dir = '~/github/zdk/recognition-rl/results/IndependentSAC_recog-EnvInteractiveSingleAgent/2022-12-28-21:59:09----Nothing--isac_recog__new_adaptive/saved_models_method'
-    model_num = 211000
+    # #2022/12/23
+    # model_dir = '~/github/zdk/recognition-rl/results/IndependentSAC_recog-EnvInteractiveSingleAgent/2022-12-23-13:31:17----Nothing--isac_recog__downsample_adaptive/saved_models_method'
+    # model_num = 280000
+    # #2022/12/30
+    # model_dir = '~/github/zdk/recognition-rl/results/IndependentSAC_recog-EnvInteractiveSingleAgent/2022-12-28-21:59:09----Nothing--isac_recog__new_adaptive/saved_models_method'
+    # model_num = 211000
+    #2023/1/1
+    model_dir = '~/github/zdk/recognition-rl/results/IndependentSAC_recog-EnvInteractiveSingleAgent/2022-10-27-19:11:02----Nothing--isac_recog__adaptive/saved_models_method'
+    model_num = 99800
 
 class isac_recog__bottleneck__robust(ModelPath):
 
