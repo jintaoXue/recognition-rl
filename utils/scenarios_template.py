@@ -50,7 +50,7 @@ class ScenarioRandomization_share_character(ScenarioRandomization):
 class ScenarioRandomizationWithoutMismatch(ScenarioRandomization):
     def get_characters(self):
         characters = np.random.uniform(0,1, size=self.num_vehicles)
-        characters[0] = 0
+        characters[0] = 0.0
         # print(rllib.basic.prefix(self) + 'characters: ', characters)
         return characters.astype(np.float32)
 

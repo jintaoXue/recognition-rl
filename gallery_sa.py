@@ -50,7 +50,7 @@ def get_sac__new_bottleneck__adaptive_character_config(config):
         
         model_dir = '~/github/zdk/recognition-rl/models/origin_no_history_bottleneck/',
 
-        # model_num=865800
+        # model_num=865800,
         model_num=445600,
 
 
@@ -880,10 +880,8 @@ def ray_supervise__new_adaptive_background__bottleneck(config, mode='train', sca
     from core.method_supervise import IndependentSACsupervise as Method
     ### env param
     from config.bottleneck import config_env__neural_background as config_bottleneck
-    from utils.topology_map import TopologyMapSampled
     
     config_bottleneck.set('config_neural_policy', get_sac__new_bottleneck__adaptive_character_config(config))
-    config_bottleneck.set('topology_map', TopologyMapSampled)
 
     config.set('envs', [
         config_bottleneck

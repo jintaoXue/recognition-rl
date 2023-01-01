@@ -116,7 +116,9 @@ class IndependentSACsupervise(MethodSingleAgent):
         # character_loss.backward()
         RMSE_loss.backward()    
         self.recog_optimizer.step()
-
+        # for name,p in self.actor.fe.named_parameters():
+        #     print(name, p)  
+        # time.sleep(10)
         file = open(self.output_dir + '/' + 'character.txt', 'w')
         write_character(file, recog_character)
         write_character(file, real_character)
@@ -128,7 +130,7 @@ class IndependentSACsupervise(MethodSingleAgent):
         self.writer.add_scalar(f'{self.tag_name}/recog_time', t2-t1, self.step_update)
         # self.writer.add_scalar(f'{self.tag_name}/alpha', self.alpha.detach().item(), self.step_update)
 
-        self._update_model()
+        # self._update_model()
         if self.step_update % self.save_model_interval == 0:
             self._save_model()
 
@@ -209,7 +211,9 @@ class IndependentSACsuperviseRoll(IndependentSACsupervise):
             # character_loss.backward()
             RMSE_loss.backward()    
             self.recog_optimizer.step()
-
+            for name,p in self.actor.recog.named_parameters():
+                print(name, p)  
+            time.sleep(10)
             file = open(self.output_dir + '/' + 'character.txt', 'w')
             write_character(file, recog_character)
             write_character(file, real_character)
@@ -220,7 +224,7 @@ class IndependentSACsuperviseRoll(IndependentSACsupervise):
             self.writer.add_scalar(f'{self.tag_name}/loss_character',  RMSE_loss.detach().item(), self.step_train)   
             self.writer.add_scalar(f'{self.tag_name}/recog_time', t2-t1, self.step_train)
 
-        self._update_model()
+        # self._update_model()
         if self.step_update % self.save_model_interval == 0:
             self._save_model()
 
@@ -247,12 +251,12 @@ class Actor(rllib.template.Model):
         self.apply(init_weights)
 
         #evaluate
-        self.recog_loss = nn.MSELoss()
+        # self.recog_loss = nn.MSELoss()
 
     def forward(self, state):        
         #add character into state
         obs_character = self.recog(state)
-
+        print(obs_character)
         # #evaluate
         # real_character = state.obs_character[:,:,-1]
         # recog_character = obs_character[~torch.isinf(real_character)]
@@ -268,7 +272,6 @@ class Actor(rllib.template.Model):
         logstd = self.std_no(self.std(x))
         logstd = (self.logstd_max-self.logstd_min) * logstd + (self.logstd_max+self.logstd_min)
         return mean, logstd *0.5
-
 
     def sample(self, state):
         mean, logstd = self(state)
