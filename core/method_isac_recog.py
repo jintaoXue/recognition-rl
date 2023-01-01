@@ -63,12 +63,12 @@ class IndependentSAC_recog(MethodSingleAgent):
         self.actor.model_dir = '~/github/zdk/recognition-rl/models/origin_no_history_bottleneck/'
         self.actor.model_num = 445600
 
-        self.critic.method_name = 'INDEPENDENTSAC_V0'
-        self.critic.model_dir = '~/github/zdk/recognition-rl/models/origin_no_history_bottleneck/'
-        self.critic.model_num = 445600
+        # self.critic.method_name = 'INDEPENDENTSAC_V0'
+        # self.critic.model_dir = '~/github/zdk/recognition-rl/models/origin_no_history_bottleneck/'
+        # self.critic.model_num = 445600
         # self.critic.model_dir = '~/github/zdk/recognition-rl/models/IndependentSAC_v0-EnvInteractiveMultiAgent/2022-09-11-15:19:29----ray_isac_adaptive_character__multi_scenario--buffer-rate-0.2/saved_models_method'
         # self.critic.model_num = 865800
-        self.models_to_load = [self.actor, self.critic]
+        self.models_to_load = [self.actor]
 
         # [model.load_model() for model in self.models_to_load]
         [load_model(model) for model in self.models_to_load]
@@ -78,16 +78,16 @@ class IndependentSAC_recog(MethodSingleAgent):
             if name.startswith('fe'): p.requires_grad = False
             if name.startswith('mean'): p.requires_grad = False
             if name.startswith('std'): p.requires_grad = False
-        for name, p in self.critic.named_parameters():
-            if name.startswith('fe'): p.requires_grad = False
-            if name.startswith('m1'): p.requires_grad = False
-            if name.startswith('m2'): p.requires_grad = False
+        # for name, p in self.critic.named_parameters():
+        #     if name.startswith('fe'): p.requires_grad = False
+        #     if name.startswith('m1'): p.requires_grad = False
+        #     if name.startswith('m2'): p.requires_grad = False
         # self.critic.method_name = 'IndependentSAC_recog'
         #todo
         self.critic_target = copy.deepcopy(self.critic)
         self.models_to_save = [self.actor, self.critic]
 
-        self.critic_optimizer= Adam(filter(lambda x: x.requires_grad is not False ,self.critic.parameters()), lr=self.lr_critic)
+        self.critic_optimizer= Adam(self.critic.parameters(), lr=self.lr_critic)
         self.actor_optimizer = Adam(filter(lambda x: x.requires_grad is not False ,self.actor.parameters()), lr=self.lr_actor)
         
         # self.recog_optimizer= Adam(self.actor.recog.parameters(), lr=self.lr_actor)
@@ -179,7 +179,7 @@ class IndependentSAC_recog(MethodSingleAgent):
         self.writer.add_scalar(f'{self.tag_name}/loss_actor', actor_loss.detach().item(), self.step_update)
         self.writer.add_scalar(f'{self.tag_name}/alpha', self.alpha.detach().item(), self.step_update)
 
-        # self._update_model()
+        self._update_model()
         if self.step_update % self.save_model_interval == 0:
             self._save_model()
 
@@ -234,7 +234,7 @@ class Actor(rllib.template.Model):
     def forward(self, state):
         #add character into state
         obs_character = self.recog(state)
-        print(obs_character)
+        # print(obs_character)
         #####
         x = self.fe(state, obs_character)
         mean = self.mean_no(self.mean(x))
