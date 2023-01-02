@@ -10,7 +10,6 @@ import random
 from .scenarios_template import ScenarioRandomization, ScenarioRandomization_fix_svo
 
 
-
 class ScenarioBottleneck(universe.Scenario):
     def generate_global_paths(self):
         path_path = self.config.dataset_dir.path
@@ -144,10 +143,11 @@ class ScenarioBottleneckEvaluate_without_mismatch(ScenarioBottleneckEvaluate):  
 class ScenarioBottleneckEvaluateFixOtherSvo(ScenarioBottleneckEvaluate):  ### only for single-agent
     def generate_scenario_randomization(self):
         scenario_randomization_cls = self.config.get('scenario_randomization_cls', ScenarioRandomization)
+        # breakpoint()
         dir_path = os.path.join(self.config.dataset_dir.map, f'../scenario_offline/{self.config.scenario_name}')
         file_path = os.path.join(dir_path, f'{self.step_reset}.txt')
         self.scenario_randomization = scenario_randomization_cls.load(file_path)
         self.scenario_randomization.characters[0] = 0.0
-        self.scenario_randomization.characters[1:] = self.scenario_randomization.characters[1]
+        # self.scenario_randomization.characters[1:] = self.scenario_randomization.characters[1]
         print(rllib.basic.prefix(self) + f'characters {self.step_reset}: ', self.scenario_randomization.characters)
         return

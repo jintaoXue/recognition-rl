@@ -202,6 +202,16 @@ cut state函数有问题，重新训练
 
 2023-01-02-10:36:55----Nothing--isac_recog__new_adaptive
 
+改setting，跑wo attn，看成功率	
 
 
-改setting，跑wo attn，看成功率
+
+fix other_svo后发现一个成功率高的：
+
+git：eb84145d7ca61591c0cc7eed5c9824830a7def54
+
+> model_dir = '~/github/zdk/recognition-rl/results/IndependentSAC_recog-EnvInteractiveSingleAgent/2023-01-02-19:47:47----Nothing--isac_recog__new_adaptive/saved_models_method'
+>
+>  \#good   
+>
+>  model_num = 19000
