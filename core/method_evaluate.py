@@ -225,7 +225,7 @@ class EvaluateSACRecog(rllib.EvaluateSingleAgent):
                 obs_character = self.recog(state)
                 # obs_character = np.random.uniform(0,1, size=obs_character)
                 # obs_character = torch.full(obs_character.size(), 0.880797).to(self.device)
-                print(obs_character)
+                # print(obs_character)
                 #####
                 x = self.fe(state, obs_character)
                 mean = self.mean_no(self.mean(x))
