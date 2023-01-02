@@ -553,8 +553,8 @@ def main():
 
     
     try:
-        # debug = Debug()
-        env_master.create_tasks(func=run_one_episode)
+        debug = Debug()
+        env_master.create_tasks(func=debug.run_one_episode)
 
         ray.get([t.run.remote(n_iters=200) for t in env_master.tasks])
 
