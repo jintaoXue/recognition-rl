@@ -41,13 +41,22 @@ if __name__ == "__main__":
     version = config.version
     
     from universe import EnvInteractiveMultiAgent as Env
+    # from universe import EnvInteractiveSingleAgent as Env
     from config import bottleneck, intersection, merge, roundabout
+    # config.set('envs', [
+    #     bottleneck.config_env__with_character,
+
+    # ])
+    # config.set('envs', [
+    #     bottleneck.config_env__with_character,
+    #     intersection.config_env__with_character,
+    #     merge.config_env__with_character,
+    #     roundabout.config_env__with_character,
+    # ])
     config.set('envs', [
-        bottleneck.config_env__with_character,
-        intersection.config_env__with_character,
-        merge.config_env__with_character,
-        roundabout.config_env__with_character,
+        bottleneck.config_env__with_character_fix_other_svo,
     ])
+    
     for env in config.envs:
         env.set('num_vehicles_range', rllib.basic.BaseData(min=20, max=20))
     config.set('methods', [])
