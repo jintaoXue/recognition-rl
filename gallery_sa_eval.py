@@ -704,10 +704,10 @@ def evaluate__recog_random_svo_one_background__bottleneck(config, mode='train', 
         from universe import EnvInteractiveSingleAgent as Env
         from core.method_isac_recog import IndependentSAC_recog as Method
 
-        from config.bottleneck_evaluate import config_env__neural_background
+        from config.bottleneck_evaluate import config_env__neural_background_same_other_svo
 
         ### adaptive
-        config_env__adaptive = copy.deepcopy(config_env__neural_background)
+        config_env__adaptive = copy.deepcopy(config_env__neural_background_same_other_svo)
         config_env__adaptive.set('config_neural_policy', get_sac__new_bottleneck__adaptive_character_config(config))
 
         config.set('envs', [
