@@ -223,10 +223,8 @@ class EvaluateSACRecog(rllib.EvaluateSingleAgent):
             def forward(self, state):
                 #add character into state
                 obs_character = self.recog(state)
-                obs_character = np.random.uniform(0,1, size=obs_character)
-
-   
-                breakpoint()
+                # obs_character = np.random.uniform(0,1, size=obs_character)
+                obs_character = torch.tensor.full(obs_character.size(), 0.88)
                 #####
                 x = self.fe(state, obs_character)
                 mean = self.mean_no(self.mean(x))

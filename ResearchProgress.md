@@ -196,6 +196,8 @@ control oriented meta learning这篇论文交流
 
 2023/1/1
 
-2023-01-01-19:49:54----Nothing--isac_recog__new_adaptive
+2023-01-01-19:49:54----Nothing--isac_recog__new_adaptive 
 
-重新训练
+cut state函数有问题，重新训练
+
+2023-01-02-10:36:55----Nothing--isac_recog__new_adaptive
