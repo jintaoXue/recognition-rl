@@ -784,7 +784,7 @@ def ray_isac_recog__new_adaptive_background__bottleneck(config, mode='train', sc
     from core.method_isac_recog import IndependentSAC_recog as Method
     
     ### env param
-    from config.bottleneck import config_env__neural_background as config_bottleneck
+    from config.bottleneck import config_env__neural_background_same_other_svo as config_bottleneck
     config_bottleneck.set('config_neural_policy', get_sac__new_bottleneck__adaptive_character_config(config))
 
     config.set('envs', [

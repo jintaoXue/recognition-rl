@@ -201,3 +201,7 @@ control oriented meta learning这篇论文交流
 cut state函数有问题，重新训练
 
 2023-01-02-10:36:55----Nothing--isac_recog__new_adaptive
+
+
+
+改setting，跑wo attn，看成功率

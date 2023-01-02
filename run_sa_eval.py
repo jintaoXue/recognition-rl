@@ -477,7 +477,7 @@ def main():
         if mode != 'evaluate':
             raise NotImplementedError
 
-        config.description += '--isac_recog_hr10act10__adaptive_background__bottleneck'
+        config.description += '--isac_recog_hr10act1__adaptive_background__bottleneck'
         models_sa.isac_recog__bottleneck__adaptive().update(config)
         env_master = gallery.evaluate__isac_recog__one_background__bottleneck(config, mode)
 

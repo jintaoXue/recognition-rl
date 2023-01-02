@@ -215,8 +215,8 @@ def main():
         # try 改成随机离散分布
 
     elif version == 'v6-8':
-        scale = 5
-        config.description += '--wo_attention-hrz15-act10'
+        scale = 7
+        config.description += '--wo_attention-hrz10-act1'
         writer, env_master, method = gallery.ray_wo_attention__adaptive_background__bottleneck(config, mode, scale)
         # try 改成随机离散分布
     ################################################################################################

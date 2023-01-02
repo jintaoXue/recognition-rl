@@ -44,7 +44,7 @@ class IndependentSAC_recog(MethodSingleAgent):
     buffer_size = 300000
     batch_size = 128
 
-    start_timesteps = 30000
+    start_timesteps = 0
     # start_timesteps = 1000  ## ! warning
     before_training_steps = 0
 
@@ -294,6 +294,7 @@ class Critic(rllib.template.Model):
         #####
         x = self.fe(state, obs_character)
         # x = self.fe(state)
+        breakpoint()
         x = torch.cat([x, action], 1)
         return self.fm1(x), self.fm2(x)
     
