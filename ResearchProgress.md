@@ -193,3 +193,9 @@ control oriented meta learning这篇论文交流
 验证发现new adaptive的性能在87.5， 加入recg性能下降为84.5. 下降三个点。
 
 待验证：随机svo
+
+2023/1/1
+
+2023-01-01-19:49:54----Nothing--isac_recog__new_adaptive
+
+重新训练

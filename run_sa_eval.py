@@ -11,9 +11,9 @@ import torch
 
 class Debug(object): 
     episode = -1
-    debug_episode = 0
+    debug_episode = 2
     time_step = -1 
-    debug_time_step = 51
+    debug_time_step = 0
     def __init__(self) -> None:
         pass
     def run_one_episode(self, env, method):
@@ -553,8 +553,8 @@ def main():
 
     
     try:
-        # debug = Debug()
-        env_master.create_tasks(func=run_one_episode)
+        debug = Debug()
+        env_master.create_tasks(func=debug.run_one_episode)
 
         ray.get([t.run.remote(n_iters=200) for t in env_master.tasks])
 
