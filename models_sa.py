@@ -174,7 +174,7 @@ class isac_recog__bottleneck__adaptive(ModelPath):
     model_dir = '~/github/zdk/recognition-rl/results/IndependentSAC_recog-EnvInteractiveSingleAgent/2023-01-02-19:47:47----Nothing--isac_recog__new_adaptive/saved_models_method'
      
     model_num = 19000
-    model_num= 53000
+    # model_num= 53000
     
 class isac_recog__bottleneck__robust(ModelPath):
 
