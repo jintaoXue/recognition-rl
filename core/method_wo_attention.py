@@ -174,7 +174,7 @@ class IndependentSAC_recog_woattn(MethodSingleAgent):
     buffer_size = 750000
     batch_size = 128
 
-    start_timesteps = 0
+    start_timesteps = 30000
     # start_timesteps = 1000  ## ! warning
     before_training_steps = 0
 
