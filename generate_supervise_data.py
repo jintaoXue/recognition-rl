@@ -98,7 +98,7 @@ def generate__supervise_data__bottleneck(config, mode='train', scale=1):
     #todo
     from core.method_evaluate import EvaluateIndependentSAC as Method
     ### env param
-    from config.bottleneck import config_env__neural_background_sampling as config_bottleneck
+    from config.bottleneck import config_env__neural_background_same_other_svo as config_bottleneck
     # from utils.topology_map import TopologyMapSampled
 
     # config_bottleneck.set('topology_map', TopologyMapSampled)
@@ -138,7 +138,7 @@ if __name__ == "__main__":
 
     version = config.version
     
-    if version == 'v6-5-4':  ### generate supervise data 
+    if version == 'v6-5-6':  ### generate supervise data 
 
         config.description += '--supervise__generate_data__bottleneck-hr10act1'
         models_sa.isac__bottleneck__adaptive().update(config)

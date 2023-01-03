@@ -9,10 +9,10 @@ python run_sa.py v6-4-3
 python run_sa.py v6-5-6
 4.监督学习 without attention
 python run_sa.py v6-5-9
-
-
-
-
+5.离线监督学习
+python generate_supervise_data.py v6-5-6
+python run_supervise_offline.py v6-5-6
+core/method_supervise_offline里面的datasize参数定义训练样本大小
 
 
 

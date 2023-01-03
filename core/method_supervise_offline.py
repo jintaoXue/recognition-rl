@@ -43,8 +43,6 @@ class IndependentSACsupervise(MethodSingleAgent):
     lr_tune = 1e-4
 
     tau = 0.005
-
-    buffer_size = 130000
     batch_size = 128
 
     # start_timesteps = 30000
@@ -52,7 +50,7 @@ class IndependentSACsupervise(MethodSingleAgent):
     # start_timesteps = 1000  ## ! warning
     before_training_steps = 0
 
-    save_model_interval = 10000
+    save_model_interval = 2000
 
 
     def __init__(self, config: rllib.basic.YamlConfig, writer):
@@ -74,7 +72,7 @@ class IndependentSACsupervise(MethodSingleAgent):
 
         self.training_data_path = config.training_data_path
 
-        self.data_size = 2019
+        self.data_size = 750000
         #todo
         self.actor_target = copy.deepcopy(self.actor)
         self.models_to_save = [self.actor]

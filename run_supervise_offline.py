@@ -53,7 +53,7 @@ def ray_supervise_offline__new_adaptive_background__bottleneck(config, mode='tra
     from core.method_supervise_offline import IndependentSACsupervise as Method
 
     ### env param
-    from config.bottleneck import config_env__neural_background_sampling as config_bottleneck
+    from config.bottleneck import config_env__neural_background_same_other_svo as config_bottleneck
     
     from gallery_sa import get_sac__new_bottleneck__adaptive_character_config
     config_bottleneck.set('config_neural_policy', get_sac__new_bottleneck__adaptive_character_config(config))
@@ -88,9 +88,9 @@ def main():
     if version == 'pseudo':
         raise NotImplementedError
     
-    elif version == 'v6-5-5':
-        scale = 1
-        config.description += '--supervise-offline-hrz1-act10'
+    elif version == 'v6-5-6':
+        scale = 10
+        config.description += '--supervise-offline-hrz10-act1'
         writer, method = ray_supervise_offline__new_adaptive_background__bottleneck(config, mode, scale)
 
 
