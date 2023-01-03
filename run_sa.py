@@ -156,24 +156,23 @@ def main():
         config.description += '--isac_recog__adaptive'
         writer, env_master, method = gallery.ray_isac_recog__adaptive_background__bottleneck(config, mode, scale)
 
-
     elif version == 'v6-4-1':
-        scale = 7
+        scale = 10
         config.description += '--isac_recog__new_adaptive'
         writer, env_master, method = gallery.ray_isac_recog__new_adaptive_background__bottleneck(config, mode, scale)
 
     elif version == 'v6-4-2':
-        scale = 8
+        scale = 10
         config.description += '--isac_recog__downsample_new_adaptive'
         writer, env_master, method = gallery.ray_isac_recog__downsample_adaptive_background__bottleneck(config, mode, scale)
     
     elif version == 'v6-4-3':
-        scale = 1
+        scale = 10
         config.description += '--isac_recog_woattn__new_adaptive'
         writer, env_master, method = gallery.ray_isac_recog_woattn__adaptive_background__bottleneck(config, mode, scale)
     
     elif version == 'v6-5-0':
-        scale = 1
+        scale = 10
         config.description += '--supervise-hrz10-act10'
         writer, env_master, method = gallery.ray_supervise__adaptive_background__bottleneck(config, mode, scale)
 
