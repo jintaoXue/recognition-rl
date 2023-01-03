@@ -266,7 +266,7 @@ class PerceptionVectorizedRoute(object):
         route_x, route_y = route[:,0], route[:,1]
         plt.plot(route_x, route_x, '-', color='#000000')
         plt.show()
-        breakpoint()
+        # breakpoint()
         return rllib.basic.Data(route=route, route_mask=route_mask)
 
 

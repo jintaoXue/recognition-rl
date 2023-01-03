@@ -56,15 +56,15 @@ class ScenarioRandomizationWithoutMismatch(ScenarioRandomization):
 
 class ScenarioRandomizationFixOtherSvo(ScenarioRandomization):
     def get_characters(self):
-        characters = np.random.uniform(0,1, size=self.num_vehicles)
-        characters[1:] = characters[1]
-        characters[0] = 0.0
-        # print(rllib.basic.prefix(self) + 'characters: ', characters)
-        return characters.astype(np.float32)
-        # characters = np.full(self.num_vehicles, np.random.uniform(0,1, size=1))
+        # characters = np.random.uniform(0,1, size=self.num_vehicles)
+        # characters[1:] = characters[1]
         # characters[0] = 0.0
         # # print(rllib.basic.prefix(self) + 'characters: ', characters)
         # return characters.astype(np.float32)
+        characters = np.full(self.num_vehicles, np.random.uniform(0,1, size=1),dtype=np.float32)
+        characters[0] = 0.0
+        # print(rllib.basic.prefix(self) + 'characters: ', characters)
+        return characters
 
 class ScenarioRandomizationWithoutMismatchDisSvo(ScenarioRandomization):
     def get_characters(self):

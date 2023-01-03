@@ -294,7 +294,7 @@ class Critic(rllib.template.Model):
         #####
         x = self.fe(state, obs_character)
         # x = self.fe(state)
-        breakpoint()
+        # breakpoint()
         x = torch.cat([x, action], 1)
         return self.fm1(x), self.fm2(x)
     
