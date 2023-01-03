@@ -59,9 +59,10 @@ class IndependentSAC_woatt(MethodSingleAgent):
 
         #todo
         self.actor.method_name = 'INDEPENDENTSAC_V0'
-        self.actor.model_dir =     '~/github/zdk/recognition-rl/models/IndependentSAC_v0-EnvInteractiveMultiAgent/2022-09-11-15:19:29----ray_isac_adaptive_character__multi_scenario--buffer-rate-0.2/saved_models_method'
-        self.actor.model_num = 865800
-
+        # self.actor.model_dir =     '~/github/zdk/recognition-rl/models/IndependentSAC_v0-EnvInteractiveMultiAgent/2022-09-11-15:19:29----ray_isac_adaptive_character__multi_scenario--buffer-rate-0.2/saved_models_method'
+        # self.actor.model_num = 865800
+        self.actor.model_dir = '~/github/zdk/recognition-rl/models/origin_no_history_bottleneck/'
+        self.actor.model_num = 445600
         self.models_to_load = [self.actor]
         # [model.load_model() for model in self.models_to_load]
         [load_model(model) for model in self.models_to_load]
@@ -170,7 +171,7 @@ class IndependentSAC_recog_woattn(MethodSingleAgent):
 
     tau = 0.005
 
-    buffer_size = 300000
+    buffer_size = 750000
     batch_size = 128
 
     start_timesteps = 0

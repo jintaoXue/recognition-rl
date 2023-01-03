@@ -1,9 +1,28 @@
 # recognition-rl
 
+
+1.基于rl的性格辨识：
+python run_sa.py v6-4-1
+2.基于rl without attention
+python run_sa.py v6-4-3
+3.基于监督学习的性格辨识
+python run_sa.py v6-5-6
+4.监督学习 without attention
+python run_sa.py v6-5-9
+
+
+
+
+
+
+
+
+
+
+
 ## evaluate
 
 ### multi-agent, social behavior
-
 
 - 第一步：选择交互行为
 
@@ -45,6 +64,8 @@ python eval_social_behavior.py v3
 ### roundabout (todo)
 python eval_social_behavior.py v4
 ```
+
+
 
 
 

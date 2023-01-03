@@ -193,35 +193,35 @@ def main():
 
     elif version == 'v6-5-4':
         scale = 1
-        config.description += '--supervise-sampling-hrz1-act10'
+        config.description += '--supervise-sampling-hrz10-act10'
         writer, env_master, method = gallery.ray_supervise__new_adaptive_background__bottleneck(config, mode, scale)
 
     elif version == 'v6-5-5':
         scale = 1
-        config.description += '--supervise-sampling2-hrz1-act10'
+        config.description += '--supervise-sampling2-hrz10-act10'
         writer, env_master, method = gallery.ray_supervise_sampling__new_adaptive_background__bottleneck(config, mode, scale)
 
     elif version == 'v6-5-6':
-        scale = 1
-        config.description += '--supervise--new-hrz1-act10'
+        scale = 10
+        config.description += '--supervise--new-hrz10-act10'
         writer, env_master, method = gallery.ray_supervise__new_adaptive_background__bottleneck(config, mode, scale)
 
-    elif version == 'v6-6':
+    elif version == 'v6-5-7':
         scale = 10
         config.description += '--supervise-roll-hrz10-act10'
         writer, env_master, method = gallery.ray_supervise_roll__adaptive_background__bottleneck(config, mode, scale)
 
 
-    elif version == 'v6-7':
+    elif version == 'v6-5-8':
         scale = 10
         config.description += '--supervise-discrete-svo'
         writer, env_master, method = gallery.ray_supervise__adaptive_background__bottleneck_discrete_svo(config, mode, scale)
         # try 改成随机离散分布
 
-    elif version == 'v6-8':
-        scale = 7
-        config.description += '--wo_attention-hrz10-act1'
-        writer, env_master, method = gallery.ray_wo_attention__adaptive_background__bottleneck(config, mode, scale)
+    elif version == 'v6-5-9':
+        scale = 10
+        config.description += '--wo_attention-hrz10-act10'
+        writer, env_master, method = gallery.ray_wo_attention__new_adaptive_background__bottleneck(config, mode, scale)
         # try 改成随机离散分布
     ################################################################################################
     ##### debug ####################################################################################

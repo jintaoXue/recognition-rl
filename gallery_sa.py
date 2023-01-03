@@ -899,7 +899,7 @@ def ray_supervise__new_adaptive_background__bottleneck(config, mode='train', sca
     #todo
     from core.method_supervise import IndependentSACsupervise as Method
     ### env param
-    from config.bottleneck import config_env__neural_background as config_bottleneck
+    from config.bottleneck import config_env__neural_background_same_other_svo as config_bottleneck
     
     config_bottleneck.set('config_neural_policy', get_sac__new_bottleneck__adaptive_character_config(config))
 
@@ -970,7 +970,7 @@ def ray_supervise__adaptive_background__bottleneck_discrete_svo(config, mode='tr
 
     return init(config, mode, Env, Method)
 
-def ray_wo_attention__adaptive_background__bottleneck(config, mode='train', scale=1):
+def ray_wo_attention__new_adaptive_background__bottleneck(config, mode='train', scale=1):
     from universe import EnvInteractiveSingleAgent as Env
     #todo
     from core.method_wo_attention import IndependentSAC_woatt as Method
