@@ -109,7 +109,14 @@ config_isac_recog = rllib.basic.YamlConfig(
     buffer=ReplayBufferSingleAgent,
     **config_meta.to_dict(),
 )
-
+config_isac_recog_woattn = rllib.basic.YamlConfig(
+    net_actor_fe=PointNetWithCharactersAgentHistoryRecog,
+    net_critic_fe=PointNetWithCharactersAgentHistoryRecog,
+    net_actor_recog=RecognitionWoAttention,
+    net_critic_recog=RecognitionWoAttention,
+    buffer=ReplayBufferSingleAgent,
+    **config_meta.to_dict(),
+)
 config_supervise = rllib.basic.YamlConfig(
     net_actor_fe=PointNetWithCharactersAgentHistoryRecog,
     net_recog=RecognitionNet,
