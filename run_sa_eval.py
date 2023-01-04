@@ -511,7 +511,7 @@ def main():
 
         config.description += '--isac_recog_hr10act1__bottleneck_woattn'
         models_sa.isac_recog_woattn__bottleneck__adaptive().update(config)
-        env_master = gallery.evaluate__recog_random_svo_one_background__bottleneck(config, mode)
+        env_master = gallery.evaluate__recog_woattn__one_background__bottleneck(config, mode)
 
     elif version == 'v6-5':  ### adaptive + supervise + four backgrounds
         if mode != 'evaluate':
