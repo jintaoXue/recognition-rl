@@ -40,7 +40,7 @@ class IndependentSAC_woatt(MethodSingleAgent):
 
     tau = 0.005
 
-    buffer_size = 130000
+    buffer_size = 750000
     batch_size = 128
 
     # start_timesteps = 30000

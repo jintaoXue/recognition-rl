@@ -175,6 +175,8 @@ class isac_recog__bottleneck__adaptive(ModelPath):
      
     model_num = 19000
     # model_num= 53000
+    model_num = 'results/IndependentSAC_recog-EnvInteractiveSingleAgent/2023-01-03-19:21:50----Nothing--isac_recog__new_adaptive/saved_models_method/'
+    model_num = 192000
     
 class isac_recog__bottleneck__robust(ModelPath):
 

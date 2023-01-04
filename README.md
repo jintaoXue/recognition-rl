@@ -13,7 +13,8 @@ python run_sa.py v6-5-9
 python generate_supervise_data.py v6-5-6
 python run_supervise_offline.py v6-5-6
 core/method_supervise_offline里面的datasize参数定义训练样本大小
-
+查看当前文件夹下文件个数(不包括文件夹)
+ls -l  | grep "^-" | wc -l
 
 
 
