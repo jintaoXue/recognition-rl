@@ -419,7 +419,7 @@ def main():
         models_sa.isac__bottleneck__adaptive().update(config)
         env_master = gallery.evaluate__isac__adaptive_background_downsample_bottleneck(config, mode)
     
-    elif version == 'v5-2-3':  ### adaptive + one backgrounds 
+    elif version == 'v5-2-3':  ### adaptive + one backgrounds + same other svo
         if mode != 'evaluate':
             raise NotImplementedError
 
