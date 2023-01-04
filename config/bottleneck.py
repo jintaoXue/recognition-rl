@@ -104,4 +104,4 @@ config_env__neural_background_sampling.perception_cls = perception_downsample.Pe
 
 config_env__neural_background_same_other_svo = copy.copy(config_env__neural_background)
 config_env__neural_background_same_other_svo.scenario_randomization_cls = scenarios_template.ScenarioRandomizationFixOtherSvo
-
+config_env__neural_background_same_other_svo.reward_func = reward.RewardFunctionWithCharacter
