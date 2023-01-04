@@ -801,7 +801,7 @@ def ray_isac_recog__new_adaptive_background__bottleneck(config, mode='train', sc
 def ray_isac_recog_woattn__adaptive_background__bottleneck(config, mode='train', scale=1):
     from universe import EnvInteractiveSingleAgent as Env
     #todo
-    from core.method_wo_attention import IndependentSAC_recog_woattn as Method
+    from core.method_wo_attention import ISAC_recog_woattn as Method
     
     ### env param
     from config.bottleneck import config_env__neural_background_same_other_svo as config_bottleneck
