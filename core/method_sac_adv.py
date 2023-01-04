@@ -90,6 +90,7 @@ class SAC(MethodSingleAgent):
         action = experience.action
         next_state = experience.next_state
         reward = experience.reward *self.reward_scale
+        print(reward)
         done = experience.done
 
         '''critic'''

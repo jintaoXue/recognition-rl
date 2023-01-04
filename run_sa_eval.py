@@ -556,7 +556,6 @@ def main():
         for ego_svo in np.linspace(0, 0, num=1):
             for other_svo in np.linspace(0, 1, num=11):
                 config.description = 'evaluate' + '--fix_{}_{}__one_background__bottleneck'.format(ego_svo, other_svo)
-                breakpoint()
                 models_sa.isac__bottleneck__adaptive().update(config)
                 env_master = gallery.evaluate__fix_svo__new_one_background__bottleneck(config, ego_svo, other_svo,mode)
                 env_master.create_tasks(func=run_one_episode)

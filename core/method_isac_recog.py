@@ -31,7 +31,6 @@ class IndependentSAC_recog(MethodSingleAgent):
     
     gamma = 0.9
 
-    reward_scale = 50
     target_entropy = None
     alpha_init = 1.0
 
@@ -44,13 +43,12 @@ class IndependentSAC_recog(MethodSingleAgent):
     buffer_size = 750000
     batch_size = 128
 
-    start_timesteps = 30000
-    # start_timesteps = 1000  ## ! warning
+    # start_timesteps = 30000
+    start_timesteps = 0  ## ! warning
     before_training_steps = 0
 
     save_model_interval = 1000
-
-
+    actor_loss_scale = 5e-7
     def __init__(self, config: rllib.basic.YamlConfig, writer):
         super().__init__(config, writer)
 
@@ -117,6 +115,8 @@ class IndependentSAC_recog(MethodSingleAgent):
         action = experience.action
         next_state = experience.next_state
         reward = experience.reward
+        # breakpoint()
+        # print(reward)
         done = experience.done
 
         '''critic'''
@@ -129,16 +129,19 @@ class IndependentSAC_recog(MethodSingleAgent):
 
         current_q1, current_q2 = self.critic(state, action)
         critic_loss = (self.critic_loss(current_q1, target_q) + self.critic_loss(current_q2, target_q))
+        print('critic_loss: {}'.format(critic_loss))
         self.critic_optimizer.zero_grad()
         critic_loss.backward()
         self.critic_optimizer.step()
 
         '''actor'''
         action, logprob, _ = self.actor.sample(state)
-        actor_loss = (-self.critic.q1(state, action) + self.alpha * logprob).mean() 
+        actor_loss = (-self.critic.q1(state, action) + self.alpha * logprob).mean() * self.actor_loss_scale
+        print('actor_loss : {}'.format(actor_loss))
         self.actor_optimizer.zero_grad()
         actor_loss.backward()
         self.actor_optimizer.step()
+
         # for name, p in self.actor.recog.named_parameters():
         #     print(name, p)  
         # time.sleep(2)
