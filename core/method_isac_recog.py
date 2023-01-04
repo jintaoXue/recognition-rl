@@ -43,12 +43,12 @@ class IndependentSAC_recog(MethodSingleAgent):
     buffer_size = 750000
     batch_size = 128
 
-    # start_timesteps = 30000
-    start_timesteps = 0  ## ! warning
+    start_timesteps = 30000
+    # start_timesteps = 0  ## ! warning
     before_training_steps = 0
 
     save_model_interval = 1000
-    actor_loss_scale = 5e-7
+    actor_loss_scale = 2e-7
     def __init__(self, config: rllib.basic.YamlConfig, writer):
         super().__init__(config, writer)
 
