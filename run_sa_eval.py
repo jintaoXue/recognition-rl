@@ -553,7 +553,7 @@ def main():
         if mode != 'evaluate':
             raise NotImplementedError
         for ego_svo in range(0,1):
-            for other_svo in range(0.8,0.9):
+            for other_svo in range(8,9):
                 config.description = 'evaluate' + '--fix_{}_{}__one_background__bottleneck'.format(0.1*ego_svo, 0.1*other_svo)
                 models_sa.isac__bottleneck__adaptive().update(config)
                 env_master = gallery.evaluate__fix_svo__new_one_background__bottleneck(config, 0.1*ego_svo, 0.1*other_svo,mode)
@@ -563,7 +563,7 @@ def main():
                 ray.shutdown()
                 ray.init(num_cpus=psutil.cpu_count(), num_gpus=torch.cuda.device_count(), include_dashboard=False)
         for ego_svo in range(0,1):
-            for other_svo in range(0.8,0.9):
+            for other_svo in range(8,9):
                 config.description = 'evaluate' + '--recog_fix_{}_{}__one_background__bottleneck'.format(0.1*ego_svo, 0.1*other_svo)
                 models_sa.isac_recog__bottleneck__adaptive().update(config)
                 env_master = gallery.evaluate__fix_svo__new_one_background__bottleneck(config, 0.1*ego_svo, 0.1*other_svo,mode)
