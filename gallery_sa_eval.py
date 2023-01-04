@@ -29,7 +29,7 @@ def init(config, mode, Env, Method) -> universe.EnvMaster_v1:
         Method = method_evaluate.EvaluateSACRecog
     elif config.method == 'IndependentSAC_supervise' or config.method == 'IndependentSACsupervise':
         Method = method_evaluate.EvaluateSACsupervise
-    elif config.method == 'IndependentSAC_recog_woattn' :
+    elif config.method == 'ISAC_recog_woattn' :
         Method = method_evaluate.EvaluateSACRecogWoattn
     else:
         raise NotImplementedError
@@ -642,7 +642,7 @@ def evaluate__isac_recog__one_background__bottleneck(config, mode='train', scale
         return init(config, mode, Env, Method)
 def evaluate__recog_woattn__one_background__bottleneck(config, mode='train', scale=1):
         from universe import EnvInteractiveSingleAgent as Env
-        from core.method_wo_attention import IndependentSAC_recog_woattn as Method
+        from core.method_wo_attention import ISAC_recog_woattn as Method
 
         from config.bottleneck_evaluate import config_env__neural_background_same_other_svo
 

@@ -156,7 +156,7 @@ class IndependentSAC_woatt(MethodSingleAgent):
         # print('[update_parameters] soft update')
         rllib.utils.soft_update(self.actor_target, self.actor, self.tau)
 
-class IndependentSAC_recog_woattn(MethodSingleAgent):
+class ISAC_recog_woattn(MethodSingleAgent):
     dim_reward = 2
     
     gamma = 0.9
@@ -202,8 +202,8 @@ class IndependentSAC_recog_woattn(MethodSingleAgent):
 
         # [model.load_model() for model in self.models_to_load]
         [load_model(model) for model in self.models_to_load]
-        self.actor.method_name = 'IndependentSAC_recog'
-        self.critic.method_name = 'IndependentSAC_recog'
+        self.actor.method_name = 'ISAC_recog_woattn'
+        self.critic.method_name = 'ISAC_recog_woattn'
         for name, p in self.actor.named_parameters():
             if name.startswith('fe'): p.requires_grad = False
             if name.startswith('mean'): p.requires_grad = False
