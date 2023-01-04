@@ -87,7 +87,7 @@ class IndependentSAC_recog(MethodSingleAgent):
 
         self.critic_optimizer= Adam(self.critic.parameters(), lr=self.lr_critic)
         self.actor_optimizer = Adam(filter(lambda x: x.requires_grad is not False ,self.actor.parameters()), lr=self.lr_actor)
-        
+        self.actor_loss_tanh = torch.nn.Tanh()
         # self.recog_optimizer= Adam(self.actor.recog.parameters(), lr=self.lr_actor)
         self.critic_loss = nn.MSELoss()
         self.character_loss = nn.MSELoss()
@@ -137,8 +137,7 @@ class IndependentSAC_recog(MethodSingleAgent):
         '''actor'''
         action, logprob, _ = self.actor.sample(state)
         # actor_loss = (-self.critic.q1(state, action) + self.alpha * logprob).mean() * self.actor_loss_scale
-        actor_loss = (-self.critic.q1(state, action) + self.alpha * logprob).mean()
-        actor_loss = torch.nn.Tanh(actor_loss)
+        actor_loss = self.actor_loss_tanh((-self.critic.q1(state, action) + self.alpha * logprob).mean())
         # print('-self.critic.q1(state, action) :{}, self.alpha * logprob:{}\n'.format(-self.critic.q1(state, action) , self.alpha * logprob))
         print('actor_loss : {}'.format(actor_loss))
         self.actor_optimizer.zero_grad()
