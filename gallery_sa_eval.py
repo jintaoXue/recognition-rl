@@ -502,11 +502,10 @@ def evaluate__isac_adaptive__adaptive_background__bottleneck(config, mode='train
     from core.method_isac_v0 import IndependentSAC_v0 as Method
 
     ### env param
-    from config.bottleneck_evaluate import config_env__idm_background
-    from config.bottleneck_evaluate import config_env__neural_background
+    from config.bottleneck_evaluate import config_env__neural_background_same_other_svo
 
     ### adaptive
-    config_env__adaptive = copy.deepcopy(config_env__neural_background)
+    config_env__adaptive = copy.deepcopy(config_env__neural_background_same_other_svo)
     config_env__adaptive.set('config_neural_policy', get_sac__new_bottleneck__adaptive_character_config(config))
 
     config.set('envs', [
