@@ -138,7 +138,7 @@ class IndependentSAC_recog(MethodSingleAgent):
         action, logprob, _ = self.actor.sample(state)
         # actor_loss = (-self.critic.q1(state, action) + self.alpha * logprob).mean() * self.actor_loss_scale
         actor_loss = (-self.critic.q1(state, action) + self.alpha * logprob).mean().abs() 
-        actor_loss = actor_loss/actor_loss - 1 + 0.1
+        actor_loss = actor_loss/actor_loss + 0.1
         # print('-self.critic.q1(state, action) :{}, self.alpha * logprob:{}\n'.format(-self.critic.q1(state, action) , self.alpha * logprob))
         print('actor_loss : {}'.format(actor_loss))
         self.actor_optimizer.zero_grad()
