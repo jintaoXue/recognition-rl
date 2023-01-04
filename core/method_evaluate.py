@@ -266,7 +266,7 @@ class EvaluateSACRecogWoattn(rllib.EvaluateSingleAgent):
         # self.critic = config.get('net_critic', Critic)(config).to(self.device)
         self.actor = config.get('net_actor', Actor)(config).to(self.device)
         # self.models_to_load = [self.critic, self.actor]
-        breakpoint()
+        # breakpoint()
         self.models_to_load = [self.actor]
         return
     @torch.no_grad()
