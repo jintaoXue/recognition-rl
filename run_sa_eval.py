@@ -423,7 +423,7 @@ def main():
         if mode != 'evaluate':
             raise NotImplementedError
 
-        config.description += '--adaptive'
+        config.description += '--adaptive-othersvo_0.8'
         models_sa.isac__bottleneck__adaptive().update(config)
         env_master = gallery.evaluate__isac_adaptive__adaptive_background__bottleneck(config, mode)
     
