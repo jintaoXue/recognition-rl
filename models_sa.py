@@ -177,7 +177,13 @@ class isac_recog__bottleneck__adaptive(ModelPath):
     # model_num= 53000
     model_num = '~/github/zdk/recognition-rl/results/IndependentSAC_recog-EnvInteractiveSingleAgent/2023-01-03-19:21:50----Nothing--isac_recog__new_adaptive/saved_models_method/'
     model_num = 192000
-    
+
+class isac_recog_woattn__bottleneck__adaptive(ModelPath):
+    method = 'IndependentSAC_recog_woattn'
+
+    model_dir = '~/github/zdk/recognition-rl/results/IndependentSAC_recog_woattn-EnvInteractiveSingleAgent/2023-01-03-19:56:43----Nothing--isac_recog_woattn__new_adaptive/saved_models_method'
+    model_num = 202000
+
 class isac_recog__bottleneck__robust(ModelPath):
 
     method = 'IndependentSAC_recog'

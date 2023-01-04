@@ -505,6 +505,14 @@ def main():
         models_sa.isac_recog__bottleneck__adaptive().update(config)
         env_master = gallery.evaluate__recog_random_svo_one_background__bottleneck(config, mode)
 
+    elif version == 'v6-4-5':  ### adaptive + one backgrounds + fix other svo + without attn
+        if mode != 'evaluate':
+            raise NotImplementedError
+
+        config.description += '--isac_recog_hr10act1__bottleneck_woattn'
+        models_sa.isac_recog_woattn__bottleneck__adaptive().update(config)
+        env_master = gallery.evaluate__recog_random_svo_one_background__bottleneck(config, mode)
+
     elif version == 'v6-5':  ### adaptive + supervise + four backgrounds
         if mode != 'evaluate':
             raise NotImplementedError

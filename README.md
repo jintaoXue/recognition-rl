@@ -3,8 +3,10 @@
 
 1.基于rl的性格辨识：
 python run_sa.py v6-4-1
+python run_sa_eval.py v6-4-1
 2.基于rl without attention
 python run_sa.py v6-4-3
+python run_sa_eval.py v6-4-5
 3.基于监督学习的性格辨识
 python run_sa.py v6-5-6
 4.监督学习 without attention
@@ -15,8 +17,6 @@ python run_supervise_offline.py v6-5-6
 core/method_supervise_offline里面的datasize参数定义训练样本大小
 查看当前文件夹下文件个数(不包括文件夹)
 ls -l  | grep "^-" | wc -l
-
-
 
 
 
