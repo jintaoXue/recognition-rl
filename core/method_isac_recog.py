@@ -142,7 +142,7 @@ class IndependentSAC_recog(MethodSingleAgent):
         print('actor_loss : {}'.format(actor_loss) ,actor_loss)
         self.actor_optimizer.zero_grad()
         actor_loss.backward()
-        nn.utils.clip_grad_norm_(self.actor.parameters(), max_norm=0.001)
+        nn.utils.clip_grad_norm_(self.actor.parameters(), max_norm=0.1)
         self.actor_optimizer.step()
 
         # for name, p in self.actor.recog.named_parameters():
