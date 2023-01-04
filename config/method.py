@@ -103,9 +103,9 @@ config_ppo_attn = rllib.basic.YamlConfig(
 
 config_isac_recog = rllib.basic.YamlConfig(
     net_actor_fe=PointNetWithCharactersAgentHistoryRecog,
-    net_critic_fe=PointNetWithCharactersAgentHistoryRecog,
+    net_critic_fe=PointNetWithCharactersAgentHistory,
     net_actor_recog=RecognitionNet,
-    net_critic_recog=RecognitionNet,
+    # net_critic_recog=RecognitionNet,
     buffer=ReplayBufferSingleAgent,
     **config_meta.to_dict(),
 )

@@ -43,8 +43,8 @@ class IndependentSAC_recog(MethodSingleAgent):
     buffer_size = 750000
     batch_size = 128
 
-    start_timesteps = 30000
-    # start_timesteps = 0  ## ! warning
+    # start_timesteps = 30000
+    start_timesteps = 0  ## ! warning
     before_training_steps = 0
 
     save_model_interval = 1000
@@ -136,7 +136,9 @@ class IndependentSAC_recog(MethodSingleAgent):
 
         '''actor'''
         action, logprob, _ = self.actor.sample(state)
-        actor_loss = (-self.critic.q1(state, action) + self.alpha * logprob).mean() * self.actor_loss_scale
+        # actor_loss = (-self.critic.q1(state, action) + self.alpha * logprob).mean() * self.actor_loss_scale
+        actor_loss = (-self.critic.q1(state, action) + self.alpha * logprob).mean().abs()
+        # print('-self.critic.q1(state, action) :{}, self.alpha * logprob:{}\n'.format(-self.critic.q1(state, action) , self.alpha * logprob))
         print('actor_loss : {}'.format(actor_loss))
         self.actor_optimizer.zero_grad()
         actor_loss.backward()
@@ -286,26 +288,27 @@ class Actor(rllib.template.Model):
 class Critic(rllib.template.Model):
     def __init__(self, config, model_id=0):
         super().__init__(config, model_id)
-        self.recog = config.get('net_actor_recog', RecognitionNet)(config, 0)
+        # self.recog = config.get('net_actor_recog', RecognitionNet)(config, 0)
         self.fe = config.get('net_critic_fe', FeatureExtractor)(config, 0)
         self.fm1 = config.get('net_critic_fm', FeatureMapper)(config, 0, self.fe.dim_feature+config.dim_action, 1)
         self.fm2 = copy.deepcopy(self.fm1)
         self.apply(init_weights)
 
     def forward(self, state, action):
-        obs_character = self.recog(state)
+        # obs_character = self.recog(state)
         #####
-        x = self.fe(state, obs_character)
+        # x = self.fe(state, obs_character)
+        x = self.fe(state)
         # x = self.fe(state)
         # breakpoint()
         x = torch.cat([x, action], 1)
         return self.fm1(x), self.fm2(x)
     
     def q1(self, state, action):
-        obs_character = self.recog(state)
+        # obs_character = self.recog(state)
         #####
-        x = self.fe(state, obs_character)
-        # x = self.fe(state)
+        # x = self.fe(state, obs_character)
+        x = self.fe(state)
         x = torch.cat([x, action], 1)
         return self.fm1(x)
 
