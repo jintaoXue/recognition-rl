@@ -43,7 +43,7 @@ class IndependentSAC_recog(MethodSingleAgent):
     buffer_size = 750000
     batch_size = 128
 
-    start_timesteps = 3000
+    start_timesteps = 0
     # start_timesteps = 0  ## ! warning
     before_training_steps = 0
 
@@ -141,7 +141,20 @@ class IndependentSAC_recog(MethodSingleAgent):
         # print('-self.critic.q1(state, action) :{}, self.alpha * logprob:{}\n'.format(-self.critic.q1(state, action) , self.alpha * logprob))
         print('actor_loss : {}'.format(actor_loss) ,actor_loss)
         self.actor_optimizer.zero_grad()
+        for name, parms in self.actor.named_parameters():	
+            print('-->name:', name)
+            print('-->para:', parms)
+            print('-->grad_requirs:',parms.requires_grad)
+            print('-->grad_value:',parms.grad)
+            print("===")
         actor_loss.backward()
+        for name, parms in self.actor.named_parameters():	
+            print('-->name:', name)
+            print('-->para:', parms)
+            print('-->grad_requirs:',parms.requires_grad)
+            print('-->grad_value:',parms.grad)
+            print("===")
+        breakpoint()
         nn.utils.clip_grad_norm_(self.actor.parameters(), max_norm=0.1)
         self.actor_optimizer.step()
 
