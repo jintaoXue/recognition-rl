@@ -129,7 +129,7 @@ class IndependentSAC_recog(MethodSingleAgent):
 
         current_q1, current_q2 = self.critic(state, action)
         critic_loss = (self.critic_loss(current_q1, target_q) + self.critic_loss(current_q2, target_q))
-        print('critic_loss: {}'.format(critic_loss))
+        # print('critic_loss: {}'.format(critic_loss))
         self.critic_optimizer.zero_grad()
         critic_loss.backward()
         self.critic_optimizer.step()
@@ -138,9 +138,9 @@ class IndependentSAC_recog(MethodSingleAgent):
         action, logprob, _ = self.actor.sample(state)
         # actor_loss = (-self.critic.q1(state, action) + self.alpha * logprob).mean() * self.actor_loss_scale
         # breakpoint()
-        actor_loss = ((-self.critic.q1(state, action) + self.alpha * logprob).mean())/10
+        actor_loss = ((-self.critic.q1(state, action)/10 + self.alpha * logprob).mean())
         # print('-self.critic.q1(state, action) :{}, self.alpha * logprob:{}\n'.format(-self.critic.q1(state, action) , self.alpha * logprob))
-        print('actor_loss : {}'.format(actor_loss))
+        print('actor_loss : {}'.format(actor_loss) ,actor_loss)
         self.actor_optimizer.zero_grad()
         actor_loss.backward()
         self.actor_optimizer.step()
