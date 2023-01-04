@@ -215,3 +215,9 @@ git：eb84145d7ca61591c0cc7eed5c9824830a7def54
 >  \#good   
 >
 >  model_num = 19000
+
+1/4
+isac 在fix other svo的情况下是89.5
+recog 是对应的89.0
+
+现在固定other svo为0.8试试

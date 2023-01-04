@@ -148,6 +148,7 @@ class ScenarioBottleneckEvaluateFixOtherSvo(ScenarioBottleneckEvaluate):  ### on
         file_path = os.path.join(dir_path, f'{self.step_reset}.txt')
         self.scenario_randomization = scenario_randomization_cls.load(file_path)
         self.scenario_randomization.characters[0] = 0.0
+        self.scenario_randomization.characters[1:] = 0.8
         # self.scenario_randomization.characters[1:] = self.scenario_randomization.characters[1]
         print(rllib.basic.prefix(self) + f'characters {self.step_reset}: ', self.scenario_randomization.characters)
         return
