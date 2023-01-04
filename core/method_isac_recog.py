@@ -43,7 +43,7 @@ class IndependentSAC_recog(MethodSingleAgent):
     buffer_size = 750000
     batch_size = 128
 
-    start_timesteps = 30000
+    start_timesteps = 3000
     # start_timesteps = 0  ## ! warning
     before_training_steps = 0
 
@@ -138,7 +138,7 @@ class IndependentSAC_recog(MethodSingleAgent):
         action, logprob, _ = self.actor.sample(state)
         # actor_loss = (-self.critic.q1(state, action) + self.alpha * logprob).mean() * self.actor_loss_scale
         # breakpoint()
-        actor_loss = ((-self.critic.q1(state, action)/500 + self.alpha * logprob).mean())
+        actor_loss = ((-self.critic.q1(state, action)/5000 + self.alpha * logprob).mean())
         # print('-self.critic.q1(state, action) :{}, self.alpha * logprob:{}\n'.format(-self.critic.q1(state, action) , self.alpha * logprob))
         print('actor_loss : {}'.format(actor_loss) ,actor_loss)
         self.actor_optimizer.zero_grad()
