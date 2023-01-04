@@ -43,8 +43,8 @@ class IndependentSAC_recog(MethodSingleAgent):
     buffer_size = 750000
     batch_size = 128
 
-    start_timesteps = 3000
-    # start_timesteps = 0  ## ! warning
+    # start_timesteps = 3000
+    start_timesteps = 0  ## ! warning
     before_training_steps = 0
 
     save_model_interval = 1000
