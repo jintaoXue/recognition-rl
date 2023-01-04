@@ -221,3 +221,5 @@ isac 在fix other svo的情况下是89.5
 recog 是对应的89.0
 
 现在固定other svo为0.8试试
+
+发现梯度值很大，引入loss scale
