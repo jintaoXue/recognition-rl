@@ -73,9 +73,12 @@ class IndependentSAC_recog(MethodSingleAgent):
         self.actor.method_name = 'IndependentSAC_recog'
         self.critic.method_name = 'IndependentSAC_recog'
         # for name, p in self.actor.named_parameters():
-        #     if name.startswith('fe'): p.requires_grad = False
-        #     if name.startswith('mean'): p.requires_grad = False
-        #     if name.startswith('std'): p.requires_grad = False
+        #     if name.startswith('fe.global_head_recognition') or name.startswith('fe.ego_embedding_recog') \
+        #         or name.startswith('fe.agent_embedding_recog'):
+        #         p.requires_grad = True
+        #     else : p.requires_grad = False
+        #     print(name, p.requires_grad)
+        # breakpoint()
         # for name, p in self.critic.named_parameters():
         #     if name.startswith('fe'): p.requires_grad = False
         #     if name.startswith('m1'): p.requires_grad = False
@@ -138,23 +141,23 @@ class IndependentSAC_recog(MethodSingleAgent):
         # actor_loss = (-self.critic.q1(state, action) + self.alpha * logprob).mean() * self.actor_loss_scale
         # breakpoint()
         actor_loss = ((-self.critic.q1(state, action) + self.alpha * logprob).mean())
-        actor_loss = torch.nn.init.uniform(actor_loss, a=0, b=1)
+        # actor_loss = torch.nn.init.uniform(actor_loss, a=0, b=1)
         # print('-self.critic.q1(state, action) :{}, self.alpha * logprob:{}\n'.format(-self.critic.q1(state, action) , self.alpha * logprob))
         print('actor_loss : {}'.format(actor_loss) ,actor_loss)
         self.actor_optimizer.zero_grad()
-        for name, parms in self.actor.named_parameters():	
-            print('-->name:', name)
-            print('-->para:', parms)
-            print('-->grad_requirs:',parms.requires_grad)
-            print('-->grad_value:',parms.grad)
-            print("===")
+        # for name, parms in self.actor.named_parameters():	
+        #     print('-->name:', name)
+        #     print('-->para:', parms)
+        #     print('-->grad_requirs:',parms.requires_grad)
+        #     print('-->grad_value:',parms.grad)
+        #     print("===")
         actor_loss.backward()
-        for name, parms in self.actor.named_parameters():	
-            print('-->name:', name)
-            print('-->para:', parms)
-            print('-->grad_requirs:',parms.requires_grad)
-            print('-->grad_value:',parms.grad)
-            print("===")
+        # for name, parms in self.actor.named_parameters():	
+        #     print('-->name:', name)
+        #     print('-->para:', parms)
+        #     print('-->grad_requirs:',parms.requires_grad)
+        #     print('-->grad_value:',parms.grad)
+        #     print("===")
         # breakpoint()
         nn.utils.clip_grad_norm_(self.actor.parameters(), max_norm=0.1)
         self.actor_optimizer.step()
@@ -171,7 +174,8 @@ class IndependentSAC_recog(MethodSingleAgent):
         self.alpha = self.log_alpha.exp().detach()
         
         '''character MSE'''
-        recog_charater = self.actor.recog(state)    
+        with torch.no_grad():
+            _,_,recog_charater = self.actor(state)      
         real_character = state.obs_character[:,:,-1]
         
         recog_charater = torch.where(real_character == np.inf, torch.tensor(np.inf, dtype=torch.float32, device=state.obs.device),recog_charater)
@@ -243,7 +247,7 @@ class Actor(rllib.template.Model):
 
     def __init__(self, config, model_id=0):
         super().__init__(config, model_id)
-        self.recog = config.get('net_actor_recog', RecognitionNet)(config, 0)
+        # self.recog = config.get('net_actor_recog', RecognitionNet)(config, 0)
         self.mean_no = nn.Tanh()
         self.std_no = nn.Tanh()
         #todo
@@ -253,18 +257,19 @@ class Actor(rllib.template.Model):
         self.apply(init_weights)
     def forward(self, state):
         #add character into state
-        obs_character = self.recog(state)
+        # obs_character = self.recog(state)
         # print(obs_character)
         #####
-        x = self.fe(state, obs_character)
+        x = self.fe(state)
+
         mean = self.mean_no(self.mean(x))
         logstd = self.std_no(self.std(x))
         logstd = (self.logstd_max-self.logstd_min) * logstd + (self.logstd_max+self.logstd_min)
-        return mean, logstd *0.5
+        return mean, logstd *0.5, self.fe.get_recog_obs_svos()
 
 
     def sample(self, state):
-        mean, logstd = self(state)
+        mean, logstd,_ = self(state)
 
         cov = torch.diag_embed( torch.exp(logstd) )
         dist = MultivariateNormal(mean, cov)
