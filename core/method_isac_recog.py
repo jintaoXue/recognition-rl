@@ -72,10 +72,10 @@ class IndependentSAC_recog(MethodSingleAgent):
         [load_model(model) for model in self.models_to_load]
         self.actor.method_name = 'IndependentSAC_recog'
         self.critic.method_name = 'IndependentSAC_recog'
-        for name, p in self.actor.named_parameters():
-            if name.startswith('fe'): p.requires_grad = False
-            if name.startswith('mean'): p.requires_grad = False
-            if name.startswith('std'): p.requires_grad = False
+        # for name, p in self.actor.named_parameters():
+        #     if name.startswith('fe'): p.requires_grad = False
+        #     if name.startswith('mean'): p.requires_grad = False
+        #     if name.startswith('std'): p.requires_grad = False
         # for name, p in self.critic.named_parameters():
         #     if name.startswith('fe'): p.requires_grad = False
         #     if name.startswith('m1'): p.requires_grad = False
@@ -154,7 +154,7 @@ class IndependentSAC_recog(MethodSingleAgent):
             print('-->grad_requirs:',parms.requires_grad)
             print('-->grad_value:',parms.grad)
             print("===")
-        breakpoint()
+        # breakpoint()
         nn.utils.clip_grad_norm_(self.actor.parameters(), max_norm=0.1)
         self.actor_optimizer.step()
 
