@@ -7,8 +7,8 @@ import numpy as np
 
 class RewardFunctionNoCharacter(universe.RewardFunc):
     def run_step(self, state, action, agents_master: universe.AgentsMaster, episode_info):
-        REWARD_C = -500
-        REWARD_B = -500
+        REWARD_C = -5000
+        REWARD_B = -5000
         collision = episode_info.collision
         off_road = episode_info.off_road
         off_route = episode_info.off_route
@@ -25,8 +25,9 @@ class RewardFunctionNoCharacter(universe.RewardFunc):
             reward_boundary = int(off_road[i] | off_route[i] | wrong_lane[i]) * REWARD_B /100
 
             ### 3. velocity
-            reward_v = (agent.get_state().v - max_velocity / 2) / (max_velocity / 2)
-            reward_v = np.clip(reward_v, -1, 1) *7 /100
+            ref_vel = max_velocity * 0.75
+            reward_v = (agent.get_state().v - ref_vel) / (max_velocity / 2)
+            reward_v = np.clip(reward_v, -1, 1) * 0.1
 
             reward.append(reward_collision + reward_v + reward_boundary)
         return reward
