@@ -45,8 +45,8 @@ class IndependentSACsupervise(MethodSingleAgent):
     batch_size = 128
 
     # start_timesteps = 30000
-    start_timesteps = 30000
-    # start_timesteps = 1000  ## ! warning
+    # start_timesteps = 30000
+    start_timesteps = 1  ## ! warning
     before_training_steps = 0
 
     save_model_interval = 10000

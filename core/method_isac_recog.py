@@ -43,12 +43,12 @@ class IndependentSAC_recog(MethodSingleAgent):
     buffer_size = 750000
     batch_size = 128
 
-    start_timesteps = 0
+    start_timesteps = 30000
     # start_timesteps = 0  ## ! warning
     before_training_steps = 0
 
     save_model_interval = 1000
-    actor_loss_scale = 1e-8
+    actor_loss_scale = 0.1
     def __init__(self, config: rllib.basic.YamlConfig, writer):
         super().__init__(config, writer)
 
@@ -72,12 +72,13 @@ class IndependentSAC_recog(MethodSingleAgent):
         [load_model(model) for model in self.models_to_load]
         self.actor.method_name = 'IndependentSAC_recog'
         self.critic.method_name = 'IndependentSAC_recog'
-        # for name, p in self.actor.named_parameters():
-        #     if name.startswith('fe.global_head_recognition') or name.startswith('fe.ego_embedding_recog') \
-        #         or name.startswith('fe.agent_embedding_recog'):
-        #         p.requires_grad = True
-        #     else : p.requires_grad = False
-        #     print(name, p.requires_grad)
+        for name, p in self.actor.named_parameters():
+            if name.startswith('fe.global_head_recognition') or \
+                name.startswith('fe.ego_embedding_recog') or \
+                name.startswith('fe.agent_embedding_recog'):
+                p.requires_grad = True
+            else : p.requires_grad = False
+        # print(name, p.requires_grad)
         # breakpoint()
         # for name, p in self.critic.named_parameters():
         #     if name.startswith('fe'): p.requires_grad = False
@@ -90,6 +91,8 @@ class IndependentSAC_recog(MethodSingleAgent):
 
         self.critic_optimizer= Adam(self.critic.parameters(), lr=self.lr_critic)
         self.actor_optimizer = Adam(filter(lambda x: x.requires_grad is not False ,self.actor.parameters()), lr=self.lr_actor)
+        # print(self.actor_optimizer.param_groups)
+        # breakpoint()
         # self.recog_optimizer= Adam(self.actor.recog.parameters(), lr=self.lr_actor)
         self.critic_loss = nn.MSELoss()
         self.character_loss = nn.MSELoss()
@@ -140,7 +143,7 @@ class IndependentSAC_recog(MethodSingleAgent):
         action, logprob, _ = self.actor.sample(state)
         # actor_loss = (-self.critic.q1(state, action) + self.alpha * logprob).mean() * self.actor_loss_scale
         # breakpoint()
-        actor_loss = ((-self.critic.q1(state, action) + self.alpha * logprob).mean())
+        actor_loss = ((-self.critic.q1(state, action) + self.alpha * logprob).mean())*self.actor_loss_scale
         # actor_loss = torch.nn.init.uniform(actor_loss, a=0, b=1)
         # print('-self.critic.q1(state, action) :{}, self.alpha * logprob:{}\n'.format(-self.critic.q1(state, action) , self.alpha * logprob))
         print('actor_loss : {}'.format(actor_loss) ,actor_loss)
@@ -159,7 +162,10 @@ class IndependentSAC_recog(MethodSingleAgent):
         #     print('-->grad_value:',parms.grad)
         #     print("===")
         # breakpoint()
-        nn.utils.clip_grad_norm_(self.actor.parameters(), max_norm=0.1)
+        # nn.utils.clip_grad_norm_(self.actor.parameters(), max_norm=0.1)
+        torch.nn.utils.clip_grad_value_(self.actor.fe.global_head_recognition.parameters(), 1e-30)
+        torch.nn.utils.clip_grad_value_(self.actor.fe.agent_embedding_recog.parameters(), 1e-30)
+        torch.nn.utils.clip_grad_value_(self.actor.fe.ego_embedding_recog.parameters(), 1e-30)
         self.actor_optimizer.step()
 
         # for name, p in self.actor.recog.named_parameters():

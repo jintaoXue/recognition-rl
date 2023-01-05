@@ -234,7 +234,7 @@ class RecognitionNetNew(rllib.template.Model):
         #(num_agents, batch, 1) -> (batch, num_agents, 1)
         obs_svos = obs_svos.transpose(0, 1)
         self.obs_svos = obs_svos
-        # print(obs_svos)
+        print(obs_svos)
         state_ = cut_state(state)
         ### data generation
         ego = state_.ego[:,-1]
@@ -251,8 +251,8 @@ class RecognitionNetNew(rllib.template.Model):
 
         obs = torch.where(obs == np.inf, torch.tensor(0, dtype=torch.float32, device=obs.device), obs)
 
-        obs_character = torch.where(obs_svos == np.inf, torch.tensor(-1, dtype=torch.float32, device=obs.device), obs_svos)
-
+        # obs_character = torch.where(obs_svos == np.inf, torch.tensor(-1, dtype=torch.float32, device=obs.device), obs_svos)
+        obs_character = obs_svos
         obs_embedding = torch.cat([
             self.agent_embedding(state_.obs.flatten(end_dim=1), state_.obs_mask.to(torch.bool).flatten(end_dim=1)).view(batch_size,num_agents, self.dim_embedding //2),
             self.agent_embedding_v1(obs),
@@ -686,7 +686,7 @@ class MultiheadAttentionGlobalHeadRecognition(nn.Module):
         outputs, attns = self.encoder(inputs[1:num_agents+1], inputs + type_embedding, inputs, mask)
         # return torch.cat([outputs, inputs[[0]]], dim=2), attns
         # return outputs + inputs[[0]], attns
-        return outputs, attns
+        # return outputs, attns
         return outputs.squeeze(0), attns.squeeze(1)
 
 class MultiheadAttentionGlobalHead(nn.Module):
