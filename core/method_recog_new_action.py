@@ -1,8 +1,10 @@
 
 
+from cmath import nan
 import copy
 from multiprocessing.connection import wait
 from timeit import timeit
+from traceback import print_tb
 from turtle import update
 from importlib_metadata import re
 # from markupsafe import string
@@ -26,7 +28,7 @@ from rllib.template.model import FeatureExtractor, FeatureMapper
 from core.recognition_net import RecognitionNet
 import time
 
-class IndependentSAC_recog(MethodSingleAgent):
+class RecogV1(MethodSingleAgent):
     dim_reward = 2
     
     gamma = 0.9
@@ -43,62 +45,28 @@ class IndependentSAC_recog(MethodSingleAgent):
     buffer_size = 750000
     batch_size = 128
 
-    # start_timesteps = 30000
-    start_timesteps = 100  ## ! warning
+    start_timesteps = 30000
+    # start_timesteps = 10  ## ! warning
     before_training_steps = 0
 
     save_model_interval = 1000
-    actor_loss_scale = 0.1
+    actor_loss_scale = 1
     def __init__(self, config: rllib.basic.YamlConfig, writer):
         super().__init__(config, writer)
 
         self.critic = config.get('net_critic', Critic)(config).to(self.device)
         self.actor = config.get('net_actor', Actor)(config).to(self.device)
-        #todo
-        self.actor.method_name = 'INDEPENDENTSAC_V0'
-        # self.actor.model_dir = '~/github/zdk/recognition-rl/models/IndependentSAC_v0-EnvInteractiveMultiAgent/2022-09-11-15:19:29----ray_isac_adaptive_character__multi_scenario--buffer-rate-0.2/saved_models_method'
-        # self.actor.model_num = 865800
-        self.actor.model_dir = '~/github/zdk/recognition-rl/models/origin_no_history_bottleneck/'
-        self.actor.model_num = 445600
 
-        # self.critic.method_name = 'INDEPENDENTSAC_V0'
-        # self.critic.model_dir = '~/github/zdk/recognition-rl/models/origin_no_history_bottleneck/'
-        # self.critic.model_num = 445600
-        # self.critic.model_dir = '~/github/zdk/recognition-rl/models/IndependentSAC_v0-EnvInteractiveMultiAgent/2022-09-11-15:19:29----ray_isac_adaptive_character__multi_scenario--buffer-rate-0.2/saved_models_method'
-        # self.critic.model_num = 865800
-        self.models_to_load = [self.actor]
-
-        # [model.load_model() for model in self.models_to_load]
-        [load_model(model) for model in self.models_to_load]
-        self.actor.method_name = 'IndependentSAC_recog'
-        self.critic.method_name = 'IndependentSAC_recog'
-        for name, p in self.actor.named_parameters():
-            if name.startswith('fe.global_head_recognition') or \
-                name.startswith('fe.ego_embedding_recog') or \
-                name.startswith('fe.agent_embedding_recog'):
-                p.requires_grad = True
-            else : p.requires_grad = False
-        # print(name, p.requires_grad)
-        # breakpoint()
-        # for name, p in self.critic.named_parameters():
-        #     if name.startswith('fe'): p.requires_grad = False
-        #     if name.startswith('m1'): p.requires_grad = False
-        #     if name.startswith('m2'): p.requires_grad = False
-        # self.critic.method_name = 'IndependentSAC_recog'
-        #todo
         self.critic_target = copy.deepcopy(self.critic)
         self.models_to_save = [self.actor, self.critic]
 
         self.critic_optimizer= Adam(self.critic.parameters(), lr=self.lr_critic)
-        self.actor_optimizer = Adam(filter(lambda x: x.requires_grad is not False ,self.actor.parameters()), lr=self.lr_actor)
-        # print(self.actor_optimizer.param_groups)
-        # breakpoint()
-        # self.recog_optimizer= Adam(self.actor.recog.parameters(), lr=self.lr_actor)
+        self.actor_optimizer = Adam(self.actor.parameters(), lr=self.lr_actor)
+
         self.critic_loss = nn.MSELoss()
         self.character_loss = nn.MSELoss()
-        # for name,param in self.actor.state_dict(keep_vars=True).items():
-        #     print(name,param.requires_grad)   
-          
+        #same other svo
+        self.dim_action = 1
         ### automatic entropy tuning
         if self.target_entropy == None:
             self.target_entropy = -np.prod((self.dim_action,)).item()
@@ -120,8 +88,6 @@ class IndependentSAC_recog(MethodSingleAgent):
         action = experience.action
         next_state = experience.next_state
         reward = experience.reward
-        # breakpoint()
-        # print(reward)
         done = experience.done
 
         '''critic'''
@@ -134,7 +100,7 @@ class IndependentSAC_recog(MethodSingleAgent):
 
         current_q1, current_q2 = self.critic(state, action)
         critic_loss = (self.critic_loss(current_q1, target_q) + self.critic_loss(current_q2, target_q))
-        print('critic_loss: {}'.format(critic_loss))
+        # print('critic_loss: {}'.format(critic_loss))
         self.critic_optimizer.zero_grad()
         critic_loss.backward()
         self.critic_optimizer.step()
@@ -143,10 +109,10 @@ class IndependentSAC_recog(MethodSingleAgent):
         action, logprob, _ = self.actor.sample(state)
         # actor_loss = (-self.critic.q1(state, action) + self.alpha * logprob).mean() * self.actor_loss_scale
         # breakpoint()
-        actor_loss = ((-self.critic.q1(state, action) + self.alpha * logprob).mean())*self.actor_loss_scale
+        actor_loss = ((-self.critic.q1(state, action) + self.alpha * logprob).mean())
         # actor_loss = torch.nn.init.uniform(actor_loss, a=0, b=1)
         # print('-self.critic.q1(state, action) :{}, self.alpha * logprob:{}\n'.format(-self.critic.q1(state, action) , self.alpha * logprob))
-        print('actor_loss : {}'.format(actor_loss) ,actor_loss)
+        # print('actor_loss : {}'.format(actor_loss) ,actor_loss)
         self.actor_optimizer.zero_grad()
         # for name, parms in self.actor.named_parameters():	
         #     print('-->name:', name)
@@ -163,11 +129,7 @@ class IndependentSAC_recog(MethodSingleAgent):
         #     print("===")
         # breakpoint()
         # nn.utils.clip_grad_norm_(self.actor.parameters(), max_norm=0.1)
-        torch.nn.utils.clip_grad_value_(self.actor.fe.global_head_recognition.parameters(), 1e-30)
-        torch.nn.utils.clip_grad_value_(self.actor.fe.agent_embedding_recog.parameters(), 1e-30)
-        torch.nn.utils.clip_grad_value_(self.actor.fe.ego_embedding_recog.parameters(), 1e-30)
         self.actor_optimizer.step()
-
         # for name, p in self.actor.recog.named_parameters():
         #     print(name, p)  
         # time.sleep(2)
@@ -181,8 +143,9 @@ class IndependentSAC_recog(MethodSingleAgent):
         
         '''character MSE'''
         with torch.no_grad():
-            _,_,recog_charater = self.actor(state)      
-        real_character = state.obs_character[:,:,-1]
+            recog_charater, _ = self.actor(state) 
+  
+        real_character = state.obs_character[:,0,-1]
         
         recog_charater = torch.where(real_character == np.inf, torch.tensor(np.inf, dtype=torch.float32, device=state.obs.device),recog_charater)
         real_character = real_character[~torch.isinf(real_character)]
@@ -221,7 +184,7 @@ class IndependentSAC_recog(MethodSingleAgent):
         self.select_action_start()
 
         if self.step_select < self.start_timesteps:
-            action = torch.Tensor(len(state), self.dim_action).uniform_(-1,1)
+            action = torch.Tensor(len(state), self.dim_action).uniform_(0,1)
             
         else:
             # print('select: ', self.step_select)
@@ -236,7 +199,7 @@ class IndependentSAC_recog(MethodSingleAgent):
     def select_action(self, state):
         self.select_action_start()
         if self.step_select < self.start_timesteps:
-            action = torch.Tensor(1,self.dim_action).uniform_(-1,1)
+            action = torch.Tensor(1,self.dim_action).uniform_(0,1)
         else:
             action, _, _ = self.actor.sample(state.to(self.device))
             action = action.cpu()
@@ -258,47 +221,42 @@ class Actor(rllib.template.Model):
         self.mean_no = nn.Tanh()
         self.std_no = nn.Tanh()
         #todo
+        config.set('dim_action', 1)
+        self.dim_action = 1
         self.fe = config.get('net_actor_fe', FeatureExtractor)(config, 0)
         self.mean = config.get('net_actor_fm', FeatureMapper)(config, 0, self.fe.dim_feature, config.dim_action)
         self.std = copy.deepcopy(self.mean)
         self.apply(init_weights)
-    def forward(self, state):
-        #add character into state
-        # obs_character = self.recog(state)
-        # print(obs_character)
-        #####
-        x = self.fe(state)
 
+    def forward(self, state):
+        x = self.fe(state)
         mean = self.mean_no(self.mean(x))
         logstd = self.std_no(self.std(x))
         logstd = (self.logstd_max-self.logstd_min) * logstd + (self.logstd_max+self.logstd_min)
-        return mean, logstd *0.5, self.fe.get_recog_obs_svos()
+        #torch.isnan(x).any()
+        # if torch.isnan(mean).any() :
+        #     print('_______________________')
+        #     breakpoint()
+        return mean, logstd *0.5
 
 
     def sample(self, state):
-        mean, logstd,_ = self(state)
 
-        cov = torch.diag_embed( torch.exp(logstd) )
+        mean, logstd= self(state)
+        cov = torch.diag_embed(torch.exp(logstd))
         dist = MultivariateNormal(mean, cov)
         u = dist.rsample()
-
-        print(mean, cov)
-        print(mean.shape,cov.shape)
-        if mean.shape[0] == 1:
-            print('    policy entropy: ', dist.entropy().detach().cpu())
-            print('    policy mean:    ', mean.detach().cpu())
-            print('    policy std:     ', torch.exp(logstd).detach().cpu())
-            print()
-
-
-
+        # if mean.shape[0] == 1:
+        #     print('    policy entropy: ', dist.entropy().detach().cpu())
+        #     print('    policy mean:    ', mean.detach().cpu())
+        #     print('    policy std:     ', torch.exp(logstd).detach().cpu())
         ### Enforcing Action Bound
         action = torch.tanh(u)
         logprob = dist.log_prob(u).unsqueeze(1) \
                 - torch.log(1 - action.pow(2) + 1e-6).sum(dim=1, keepdim=True)
 
         return action, logprob, mean
-
+    
 
     def sample_deprecated(self, state):
         mean, logstd = self(state)
@@ -316,9 +274,11 @@ class Actor(rllib.template.Model):
 class Critic(rllib.template.Model):
     def __init__(self, config, model_id=0):
         super().__init__(config, model_id)
+        config.set('dim_action', 1)
+        self.dim_action = 1
         # self.recog = config.get('net_actor_recog', RecognitionNet)(config, 0)
         self.fe = config.get('net_critic_fe', FeatureExtractor)(config, 0)
-        self.fm1 = config.get('net_critic_fm', FeatureMapper)(config, 0, self.fe.dim_feature+config.dim_action, 1)
+        self.fm1 = config.get('net_critic_fm', FeatureMapper)(config, 0, self.fe.dim_feature+self.dim_action, 1)
         self.fm2 = copy.deepcopy(self.fm1)
         self.apply(init_weights)
 
@@ -339,31 +299,6 @@ class Critic(rllib.template.Model):
         x = self.fe(state)
         x = torch.cat([x, action], 1)
         return self.fm1(x)
-
-def load_model(initial_model, model_num=None, model_dir=None):
-    if model_dir == None:
-        model_dir = initial_model.model_dir
-    if model_num == None:
-        model_num = initial_model.model_num
-
-    model_dir = os.path.expanduser(model_dir)
-    models_name = '_'.join([initial_model.method_name.upper(), initial_model.__class__.__name__, '*.pth'])
-    file_paths = glob.glob(join(model_dir, models_name))
-    file_names = [os.path.split(i)[-1] for i in file_paths]
-    nums = [int(i.split('_')[-2]) for i in file_names]
-    if model_num == -1:
-        model_num = max(nums)
-
-    print()
-    print('[rllib.template.Model.load_model] model_dir: ', model_dir)
-    print('[rllib.template.Model.load_model] models_name: ', models_name)
-    print('[rllib.template.Model.load_model] file_paths length: ', len(file_paths))
-
-    assert model_num in nums
-    model_name = '_'.join([initial_model.method_name.upper(), initial_model.__class__.__name__, str(initial_model.model_id), str(model_num), '.pth'])
-    model_path = join(model_dir, model_name)
-    print('[rllib.template.Model.load_model] load model: ', model_path)
-    initial_model.load_state_dict(torch.load(model_path), strict=False)
 
 def write_character(file, character) :
     character = character.detach().cpu().numpy()

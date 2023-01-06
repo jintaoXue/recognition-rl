@@ -502,6 +502,253 @@ class PointNetWithCharactersAgentHistoryRecog(rllib.template.Model):
         outputs = torch.cat([outputs, self.character_embedding(state_.character.unsqueeze(1))], dim=1)
         return outputs
 
+class RecogNetSVO(rllib.template.Model):
+    def __init__(self, config, model_id=0):
+        super().__init__(config, model_id)
+        self.dim_action = 1
+        dim_ego_embedding = 128
+        dim_character_embedding = 32
+        dim_embedding = dim_ego_embedding + dim_character_embedding
+
+        self.dim_embedding = dim_embedding
+
+
+        self.character_embedding = nn.Linear(1, dim_character_embedding)
+
+        self.ego_embedding = DeepSetModule(self.dim_state.agent, dim_ego_embedding //2)
+        self.ego_embedding_v1 = nn.Linear(self.dim_state.agent, dim_ego_embedding //2)
+
+        self.agent_embedding = DeepSetModule(self.dim_state.agent, dim_embedding //2)
+        self.agent_embedding_v1 = nn.Sequential(
+            nn.Linear(self.dim_state.agent, dim_embedding), nn.ReLU(inplace=True),
+            nn.Linear(dim_embedding, dim_embedding), nn.ReLU(inplace=True),
+            nn.Linear(dim_embedding, dim_embedding //2),
+        )
+
+        self.static_embedding = DeepSetModule(self.dim_state.static, dim_embedding)
+
+        self.type_embedding = VectorizedEmbedding(dim_embedding)
+
+        self.global_head_recognition = MultiheadAttentionGlobalHead(dim_embedding, nhead=4, dropout=0.0 if config.evaluate else 0.1)
+        self.dim_feature = dim_embedding+dim_character_embedding
+
+    def forward(self, state: rllib.basic.Data, **kwargs):
+        # breakpoint()
+        batch_size = state.ego.shape[0]
+        num_agents = state.obs.shape[1]
+        num_lanes = state.lane.shape[1]
+        num_bounds = state.bound.shape[1]
+        
+        ### data generation
+        ego = state.ego[:,-1]
+        ego_mask = state.ego_mask.to(torch.bool)[:,[-1]]
+        obs = state.obs[:,:,-1]
+        obs_mask = state.obs_mask[:,:,-1].to(torch.bool)
+        # obs_character = state.obs_character[:,:,-1]
+        route = state.route
+        route_mask = state.route_mask.to(torch.bool)
+        lane = state.lane
+        lane_mask = state.lane_mask.to(torch.bool)
+        bound = state.bound
+        bound_mask = state.bound_mask.to(torch.bool)
+
+        ### embedding
+        ego_embedding = torch.cat([
+            self.ego_embedding(state.ego, state.ego_mask.to(torch.bool)),
+            self.ego_embedding_v1(ego),
+            self.character_embedding(state.character.unsqueeze(1))
+        ], dim=1)
+
+        obs = torch.where(obs == np.inf, torch.tensor(0, dtype=torch.float32, device=obs.device), obs)
+
+        obs_embedding = torch.cat([
+            self.agent_embedding(state.obs.flatten(end_dim=1), state.obs_mask.to(torch.bool).flatten(end_dim=1)).view(batch_size,num_agents, self.dim_embedding //2),
+            self.agent_embedding_v1(obs)
+        ], dim=2)
+
+        route_embedding = self.static_embedding(route, route_mask)
+
+        lane_embedding = self.static_embedding(lane.flatten(end_dim=1), lane_mask.flatten(end_dim=1))
+        lane_embedding = lane_embedding.view(batch_size,num_lanes, self.dim_embedding)
+
+        bound_embedding = self.static_embedding(bound.flatten(end_dim=1), bound_mask.flatten(end_dim=1))
+        bound_embedding = bound_embedding.view(batch_size,num_bounds, self.dim_embedding)
+
+        ### global head recognition
+        invalid_polys = ~torch.cat([
+            ego_mask,
+            obs_mask,
+            route_mask.any(dim=1, keepdim=True),
+            lane_mask.any(dim=2),
+            bound_mask.any(dim=2),
+        ], dim=1)
+        all_embs = torch.cat([ego_embedding.unsqueeze(1), obs_embedding, route_embedding.unsqueeze(1), lane_embedding, bound_embedding], dim=1)
+        type_embedding = self.type_embedding(state)
+
+        outputs, attns = self.global_head_recognition(all_embs, type_embedding, invalid_polys)
+        # self.attention = attns.detach().clone().cpu()
+        outputs = torch.cat([outputs, self.character_embedding(state.character.unsqueeze(1))], dim=1)
+        return outputs
+
+class PointNetwithActionSVO(rllib.template.Model):
+    #作为action为svo的网络
+    def __init__(self, config, model_id):
+        super().__init__(config, model_id)
+
+        dim_embedding = 128
+        dim_character_embedding = 32
+        self.dim_embedding = dim_embedding
+        self.dim_character_embedding = dim_character_embedding
+
+        self.character_embedding = nn.Linear(1, dim_character_embedding)
+
+        self.ego_embedding = DeepSetModule(self.dim_state.agent, dim_embedding //2)
+        self.ego_embedding_v1 = nn.Linear(self.dim_state.agent, dim_embedding //2)
+
+        self.agent_embedding = DeepSetModule(self.dim_state.agent, dim_embedding //2)
+        self.agent_embedding_v1 = nn.Sequential(
+            nn.Linear(self.dim_state.agent, dim_embedding), nn.ReLU(inplace=True),
+            nn.Linear(dim_embedding, dim_embedding), nn.ReLU(inplace=True),
+            nn.Linear(dim_embedding, dim_embedding //2),
+        )
+
+        self.static_embedding = DeepSetModule(self.dim_state.static, dim_embedding +dim_character_embedding)
+
+        self.type_embedding = VectorizedEmbedding(dim_embedding +dim_character_embedding)
+        self.global_head = MultiheadAttentionGlobalHead(dim_embedding +dim_character_embedding, nhead=4, dropout=0.0 if config.evaluate else 0.1)
+        self.dim_feature = dim_embedding+dim_character_embedding + dim_character_embedding
+
+    def forward(self, state: rllib.basic.Data):
+        state_ = cut_state(state)
+        batch_size = state_.ego.shape[0]
+        num_agents = state_.obs.shape[1]
+        num_lanes = state.lane.shape[1]
+        num_bounds = state.bound.shape[1]
+
+        ### data generation
+        ego = state_.ego[:,-1]
+        ego_mask = state_.ego_mask.to(torch.bool)[:,[-1]]
+        obs = state_.obs[:,:,-1]
+        obs_mask = state_.obs_mask[:,:,-1].to(torch.bool)
+        obs_character = state.obs_character[:,:,-1]
+        route = state.route
+        route_mask = state.route_mask.to(torch.bool)
+        lane = state.lane
+        lane_mask = state.lane_mask.to(torch.bool)
+        bound = state.bound
+        bound_mask = state.bound_mask.to(torch.bool)
+
+        ### embedding
+        ego_embedding = torch.cat([
+            self.ego_embedding(state_.ego, state_.ego_mask.to(torch.bool)),
+            self.ego_embedding_v1(ego),
+            self.character_embedding(state_.character.unsqueeze(1)),
+        ], dim=1)
+
+
+        obs = torch.where(obs == np.inf, torch.tensor(0, dtype=torch.float32, device=obs.device), obs)
+
+        obs_character = torch.where(obs_character == np.inf, torch.tensor(-1, dtype=torch.float32, device=obs.device), obs_character)
+
+        obs_embedding = torch.cat([
+            self.agent_embedding(state_.obs.flatten(end_dim=1), state_.obs_mask.to(torch.bool).flatten(end_dim=1)).view(batch_size,num_agents, self.dim_embedding //2),
+            self.agent_embedding_v1(obs),
+            self.character_embedding(obs_character),
+        ], dim=2)
+
+        route_embedding = self.static_embedding(route, route_mask)
+
+        lane_embedding = self.static_embedding(lane.flatten(end_dim=1), lane_mask.flatten(end_dim=1))
+        lane_embedding = lane_embedding.view(batch_size,num_lanes, self.dim_embedding + self.dim_character_embedding)
+
+        bound_embedding = self.static_embedding(bound.flatten(end_dim=1), bound_mask.flatten(end_dim=1))
+        bound_embedding = bound_embedding.view(batch_size,num_bounds, self.dim_embedding + self.dim_character_embedding)
+
+
+        ### global head
+        invalid_polys = ~torch.cat([
+            ego_mask,
+            obs_mask,
+            route_mask.any(dim=1, keepdim=True),
+            lane_mask.any(dim=2),
+            bound_mask.any(dim=2),
+        ], dim=1)
+        all_embs = torch.cat([ego_embedding.unsqueeze(1), obs_embedding, route_embedding.unsqueeze(1), lane_embedding, bound_embedding], dim=1)
+        type_embedding = self.type_embedding(state_)
+        outputs, attns = self.global_head(all_embs, type_embedding, invalid_polys)
+        self.attention = attns.detach().clone().cpu()
+
+        outputs = torch.cat([outputs, self.character_embedding(state_.character.unsqueeze(1))], dim=1)
+        return outputs
+
+    def forward_with_svo(self, state: rllib.basic.Data, obs_character : np.ndarray ,**kwargs):
+        #从 agent master类收到的感知信息
+        state_ = cut_state(state)
+        state_ = state_.to(self.device)
+        obs_character = torch.from_numpy(obs_character).to(self.device)
+        batch_size = state_.ego.shape[0]
+        num_agents = state_.obs.shape[1]
+        num_lanes = state.lane.shape[1]
+        num_bounds = state.bound.shape[1]
+
+        ### data generation
+        ego = state_.ego[:,-1]
+
+        ego_mask = state_.ego_mask.to(torch.bool)[:,[-1]]
+        obs = state_.obs[:,:,-1]
+        obs_mask = state_.obs_mask[:,:,-1].to(torch.bool)
+        # obs_character = state.obs_character[:,:,-1]
+        route = state_.route
+        route_mask = state_.route_mask.to(torch.bool)
+        lane = state_.lane
+        lane_mask = state_.lane_mask.to(torch.bool)
+        bound = state_.bound
+        bound_mask = state_.bound_mask.to(torch.bool)
+
+        ### embedding
+        ego_embedding = torch.cat([
+            self.ego_embedding(state_.ego, state_.ego_mask.to(torch.bool)),
+            self.ego_embedding_v1(ego),
+            self.character_embedding(state_.character.unsqueeze(1)),
+        ], dim=1)
+
+
+        obs = torch.where(obs == np.inf, torch.tensor(0, dtype=torch.float32, device=obs.device), obs)
+
+        obs_character = torch.where(obs_character == np.inf, torch.tensor(-1, dtype=torch.float32, device=obs.device), obs_character)
+
+        obs_embedding = torch.cat([
+            self.agent_embedding(state_.obs.flatten(end_dim=1), state_.obs_mask.to(torch.bool).flatten(end_dim=1)).view(batch_size,num_agents, self.dim_embedding //2),
+            self.agent_embedding_v1(obs),
+            self.character_embedding(obs_character),
+        ], dim=2)
+
+        route_embedding = self.static_embedding(route, route_mask)
+
+        lane_embedding = self.static_embedding(lane.flatten(end_dim=1), lane_mask.flatten(end_dim=1))
+        lane_embedding = lane_embedding.view(batch_size,num_lanes, self.dim_embedding + self.dim_character_embedding)
+
+        bound_embedding = self.static_embedding(bound.flatten(end_dim=1), bound_mask.flatten(end_dim=1))
+        bound_embedding = bound_embedding.view(batch_size,num_bounds, self.dim_embedding + self.dim_character_embedding)
+
+
+        ### global head
+        invalid_polys = ~torch.cat([
+            ego_mask,
+            obs_mask,
+            route_mask.any(dim=1, keepdim=True),
+            lane_mask.any(dim=2),
+            bound_mask.any(dim=2),
+        ], dim=1)
+        all_embs = torch.cat([ego_embedding.unsqueeze(1), obs_embedding, route_embedding.unsqueeze(1), lane_embedding, bound_embedding], dim=1)
+        type_embedding = self.type_embedding(state_)
+        outputs, attns = self.global_head(all_embs, type_embedding, invalid_polys)
+        self.attention = attns.detach().clone().cpu()
+
+        outputs = torch.cat([outputs, self.character_embedding(state_.character.unsqueeze(1))], dim=1)
+        return outputs
+
+
 ################################################################################################################
 ###### buffer ##################################################################################################
 ################################################################################################################
@@ -560,6 +807,74 @@ class ReplayBufferSingleAgentMultiWorker(buffer.ReplayBufferMultiWorker):
 ################################################################################################################
 ###### basic ###################################################################################################
 ################################################################################################################
+from rllib.template.model import FeatureExtractor, FeatureMapper
+from rllib.utils import init_weights
+from torch.distributions import Normal, MultivariateNormal
+
+class Actor(rllib.template.Model):
+    logstd_min = -5
+    logstd_max = 1
+
+    def __init__(self, config, model_id=0):
+        super().__init__(config, model_id)
+        # self.recog = config.get('net_actor_recog', RecognitionNet)(config, 0)
+        self.mean_no = nn.Tanh()
+        self.std_no = nn.Tanh()
+        #todo
+        self.fe = config.get('net_actor_fe', FeatureExtractor)(config, 0)
+        self.mean = config.get('net_actor_fm', FeatureMapper)(config, 0, self.fe.dim_feature, config.dim_action)
+        self.std = copy.deepcopy(self.mean)
+        self.apply(init_weights)
+
+    def forward(self, state):
+        #add character into state
+        # obs_character = self.recog(state)
+        # print(obs_character)
+        #####
+        x = self.fe(state)
+        mean = self.mean_no(self.mean(x))
+        logstd = self.std_no(self.std(x))
+        logstd = (self.logstd_max-self.logstd_min) * logstd + (self.logstd_max+self.logstd_min)
+        return mean, logstd *0.5
+    
+    def forward_with_svo(self, state, obs_svos):
+        x = self.fe.forward_with_svo(state, obs_svos)
+        mean = self.mean_no(self.mean(x))
+        logstd = self.std_no(self.std(x))
+        logstd = (self.logstd_max-self.logstd_min) * logstd + (self.logstd_max+self.logstd_min)
+        return mean, logstd *0.5
+
+    def sample(self, state):
+        mean, logstd = self(state)
+
+        cov = torch.diag_embed( torch.exp(logstd) )
+        dist = MultivariateNormal(mean, cov)
+        u = dist.rsample()
+        # if mean.shape[0] == 1:
+        #     print('    policy entropy: ', dist.entropy().detach().cpu())
+        #     print('    policy mean:    ', mean.detach().cpu())
+        #     print('    policy std:     ', torch.exp(logstd).detach().cpu())
+        #     print()
+        ### Enforcing Action Bound
+        action = torch.tanh(u)
+        logprob = dist.log_prob(u).unsqueeze(1) \
+                - torch.log(1 - action.pow(2) + 1e-6).sum(dim=1, keepdim=True)
+
+        return action, logprob, mean
+
+
+    def sample_deprecated(self, state):
+        mean, logstd = self(state)
+
+        dist = Normal(mean, torch.exp(logstd))
+        u = dist.rsample()
+
+        ### Enforcing Action Bound
+        action = torch.tanh(u)
+        logprob = dist.log_prob(u) - torch.log(1-action.pow(2) + 1e-6)
+        logprob = logprob.sum(dim=1, keepdim=True)
+
+        return action, logprob, mean
 
 
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence, PackedSequence

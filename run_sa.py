@@ -157,7 +157,7 @@ def main():
         writer, env_master, method = gallery.ray_isac_recog__adaptive_background__bottleneck(config, mode, scale)
 
     elif version == 'v6-4-1':
-        scale = 10
+        scale = 1
         config.description += '--isac_recog__new_adaptive'
         writer, env_master, method = gallery.ray_isac_recog__new_adaptive_background__bottleneck(config, mode, scale)
 
@@ -222,6 +222,11 @@ def main():
         scale = 10
         config.description += '--wo_attention-hrz10-act10'
         writer, env_master, method = gallery.ray_wo_attention__new_adaptive_background__bottleneck(config, mode, scale)
+
+    elif version == 'v6-6-0':
+        scale = 10
+        config.description += '--isac_recog__new_action'
+        writer, env_master, method = gallery.ray_recog__new_action_background__bottleneck(config, mode, scale)
         # try 改成随机离散分布
     ################################################################################################
     ##### debug ####################################################################################

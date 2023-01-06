@@ -10,7 +10,8 @@ from core.model_vectornet import PointNetWithAgentHistoryOur
 from core.model_vectornet import PointNetWithAgentHistory  ### no_character
 from core.model_vectornet import PointNetWithCharacterAgentHistory  ### robust_character
 from core.model_vectornet import PointNetWithCharactersAgentHistory  ### adaptive_character
-from core.recognition_net import RecognitionNet, RecognitionNetNew,PointNetWithCharactersAgentHistoryRecog, RecognitionWoAttention, RecognitionNetSample
+from core.recognition_net import RecognitionNet, RecogNetSVO, \
+    RecognitionNetNew,PointNetWithCharactersAgentHistoryRecog, RecognitionWoAttention, RecognitionNetSample
 
 config_meta = rllib.basic.YamlConfig(
     device='cuda',
@@ -106,6 +107,13 @@ config_isac_recog = rllib.basic.YamlConfig(
     net_critic_fe=PointNetWithCharactersAgentHistory,
     # net_actor_recog=RecognitionNet,
     # net_critic_recog=RecognitionNet,
+    buffer=ReplayBufferSingleAgent,
+    **config_meta.to_dict(),
+)
+
+config_recog_action_svo = rllib.basic.YamlConfig(
+    net_actor_fe=RecogNetSVO,
+    net_critic_fe=RecogNetSVO,
     buffer=ReplayBufferSingleAgent,
     **config_meta.to_dict(),
 )

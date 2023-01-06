@@ -311,7 +311,6 @@ class PointNetWithCharactersAgentHistory(rllib.template.Model):
         num_agents = _state.obs.shape[1]
         num_lanes = state.lane.shape[1]
         num_bounds = state.bound.shape[1]
-
         ### data generation
         ego = _state.ego[:,-1]
         ego_mask = _state.ego_mask.to(torch.bool)[:,[-1]]
@@ -362,8 +361,8 @@ class PointNetWithCharactersAgentHistory(rllib.template.Model):
         type_embedding = self.type_embedding(_state)
         outputs, attns = self.global_head(all_embs, type_embedding, invalid_polys)
         self.attention = attns.detach().clone().cpu()
-
         outputs = torch.cat([outputs, self.character_embedding(_state.character.unsqueeze(1))], dim=1)
+
         return outputs
 
 
