@@ -105,11 +105,12 @@ class RewardFunctionRecogCharacter(universe.RewardFunc):
     def run_step(self, state, action, agents_master: universe.AgentsMaster, episode_info):
         '''single agent'''
         reward = RewardFunctionWithCharacter.run_step(self, state, action, agents_master, episode_info)
-        assert action.shape[0] == 1 and len(state) == 1 and len(agents_master.vehicles_neural) == 1
+        assert action.shape[0] == 1 and len(state) == 1 \
+            and len(agents_master.vehicles_neural) == 1 and len(reward) == 1
         true_character = torch.full(action.shape,agents_master.vehicles_rule[0].character)
 
         RMSEloss = torch.sqrt(self.MSEloss(torch.tensor(action),true_character))
         RMSEloss = np.clip(RMSEloss,0,1)
-        reward += np.clip(1/np.tan(np.pi*RMSEloss), -1, 1)        
+        reward[0] += np.clip(1/np.tan(np.pi*RMSEloss), -1, 1)        
 
         return reward
