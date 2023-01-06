@@ -119,7 +119,6 @@ class RewardFunctionRecogCharacterV2(universe.RewardFunc):
     def run_step(self, state, action, agents_master: universe.AgentsMaster, episode_info):
         '''single agent'''
         reward = RewardFunctionNoCharacter.run_step(self, state, action, agents_master, episode_info)
-        breakpoint()
         # assert action.shape[0] == 1 and len(state) == 1 \
         #     and len(agents_master.vehicles_neural) == 1 and len(reward) == 1
         valid_len = len(agents_master.vehicles_rule)
