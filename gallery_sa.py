@@ -1030,3 +1030,22 @@ def ray_recog__new_action_background__bottleneck(config, mode='train', scale=1):
     config.set('methods', [config_method])
 
     return init(config, mode, Env, Method)
+
+def ray_recog_woattn__new_action_background__bottleneck(config, mode='train', scale=1):
+    from universe import EnvInteractiveSingleAgent as Env
+    #todo
+    from core.method_recog_new_action import RecogV1 as Method
+    
+    ### env param
+    from config.bottleneck import config_env__new_action_background as config_bottleneck
+    config_bottleneck.set('config_neural_policy', get_sac__bottleneck__new_action_config(config))
+
+    config.set('envs', [
+        config_bottleneck
+    ] *scale)
+
+    ### method param
+    from config.method import config_recog_action_svo as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env, Method)

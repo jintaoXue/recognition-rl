@@ -227,6 +227,11 @@ def main():
         scale = 10
         config.description += '--isac_recog__new_action'
         writer, env_master, method = gallery.ray_recog__new_action_background__bottleneck(config, mode, scale)
+    
+    elif version == 'v6-6-1':
+        scale = 1
+        config.description += '--recog_woattn__new_action'
+        writer, env_master, method = gallery.ray_recog_woattn__new_action_background__bottleneck(config, mode, scale)
         # try 改成随机离散分布
     ################################################################################################
     ##### debug ####################################################################################

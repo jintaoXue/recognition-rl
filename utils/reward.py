@@ -8,8 +8,8 @@ import torch
 
 class RewardFunctionNoCharacter(universe.RewardFunc):
     def run_step(self, state, action, agents_master: universe.AgentsMaster, episode_info):
-        REWARD_C = -1000
-        REWARD_B = -1000
+        REWARD_C = -2000
+        REWARD_B = -2000
         collision = episode_info.collision
         off_road = episode_info.off_road
         off_route = episode_info.off_route
@@ -109,7 +109,7 @@ class RewardFunctionRecogCharacter(universe.RewardFunc):
         #     and len(agents_master.vehicles_neural) == 1 and len(reward) == 1
         true_character = torch.full(action.shape,agents_master.vehicles_rule[0].character)
         RMSEloss = torch.sqrt(self.MSEloss(torch.tensor(action),true_character))
-        RMSEloss = np.clip(RMSEloss,0,1)
-        reward[0] += np.clip(1/np.tan(np.pi*RMSEloss), -1, 1)        
+        RMSEloss = np.clip(RMSEloss,0,0.2)
+        reward[0] += np.clip(1/np.tan(5*np.pi*RMSEloss), -0.5, 1)        
 
         return reward
