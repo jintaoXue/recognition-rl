@@ -45,8 +45,8 @@ class RecogV2(MethodSingleAgent):
     buffer_size = 750000
     batch_size = 128
 
-    # start_timesteps = 30000
-    start_timesteps = 128  ## ! warning
+    start_timesteps = 30000
+    # start_timesteps = 128  ## ! warning
     before_training_steps = 0
 
     save_model_interval = 1000
@@ -206,7 +206,7 @@ class RecogV2(MethodSingleAgent):
         else:
             action, _, _ = self.actor.sample(state.to(self.device))
             action = action.cpu()
-        print('select_action', action.shape)
+        # print('select_action', action.shape)
         return action
     
     def _update_model(self):
@@ -253,7 +253,7 @@ class Actor(rllib.template.Model):
         # if torch.isnan(mean).any() :
         #     print('_______________________')
         #     breakpoint()
-        print('forward', mean.shape)
+        # print('forward', mean.shape)
         return mean, logstd *0.5
 
 
@@ -271,7 +271,7 @@ class Actor(rllib.template.Model):
         action = torch.tanh(u)
         logprob = dist.log_prob(u).unsqueeze(1) \
                 - torch.log(1 - action.pow(2) + 1e-6).sum(dim=1, keepdim=True)
-        print('sample', action.shape)
+        # print('sample', action.shape)
         return action, logprob, mean
     
 
