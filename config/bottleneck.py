@@ -112,3 +112,4 @@ config_env__new_action_background.reward_func = reward.RewardFunctionRecogCharac
 
 config_env__new_action_multi_svo = copy.copy(config_env__new_action_background)
 config_env__new_action_multi_svo.agents_master_cls = agents_master.AgentListMasterNeuralBackgroundRecogMultiSVO
+config_env__new_action_multi_svo.reward_func = reward.RewardFunctionRecogCharacterV2
