@@ -108,3 +108,4 @@ config_env__neural_background_same_other_svo.scenario_randomization_cls = scenar
 
 config_env__new_action_background = copy.copy(config_env__neural_background_same_other_svo)
 config_env__new_action_background.agents_master_cls = agents_master.AgentListMasterNeuralBackgroundRecog
+config_env__new_action_background.reward_func = reward.RewardFunctionRecogCharacter
