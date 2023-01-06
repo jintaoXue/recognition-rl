@@ -111,12 +111,6 @@ config_isac_recog = rllib.basic.YamlConfig(
     **config_meta.to_dict(),
 )
 
-config_recog_action_svo = rllib.basic.YamlConfig(
-    net_actor_fe=RecogNetSVO,
-    net_critic_fe=RecogNetSVO,
-    buffer=ReplayBufferSingleAgent,
-    **config_meta.to_dict(),
-)
 config_isac_recog_woattn = rllib.basic.YamlConfig(
     net_actor_fe=PointNetWithCharactersAgentHistoryRecog,
     net_critic_fe=PointNetWithCharactersAgentHistoryRecog,
@@ -153,3 +147,9 @@ config_woattn = rllib.basic.YamlConfig(
     **config_meta.to_dict(),
 )
 
+config_recog_action_svo_woattn = rllib.basic.YamlConfig(
+    net_actor_fe=RecogNetSVO,
+    net_critic_fe=RecogNetSVO,
+    buffer=ReplayBufferSingleAgent,
+    **config_meta.to_dict(),
+)
