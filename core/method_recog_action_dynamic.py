@@ -66,7 +66,7 @@ class RecogV2(MethodSingleAgent):
         self.critic_loss = nn.MSELoss()
         self.character_loss = nn.MSELoss()
         #same other svo
-        self.dim_action = 20
+        self.dim_action = 19
         ### automatic entropy tuning
         if self.target_entropy == None:
             self.target_entropy = -np.prod((self.dim_action,)).item()
@@ -206,6 +206,7 @@ class RecogV2(MethodSingleAgent):
         else:
             action, _, _ = self.actor.sample(state.to(self.device))
             action = action.cpu()
+        print('select_action', action.shape)
         return action
     
     def _update_model(self):
@@ -252,6 +253,7 @@ class Actor(rllib.template.Model):
         # if torch.isnan(mean).any() :
         #     print('_______________________')
         #     breakpoint()
+        print('forward', mean.shape)
         return mean, logstd *0.5
 
 
@@ -269,6 +271,7 @@ class Actor(rllib.template.Model):
         action = torch.tanh(u)
         logprob = dist.log_prob(u).unsqueeze(1) \
                 - torch.log(1 - action.pow(2) + 1e-6).sum(dim=1, keepdim=True)
+        print('sample', action.shape)
         return action, logprob, mean
     
 
