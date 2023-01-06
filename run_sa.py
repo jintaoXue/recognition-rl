@@ -224,11 +224,15 @@ def main():
         writer, env_master, method = gallery.ray_wo_attention__new_adaptive_background__bottleneck(config, mode, scale)
 
     elif version == 'v6-6-0':
-        scale = 10
+        scale = 1
         config.description += '--isac_recog__new_action'
         writer, env_master, method = gallery.ray_recog__new_action_background__bottleneck(config, mode, scale)
     
     elif version == 'v6-6-1':
+        scale = 10
+        config.description += '--recog__dynamic_action'
+        writer, env_master, method = gallery.ray_recog__dynamic_action_background__bottleneck(config, mode, scale)
+    elif version == 'v6-6-2':
         scale = 1
         config.description += '--recog_woattn__new_action'
         writer, env_master, method = gallery.ray_recog_woattn__new_action_background__bottleneck(config, mode, scale)

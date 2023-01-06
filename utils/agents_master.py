@@ -315,6 +315,7 @@ class AgentListMasterNeuralBackgroundRecog(AgentListMaster):
         state = self.perception.run_step(step_reset, time_step, self.vehicles_neural + self.vehicles_rule, vehicle_states, vehicle_masks)
         self.state_neural_nackground = state[1:]
         self.state = state[0]
+        # breakpoint()
         return [state[0]]
 
     def run_step(self, obs_svo):
@@ -322,9 +323,48 @@ class AgentListMasterNeuralBackgroundRecog(AgentListMaster):
         Args:
             obs_svo: torch.Size([num_agents_learnable, 1])
         """
-        assert len(obs_svo) == len(self.vehicles_neural)
+        # assert len(obs_svo) == len(self.vehicles_neural)
         #froms
         obs_svos = np.expand_dims(obs_svo, axis = 1).repeat(len(self.state.obs_character),axis=1)
+        state = self.state.to_tensor().unsqueeze(0)
+        references, _= self.neural_policy.forward_with_svo(state, obs_svos)
+        state_bg = [s.to_tensor().unsqueeze(0) for s in self.state_neural_nackground]
+
+        if len(state_bg) > 0:
+            states_bg = rllib.buffer.stack_data(state_bg)
+            self.buffer_cls.pad_state(None, states_bg)
+            states_bg = states_bg.cat(dim=0)
+            actions_bg, _, _ = self.neural_policy.sample(states_bg.to(self.device))
+            actions_bg = actions_bg.detach().cpu().numpy()
+        else:
+            actions_bg = []
+        
+        vehicles = self.vehicles_neural + self.vehicles_rule
+        references = references.detach().cpu().numpy()
+        targets_neural = [vehicle.get_target(reference) for vehicle, reference in zip(self.vehicles_neural, references)]
+        targets_rule = [vehicle.get_target(action_bg) for vehicle, action_bg in zip(self.vehicles_rule, actions_bg)]
+        targets = targets_neural + targets_rule
+        for _ in range(self.skip_num):
+            for vehicle, target in zip(vehicles, targets):
+                control = vehicle.get_control(target)
+                vehicle.forward(control)
+        for vehicle in vehicles:
+            vehicle.tick()
+        return
+
+class AgentListMasterNeuralBackgroundRecogMultiSVO(AgentListMasterNeuralBackgroundRecog):
+    """
+        Only for single agent.
+    """
+    def run_step(self, obs_svos):
+        """
+        Args:
+            obs_svos: torch.Size([batch, self.max_obs_vehicle])
+        """
+        # assert len(obs_svos) == len(self.vehicles_neural)
+        #froms
+        obs_svos = obs_svos[:,:len(self.state.obs_character)]
+        obs_svos = np.expand_dims(obs_svos, axis=-1)
         state = self.state.to_tensor().unsqueeze(0)
         references, _= self.neural_policy.forward_with_svo(state, obs_svos)
         state_bg = [s.to_tensor().unsqueeze(0) for s in self.state_neural_nackground]
