@@ -45,12 +45,12 @@ class RecogV1(MethodSingleAgent):
     buffer_size = 750000
     batch_size = 128
 
-    start_timesteps = 50000
+    start_timesteps = 30000
     # start_timesteps = 10  ## ! warning
     before_training_steps = 0
 
     save_model_interval = 1000
-    actor_loss_scale = 1
+
     def __init__(self, config: rllib.basic.YamlConfig, writer):
         super().__init__(config, writer)
 
