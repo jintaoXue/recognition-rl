@@ -203,7 +203,8 @@ class RecogV2(MethodSingleAgent):
         self.select_action_start()
         if self.step_select < self.start_timesteps:
             valid_len = state.obs_character.shape[1]
-            action = torch.Tensor(1, self.dim_action,1).uniform_(0.1,0.9)
+            action = torch.Tensor(1,1,1).uniform_(0.1,0.9)
+            action = action.repeat(1,self.dim_action,1)
             action[0,valid_len:] = -1
         else:
             action, _, _ = self.actor.sample(state.to(self.device))

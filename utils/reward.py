@@ -128,6 +128,6 @@ class RewardFunctionRecogCharacterV2(universe.RewardFunc):
         RMSEloss = torch.sqrt(self.MSEloss(torch.tensor(action),true_character))
         reward_character = np.clip(1/np.tan(2.5*np.pi*np.clip(RMSEloss,0,0.2)), 0, 100) + 4 - 10*RMSEloss 
         reward[0] += reward_character*5
-
+        breakpoint()
         print('rewad : {}and RMSEloss:{}'.format(reward, RMSEloss))    
         return reward
