@@ -676,8 +676,8 @@ class RecogNetMultiSVO(rllib.template.Model):
         all_embs = torch.cat([ego_embedding.unsqueeze(1), obs_embedding, route_embedding.unsqueeze(1), lane_embedding, bound_embedding], dim=1)
         type_embedding = self.type_embedding(state)
         outputs, attns = self.global_head_recognition(all_embs, type_embedding, invalid_polys, num_agents)
-        breakpoint()
-        outputs = torch.where(outputs == np.inf, torch.tensor(0, dtype=torch.float32, device=obs.device), obs)
+
+        # outputs = torch.where(outputs == np.inf, torch.tensor(0, dtype=torch.float32, device=obs.device), obs)
         outputs = outputs.transpose(0, 1)
         # self.attention = attns.detach().clone().cpu()
         #[batch_size, num_agents, dim]
