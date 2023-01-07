@@ -97,9 +97,10 @@ class RecogV2(MethodSingleAgent):
             target_q1, target_q2 = self.critic_target(next_state, next_action)
             target_q = torch.min(target_q1, target_q2) - self.alpha * next_logprob
             target_q = reward + self.gamma * (1-done) * target_q
-
+        
         current_q1, current_q2 = self.critic(state, action)
         critic_loss = (self.critic_loss(current_q1, target_q) + self.critic_loss(current_q2, target_q))
+        # if torch.any(torch.isfinite(critic_loss)) or torch.any(torch.isnan(critic_loss)): breakpoint()
         # print('critic_loss: {}'.format(critic_loss))
         self.critic_optimizer.zero_grad()
         critic_loss.backward()
