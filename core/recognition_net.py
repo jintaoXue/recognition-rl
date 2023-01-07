@@ -1094,7 +1094,7 @@ class MultiheadAttentionGlobalHeadRecognition(nn.Module):
         # return torch.cat([outputs, inputs[[0]]], dim=2), attns
         # return outputs + inputs[[0]], attns
         # return outputs, attns
-        return outputs.squeeze(0), attns.squeeze(1)
+        return outputs, attns
 
 class MultiheadAttentionGlobalHead(nn.Module):
     def __init__(self, d_model, nhead=8, dropout=0.1):
