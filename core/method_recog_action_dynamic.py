@@ -45,12 +45,12 @@ class RecogV2(MethodSingleAgent):
     buffer_size = 750000
     batch_size = 128
 
-    start_timesteps = 50000
-    # start_timesteps = 128  ## ! warning
+    start_timesteps = 30000
+    # start_timesteps = 0  ## ! warning
     before_training_steps = 0
 
     save_model_interval = 1000
-    print_svo_mse_interval = 100
+    print_svo_mse_interval = 10
     def __init__(self, config: rllib.basic.YamlConfig, writer):
         super().__init__(config, writer)
 
@@ -97,9 +97,10 @@ class RecogV2(MethodSingleAgent):
             target_q1, target_q2 = self.critic_target(next_state, next_action)
             target_q = torch.min(target_q1, target_q2) - self.alpha * next_logprob
             target_q = reward + self.gamma * (1-done) * target_q
-
+        
         current_q1, current_q2 = self.critic(state, action)
         critic_loss = (self.critic_loss(current_q1, target_q) + self.critic_loss(current_q2, target_q))
+        if torch.any(torch.isinf(critic_loss)) or torch.any(torch.isnan(critic_loss)): breakpoint()
         # print('critic_loss: {}'.format(critic_loss))
         self.critic_optimizer.zero_grad()
         critic_loss.backward()
@@ -110,6 +111,7 @@ class RecogV2(MethodSingleAgent):
         # actor_loss = (-self.critic.q1(state, action) + self.alpha * logprob).mean() * self.actor_loss_scale
         # breakpoint()
         actor_loss = ((-self.critic.q1(state, action) + self.alpha * logprob).mean())
+        if torch.any(torch.isinf(actor_loss)) or torch.any(torch.isnan(actor_loss)): breakpoint()
         # actor_loss = torch.nn.init.uniform(actor_loss, a=0, b=1)
         # print('-self.critic.q1(state, action) :{}, self.alpha * logprob:{}\n'.format(-self.critic.q1(state, action) , self.alpha * logprob))
         # print('actor_loss : {}'.format(actor_loss) ,actor_loss)
@@ -147,7 +149,7 @@ class RecogV2(MethodSingleAgent):
                 recog_charater, _= self.actor(state) 
             real_character = state.obs_character[:,:,-1]
             valid_len = real_character.shape[1]
-            recog_charater = recog_charater[:,:valid_len].unsqueeze(-1)
+            recog_charater = recog_charater[:,:valid_len]
             recog_charater = torch.where(real_character == np.inf, torch.tensor(np.inf, dtype=torch.float32, device=state.obs.device),recog_charater)
             real_character = real_character[~torch.isinf(real_character)]
             recog_charater = recog_charater[~torch.isinf(recog_charater)]
@@ -186,7 +188,7 @@ class RecogV2(MethodSingleAgent):
         self.select_action_start()
 
         if self.step_select < self.start_timesteps:
-            action = torch.Tensor(len(state), self.dim_action).uniform_(0,1)
+            action = torch.Tensor(len(state), self.dim_action).uniform_(0.1,0.9)
         else:
             # print('select: ', self.step_select)
             states = rllib.buffer.stack_data(state)
@@ -201,7 +203,8 @@ class RecogV2(MethodSingleAgent):
         self.select_action_start()
         if self.step_select < self.start_timesteps:
             valid_len = state.obs_character.shape[1]
-            action = torch.Tensor(1, self.dim_action).uniform_(0,1)
+            action = torch.Tensor(1,1,1).uniform_(0.1,0.9)
+            action = action.repeat(1,self.dim_action,1)
             action[0,valid_len:] = -1
         else:
             action, _, _ = self.actor.sample(state.to(self.device))
@@ -236,30 +239,31 @@ class Actor(rllib.template.Model):
         #[batch_size, num_agents, dim]
         x = self.fe(state)
         num_svo = x.shape[1]
-        mean_list = []
-        std_list = []
-        for i in range(0,num_svo):
-            mean_list.append(self.mean(x[:,i]))
-            std_list.append(self.std(x[:,i]))
-        mean = torch.cat(mean_list, dim=1)
+        mean = self.mean(x)
         mean = self.mean_no(mean)
-        mean = torch.cat([mean, torch.full((len(x), self.max_other_vehicles- num_svo), -1.0).to(self.device)], dim = 1)
-        std = torch.cat(std_list, dim=1)
-        logstd = self.std_no(std)
-        logstd = torch.cat([logstd, torch.full((len(x), self.max_other_vehicles- num_svo), -1.0).to(self.device)], dim = 1)
+        logstd = self.std_no(self.std(x))
         #to do
+        mean = torch.cat([mean, torch.full((len(x), \
+            self.max_other_vehicles- num_svo, self.dim_action), -1.0).to(self.device)], dim = 1)
+        logstd = torch.cat([logstd, torch.full((len(x), \
+            self.max_other_vehicles- num_svo,self.dim_action), -1.0).to(self.device)], dim = 1)
         logstd = (self.logstd_max-self.logstd_min) * logstd + (self.logstd_max+self.logstd_min)
         #torch.isnan(x).any()
         # if torch.isnan(mean).any() :
         #     print('_______________________')
         #     breakpoint()
         # print('forward', mean.shape)
+        # breakpoint()
+        if torch.any(torch.isinf(mean)) or torch.any(torch.isnan(mean)): breakpoint()
+        if torch.any(torch.isinf(logstd)) or torch.any(torch.isnan(logstd)): breakpoint()
+        if torch.any(torch.isinf(x)) or torch.any(torch.isnan(x)): breakpoint()
         return mean, logstd *0.5
 
 
     def sample(self, state):
 
         mean, logstd= self(state)
+        num_svo = state.obs_character.shape[1]
         cov = torch.diag_embed(torch.exp(logstd))
         dist = MultivariateNormal(mean, cov)
         u = dist.rsample()
@@ -269,9 +273,10 @@ class Actor(rllib.template.Model):
         #     print('    policy std:     ', torch.exp(logstd).detach().cpu())
         ### Enforcing Action Bound
         action = torch.tanh(u)
-        logprob = dist.log_prob(u).unsqueeze(1) \
-                - torch.log(1 - action.pow(2) + 1e-6).sum(dim=1, keepdim=True)
+        logprob = dist.log_prob(u)[:,:num_svo].sum(-1).unsqueeze(1) \
+                - torch.log(1 - action[:,:num_svo].pow(2) + 1e-6).sum(dim=1)
         # print('sample', action.shape)
+        
         return action, logprob, mean
     
 
@@ -305,15 +310,11 @@ class Critic(rllib.template.Model):
         # x = self.fe(state, obs_character)
         x = self.fe(state)
         num_svo = x.shape[1]
-        list_fm1 = []
-        list_fm2 = []
-        for i in range(0, num_svo):
-            x_ = torch.cat([x[:,i],action[:,i:i+1]], dim=1)
-            list_fm1.append(self.fm1(x_))
-            list_fm2.append(self.fm2(x_))
-
-        return torch.mean(torch.cat(list_fm1, dim=1),dim=1).unsqueeze(1), \
-            torch.mean(torch.cat(list_fm2, dim=1),dim=1).unsqueeze(1)
+        action = action[:,0:num_svo]
+        x = torch.cat([x,action], dim=2)
+        if torch.any(torch.isinf(action)) or torch.any(torch.isnan(action)): breakpoint()
+        if torch.any(torch.isinf(x)) or torch.any(torch.isnan(x)): breakpoint()
+        return torch.mean(self.fm1(x),dim=1), torch.mean(self.fm2(x),dim=1)
     
     def q1(self, state, action):
         # obs_character = self.recog(state)
@@ -321,14 +322,29 @@ class Critic(rllib.template.Model):
         # x = self.fe(state, obs_character)
         x = self.fe(state)
         num_svo = x.shape[1]
-        list_fm1 = []
+        action = action[:,0:num_svo]
+        x = torch.cat([x,action], dim=2)
+        if torch.any(torch.isinf(action)) or torch.any(torch.isnan(action)): breakpoint()
+        if torch.any(torch.isinf(x)) or torch.any(torch.isnan(x)): breakpoint()
+        return torch.mean(x, dim=1)
+        # x = self.fe(state)
+        # num_svo = x.shape[1]
+        # list_fm1 = []
 
-        for i in range(0, num_svo):
-            x_ = torch.cat([x[:,i],action[:,i:i+1]], dim=1)
-            list_fm1.append(self.fm1(x_))
+        # for i in range(0, num_svo):
+        #     x_ = torch.cat([x[:,i],action[:,i:i+1]], dim=1)
+        #     list_fm1.append(self.fm1(x_))
 
-        return torch.mean(torch.cat(list_fm1, dim=1),dim=1).unsqueeze(1)
-
+        # return torch.mean(torch.cat(list_fm1, dim=1),dim=1).unsqueeze(1)
+    # def forward(self, state, action):
+    #     x = self.fe(state)
+    #     x = torch.cat([x, action], 1)
+    #     return self.fm1(x), self.fm2(x)
+    
+    # def q1(self, state, action):
+    #     x = self.fe(state)
+    #     x = torch.cat([x, action], 1)
+    #     return self.fm1(x)
 def write_character(file, character) :
     character = character.detach().cpu().numpy()
     # character = [item.detach().cpu().numpy() for item in character]

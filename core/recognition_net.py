@@ -236,7 +236,7 @@ class RecognitionNetNew(rllib.template.Model):
         #(num_agents, batch, 1) -> (batch, num_agents, 1)
         obs_svos = obs_svos.transpose(0, 1)
         self.obs_svos = obs_svos
-        breakpoint()
+        # breakpoint()
         print(obs_svos)
         state_ = cut_state(state)
         ### data generation
@@ -592,6 +592,7 @@ class RecogNetSVO(rllib.template.Model):
         # self.attention = attns.detach().clone().cpu()
         outputs = torch.cat([outputs, self.character_embedding(state.character.unsqueeze(1))], dim=1)
         return outputs
+
 class RecogNetMultiSVO(rllib.template.Model):
     def __init__(self, config, model_id=0):
         super().__init__(config, model_id)
@@ -674,13 +675,68 @@ class RecogNetMultiSVO(rllib.template.Model):
         ], dim=1)
         all_embs = torch.cat([ego_embedding.unsqueeze(1), obs_embedding, route_embedding.unsqueeze(1), lane_embedding, bound_embedding], dim=1)
         type_embedding = self.type_embedding(state)
-
         outputs, attns = self.global_head_recognition(all_embs, type_embedding, invalid_polys, num_agents)
+
+        # outputs = torch.where(outputs == np.inf, torch.tensor(0, dtype=torch.float32, device=obs.device), obs)
         outputs = outputs.transpose(0, 1)
         # self.attention = attns.detach().clone().cpu()
         #[batch_size, num_agents, dim]
         character_embed = self.character_embedding(state.character.unsqueeze(1)).unsqueeze(1).repeat(1,num_agents,1)         
+        # if(len(outputs.shape) == 2 or len(character_embed.shape) == 2):breakpoint()
         outputs = torch.cat([outputs, character_embed], dim=2)
+        return outputs
+
+class RecogNetMultiSVOWoattn(rllib.template.Model):
+    def __init__(self, config, model_id=0):
+        super().__init__(config, model_id)
+        ##########需要加载的参数
+
+        # self.fe = PointNetWithCharactersAgentHistory(config, model_id)
+        # self.mean = rllib.template.model.FeatureMapper(config, model_id, self.fe.dim_feature, config.dim_action)
+        # self.std = copy.deepcopy(self.mean)
+        # self.load_state_dict(torch.load('~/github/zdk/recognition-rl/models/IndependentSAC_v0-EnvInteractiveMultiAgent/2022-09-11-15:19:29----ray_isac_adaptive_character__multi_scenario--buffer-rate-0.2/saved_models_method/INDEPENDENTSAC_V0_Actor_0_866200_.pth'))
+
+        dim_ego_embedding = 128
+        dim_character_embedding = 32
+        dim_embedding = dim_ego_embedding + dim_character_embedding
+
+
+        self.dim_embedding = dim_embedding
+
+
+        self.agent_embedding = DeepSetModule(self.dim_state.agent, dim_embedding //2)
+        self.agent_embedding_v1 = nn.Sequential(
+            nn.Linear(self.dim_state.agent, dim_embedding), nn.ReLU(inplace=True),
+            nn.Linear(dim_embedding, dim_embedding), nn.ReLU(inplace=True),
+            nn.Linear(dim_embedding, dim_embedding //2),
+        )
+        # self.global_head_recognition = MultiheadAttentionGlobalHeadRecognition(dim_embedding, out_dim=1, nhead=4, dropout=0.0 if config.evaluate else 0.1)
+        self.out_proj = NonDynamicallyQuantizableLinear(dim_embedding, out_features = dim_embedding, bias=True)
+
+        self.dim_feature = dim_embedding+dim_character_embedding + dim_character_embedding
+
+    def forward(self, state: rllib.basic.Data, **kwargs):
+        # breakpoint()
+        batch_size = state.ego.shape[0]
+        num_agents = state.obs.shape[1]
+        ### data generation
+        obs = state.obs[:,:,-1]
+        # obs_mask = state.obs_mask[:,:,-1].to(torch.bool)
+        # obs_character = state.obs_character[:,:,-1]
+        ### embedding
+        obs = torch.where(obs == np.inf, torch.tensor(0, dtype=torch.float32, device=obs.device), obs)
+
+        obs_embedding = torch.cat([
+            self.agent_embedding(state.obs.flatten(end_dim=1), state.obs_mask.to(torch.bool).flatten(end_dim=1)).view(batch_size,num_agents, self.dim_embedding //2),
+            self.agent_embedding_v1(obs)
+        ], dim=2)
+
+
+        outputs = self.out_proj(obs_embedding)
+        breakpoint()
+        #(num_agents, batch, 1) -> (batch, num_agents, 1)
+        # outputs = outputs.transpose(0, 1)
+
         return outputs
 class PointNetwithActionSVO(rllib.template.Model):
     #作为action为svo的网络
@@ -778,6 +834,7 @@ class PointNetwithActionSVO(rllib.template.Model):
         state_ = cut_state(state)
         state_ = state_.to(self.device)
         obs_character = torch.from_numpy(obs_character).to(self.device)
+        # print('agent master obs_svos', obs_character.shape)
         batch_size = state_.ego.shape[0]
         num_agents = state_.obs.shape[1]
         num_lanes = state.lane.shape[1]
@@ -808,7 +865,6 @@ class PointNetwithActionSVO(rllib.template.Model):
         obs = torch.where(obs == np.inf, torch.tensor(0, dtype=torch.float32, device=obs.device), obs)
 
         obs_character = torch.where(obs_character == np.inf, torch.tensor(-1, dtype=torch.float32, device=obs.device), obs_character)
-
         obs_embedding = torch.cat([
             self.agent_embedding(state_.obs.flatten(end_dim=1), state_.obs_mask.to(torch.bool).flatten(end_dim=1)).view(batch_size,num_agents, self.dim_embedding //2),
             self.agent_embedding_v1(obs),

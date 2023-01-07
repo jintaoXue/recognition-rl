@@ -10,7 +10,7 @@ from core.model_vectornet import PointNetWithAgentHistoryOur
 from core.model_vectornet import PointNetWithAgentHistory  ### no_character
 from core.model_vectornet import PointNetWithCharacterAgentHistory  ### robust_character
 from core.model_vectornet import PointNetWithCharactersAgentHistory  ### adaptive_character
-from core.recognition_net import RecognitionNet, RecogNetSVO, RecogNetMultiSVO ,\
+from core.recognition_net import RecognitionNet, RecogNetSVO, RecogNetMultiSVO , RecogNetMultiSVOWoattn,\
     RecognitionNetNew,PointNetWithCharactersAgentHistoryRecog, RecognitionWoAttention, RecognitionNetSample
 
 config_meta = rllib.basic.YamlConfig(
@@ -148,20 +148,20 @@ config_woattn = rllib.basic.YamlConfig(
 )
 
 config_recog_action_svo = rllib.basic.YamlConfig(
-    net_actor_fe=RecogNetSVO,
-    net_critic_fe=RecogNetSVO,
-    buffer=ReplayBufferSingleAgent,
-    **config_meta.to_dict(),
-)
-
-config_recog_action_svo_woattn = rllib.basic.YamlConfig(
-    net_actor_fe=RecogNetSVO,
-    net_critic_fe=RecogNetSVO,
+    net_actor_fe=RecogNetMultiSVOWoattn,
+    net_critic_fe=RecogNetMultiSVOWoattn,
     buffer=ReplayBufferSingleAgent,
     **config_meta.to_dict(),
 )
 
 config_recog_action_multi_svo = rllib.basic.YamlConfig(
+    net_actor_fe=RecogNetMultiSVO,
+    net_critic_fe=RecogNetMultiSVO,
+    buffer=ReplayBufferSingleAgent,
+    **config_meta.to_dict(),
+)
+
+config_action_multi_svo_woattn = rllib.basic.YamlConfig(
     net_actor_fe=RecogNetMultiSVO,
     net_critic_fe=RecogNetMultiSVO,
     buffer=ReplayBufferSingleAgent,
