@@ -126,7 +126,7 @@ class RewardFunctionRecogCharacterV2(universe.RewardFunc):
         action = action[:,:valid_len]
         true_character = torch.full(action.shape,agents_master.vehicles_rule[0].character)
         RMSEloss = torch.sqrt(self.MSEloss(torch.tensor(action),true_character))
-        RMSEloss = np.clip(RMSEloss,0,0.4)
-        reward[0] += np.clip(1/np.tan(2.5*np.pi*RMSEloss), -1, 5)    
+        RMSEloss = np.clip(RMSEloss,0,0.8)
+        reward[0] += np.clip(1/np.tan(np.pi*RMSEloss), -1, 5)    
         print('rewad : {}and RMSEloss:{}'.format(reward, RMSEloss))    
         return reward
