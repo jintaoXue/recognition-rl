@@ -778,6 +778,7 @@ class PointNetwithActionSVO(rllib.template.Model):
         state_ = cut_state(state)
         state_ = state_.to(self.device)
         obs_character = torch.from_numpy(obs_character).to(self.device)
+        print('agent master obs_svos', obs_character.shape)
         batch_size = state_.ego.shape[0]
         num_agents = state_.obs.shape[1]
         num_lanes = state.lane.shape[1]
