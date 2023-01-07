@@ -674,12 +674,12 @@ class RecogNetMultiSVO(rllib.template.Model):
         ], dim=1)
         all_embs = torch.cat([ego_embedding.unsqueeze(1), obs_embedding, route_embedding.unsqueeze(1), lane_embedding, bound_embedding], dim=1)
         type_embedding = self.type_embedding(state)
-
         outputs, attns = self.global_head_recognition(all_embs, type_embedding, invalid_polys, num_agents)
         outputs = outputs.transpose(0, 1)
         # self.attention = attns.detach().clone().cpu()
         #[batch_size, num_agents, dim]
         character_embed = self.character_embedding(state.character.unsqueeze(1)).unsqueeze(1).repeat(1,num_agents,1)         
+        if(len(outputs.shape) == 2 or len(character_embed.shape) == 2):breakpoint()
         outputs = torch.cat([outputs, character_embed], dim=2)
         return outputs
 class PointNetwithActionSVO(rllib.template.Model):
