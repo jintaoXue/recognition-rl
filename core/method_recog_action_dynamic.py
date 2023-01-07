@@ -45,7 +45,7 @@ class RecogV2(MethodSingleAgent):
     buffer_size = 750000
     batch_size = 128
 
-    start_timesteps = 3000
+    start_timesteps = 0
     # start_timesteps = 0  ## ! warning
     before_training_steps = 0
 
@@ -239,8 +239,8 @@ class Actor(rllib.template.Model):
         mean_list = []
         std_list = []
         for i in range(0,num_svo):
-            mean_list.append(self.mean(x[:,i]))
-            std_list.append(self.std(x[:,i]))
+            mean_list.append(self.mean(x[:,i:i+1]))
+            std_list.append(self.std(x[:,i:i+1]))
         mean = torch.cat(mean_list, dim=1)
         mean = self.mean_no(mean)
         mean = torch.cat([mean, torch.full((len(x), self.max_other_vehicles- num_svo), -1.0).to(self.device)], dim = 1)
