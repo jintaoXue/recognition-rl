@@ -365,7 +365,7 @@ class AgentListMasterNeuralBackgroundRecogMultiSVO(AgentListMasterNeuralBackgrou
         #froms
 
         obs_svos = obs_svos[:,:len(self.state.obs_character)]
-        obs_svos = np.expand_dims(obs_svos, axis=-1)
+        # obs_svos = np.expand_dims(obs_svos, axis=-1)
         state = self.state.to_tensor().unsqueeze(0)
         references, _= self.neural_policy.forward_with_svo(state, obs_svos)
         state_bg = [s.to_tensor().unsqueeze(0) for s in self.state_neural_nackground]

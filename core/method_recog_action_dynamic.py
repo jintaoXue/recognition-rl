@@ -45,7 +45,7 @@ class RecogV2(MethodSingleAgent):
     buffer_size = 750000
     batch_size = 128
 
-    start_timesteps = 0
+    start_timesteps = 1000
     # start_timesteps = 0  ## ! warning
     before_training_steps = 0
 
@@ -147,7 +147,7 @@ class RecogV2(MethodSingleAgent):
                 recog_charater, _= self.actor(state) 
             real_character = state.obs_character[:,:,-1]
             valid_len = real_character.shape[1]
-            recog_charater = recog_charater[:,:valid_len].unsqueeze(-1)
+            recog_charater = recog_charater[:,:valid_len]
             recog_charater = torch.where(real_character == np.inf, torch.tensor(np.inf, dtype=torch.float32, device=state.obs.device),recog_charater)
             real_character = real_character[~torch.isinf(real_character)]
             recog_charater = recog_charater[~torch.isinf(recog_charater)]
@@ -236,18 +236,14 @@ class Actor(rllib.template.Model):
         #[batch_size, num_agents, dim]
         x = self.fe(state)
         num_svo = x.shape[1]
-        mean_list = []
-        std_list = []
-        for i in range(0,num_svo):
-            mean_list.append(self.mean(x[:,i:i+1]))
-            std_list.append(self.std(x[:,i:i+1]))
-        mean = torch.cat(mean_list, dim=1)
+        mean = self.mean(x)
         mean = self.mean_no(mean)
-        mean = torch.cat([mean, torch.full((len(x), self.max_other_vehicles- num_svo), -1.0).to(self.device)], dim = 1)
-        std = torch.cat(std_list, dim=1)
-        logstd = self.std_no(std)
-        logstd = torch.cat([logstd, torch.full((len(x), self.max_other_vehicles- num_svo), -1.0).to(self.device)], dim = 1)
+        logstd = self.std_no(self.std(x))
         #to do
+        mean = torch.cat([mean, torch.full((len(x), \
+            self.max_other_vehicles- num_svo, self.dim_action), -1.0).to(self.device)], dim = 1)
+        logstd = torch.cat([logstd, torch.full((len(x), \
+            self.max_other_vehicles- num_svo,self.dim_action), -1.0).to(self.device)], dim = 1)
         logstd = (self.logstd_max-self.logstd_min) * logstd + (self.logstd_max+self.logstd_min)
         #torch.isnan(x).any()
         # if torch.isnan(mean).any() :
@@ -260,6 +256,7 @@ class Actor(rllib.template.Model):
     def sample(self, state):
 
         mean, logstd= self(state)
+        num_svo = state.obs_character.shape[1]
         cov = torch.diag_embed(torch.exp(logstd))
         dist = MultivariateNormal(mean, cov)
         u = dist.rsample()
@@ -269,9 +266,10 @@ class Actor(rllib.template.Model):
         #     print('    policy std:     ', torch.exp(logstd).detach().cpu())
         ### Enforcing Action Bound
         action = torch.tanh(u)
-        logprob = dist.log_prob(u).unsqueeze(1) \
-                - torch.log(1 - action.pow(2) + 1e-6).sum(dim=1, keepdim=True)
+        logprob = dist.log_prob(u)[:,:num_svo].sum(-1).unsqueeze(1) \
+                - torch.log(1 - action[:,:num_svo].pow(2) + 1e-6).sum(dim=1)
         # print('sample', action.shape)
+        
         return action, logprob, mean
     
 
@@ -305,15 +303,9 @@ class Critic(rllib.template.Model):
         # x = self.fe(state, obs_character)
         x = self.fe(state)
         num_svo = x.shape[1]
-        list_fm1 = []
-        list_fm2 = []
-        for i in range(0, num_svo):
-            x_ = torch.cat([x[:,i],action[:,i:i+1]], dim=1)
-            list_fm1.append(self.fm1(x_))
-            list_fm2.append(self.fm2(x_))
-
-        return torch.mean(torch.cat(list_fm1, dim=1),dim=1).unsqueeze(1), \
-            torch.mean(torch.cat(list_fm2, dim=1),dim=1).unsqueeze(1)
+        action = action[:,0:num_svo]
+        x = torch.cat([x,action], dim=2)
+        return torch.mean(self.fm1(x),dim=1), torch.mean(self.fm2(x),dim=1)
     
     def q1(self, state, action):
         # obs_character = self.recog(state)
@@ -321,14 +313,27 @@ class Critic(rllib.template.Model):
         # x = self.fe(state, obs_character)
         x = self.fe(state)
         num_svo = x.shape[1]
-        list_fm1 = []
+        action = action[:,0:num_svo]
+        x = torch.cat([x,action], dim=2)
+        return torch.mean(x, dim=1)
+        # x = self.fe(state)
+        # num_svo = x.shape[1]
+        # list_fm1 = []
 
-        for i in range(0, num_svo):
-            x_ = torch.cat([x[:,i],action[:,i:i+1]], dim=1)
-            list_fm1.append(self.fm1(x_))
+        # for i in range(0, num_svo):
+        #     x_ = torch.cat([x[:,i],action[:,i:i+1]], dim=1)
+        #     list_fm1.append(self.fm1(x_))
 
-        return torch.mean(torch.cat(list_fm1, dim=1),dim=1).unsqueeze(1)
-
+        # return torch.mean(torch.cat(list_fm1, dim=1),dim=1).unsqueeze(1)
+    # def forward(self, state, action):
+    #     x = self.fe(state)
+    #     x = torch.cat([x, action], 1)
+    #     return self.fm1(x), self.fm2(x)
+    
+    # def q1(self, state, action):
+    #     x = self.fe(state)
+    #     x = torch.cat([x, action], 1)
+    #     return self.fm1(x)
 def write_character(file, character) :
     character = character.detach().cpu().numpy()
     # character = [item.detach().cpu().numpy() for item in character]
