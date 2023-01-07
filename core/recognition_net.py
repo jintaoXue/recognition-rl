@@ -679,7 +679,7 @@ class RecogNetMultiSVO(rllib.template.Model):
         # self.attention = attns.detach().clone().cpu()
         #[batch_size, num_agents, dim]
         character_embed = self.character_embedding(state.character.unsqueeze(1)).unsqueeze(1).repeat(1,num_agents,1)         
-        if(len(outputs.shape) == 2 or len(character_embed.shape) == 2):breakpoint()
+        # if(len(outputs.shape) == 2 or len(character_embed.shape) == 2):breakpoint()
         outputs = torch.cat([outputs, character_embed], dim=2)
         return outputs
 class PointNetwithActionSVO(rllib.template.Model):
@@ -1094,7 +1094,7 @@ class MultiheadAttentionGlobalHeadRecognition(nn.Module):
         # return torch.cat([outputs, inputs[[0]]], dim=2), attns
         # return outputs + inputs[[0]], attns
         # return outputs, attns
-        return outputs.squeeze(0), attns.squeeze(1)
+        return outputs, attns
 
 class MultiheadAttentionGlobalHead(nn.Module):
     def __init__(self, d_model, nhead=8, dropout=0.1):
