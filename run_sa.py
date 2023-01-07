@@ -224,7 +224,7 @@ def main():
         writer, env_master, method = gallery.ray_wo_attention__new_adaptive_background__bottleneck(config, mode, scale)
 
     elif version == 'v6-6-0':
-        scale = 1
+        scale = 10
         config.description += '--isac_recog__new_action'
         writer, env_master, method = gallery.ray_recog__new_action_background__bottleneck(config, mode, scale)
     
