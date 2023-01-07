@@ -229,10 +229,15 @@ def main():
         writer, env_master, method = gallery.ray_recog__new_action_background__bottleneck(config, mode, scale)
     
     elif version == 'v6-6-1':
-        scale = 10
+        scale = 1
+        config.description += '--recog_new_action_woattn'
+        writer, env_master, method = gallery.ray_recog__new_action_woattn_background__bottleneck(config, mode, scale)
+    
+    elif version == 'v6-6-2':
+        scale = 1
         config.description += '--recog__dynamic_action'
         writer, env_master, method = gallery.ray_recog__dynamic_action_background__bottleneck(config, mode, scale)
-    elif version == 'v6-6-2':
+    elif version == 'v6-6-3':
         scale = 1
         config.description += '--recog_woattn__dynamic_action'
         writer, env_master, method = gallery.ray_recog_woattn__dynamic_action_background__bottleneck(config, mode, scale)
