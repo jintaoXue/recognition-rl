@@ -201,7 +201,7 @@ class RecogV2(MethodSingleAgent):
         self.select_action_start()
         if self.step_select < self.start_timesteps:
             valid_len = state.obs_character.shape[1]
-            action = torch.Tensor(1, self.dim_action).uniform_(0,1)
+            action = torch.Tensor(1, self.dim_action,1).uniform_(0,1)
             action[0,valid_len:] = -1
         else:
             action, _, _ = self.actor.sample(state.to(self.device))
@@ -250,6 +250,7 @@ class Actor(rllib.template.Model):
         #     print('_______________________')
         #     breakpoint()
         # print('forward', mean.shape)
+        # breakpoint()
         return mean, logstd *0.5
 
 
