@@ -100,7 +100,7 @@ class RecogV2(MethodSingleAgent):
         
         current_q1, current_q2 = self.critic(state, action)
         critic_loss = (self.critic_loss(current_q1, target_q) + self.critic_loss(current_q2, target_q))
-        if torch.any(torch.isinf(critic_loss)) or torch.any(torch.isnan(critic_loss)): breakpoint()
+        # if torch.any(torch.isinf(critic_loss)) or torch.any(torch.isnan(critic_loss)): breakpoint()
         # print('critic_loss: {}'.format(critic_loss))
         self.critic_optimizer.zero_grad()
         critic_loss.backward()
@@ -111,7 +111,7 @@ class RecogV2(MethodSingleAgent):
         # actor_loss = (-self.critic.q1(state, action) + self.alpha * logprob).mean() * self.actor_loss_scale
         # breakpoint()
         actor_loss = ((-self.critic.q1(state, action) + self.alpha * logprob).mean())
-        if torch.any(torch.isinf(actor_loss)) or torch.any(torch.isnan(actor_loss)): breakpoint()
+        # if torch.any(torch.isinf(actor_loss)) or torch.any(torch.isnan(actor_loss)): breakpoint()
         # actor_loss = torch.nn.init.uniform(actor_loss, a=0, b=1)
         # print('-self.critic.q1(state, action) :{}, self.alpha * logprob:{}\n'.format(-self.critic.q1(state, action) , self.alpha * logprob))
         # print('actor_loss : {}'.format(actor_loss) ,actor_loss)
@@ -256,9 +256,9 @@ class Actor(rllib.template.Model):
         #     breakpoint()
         # print('forward', mean.shape)
         # breakpoint()
-        if torch.any(torch.isinf(mean)) or torch.any(torch.isnan(mean)): breakpoint()
-        if torch.any(torch.isinf(logstd)) or torch.any(torch.isnan(logstd)): breakpoint()
-        if torch.any(torch.isinf(x)) or torch.any(torch.isnan(x)): breakpoint()
+        # if torch.any(torch.isinf(mean)) or torch.any(torch.isnan(mean)): breakpoint()
+        # if torch.any(torch.isinf(logstd)) or torch.any(torch.isnan(logstd)): breakpoint()
+        # if torch.any(torch.isinf(x)) or torch.any(torch.isnan(x)): breakpoint()
         return mean, logstd *0.5
 
 
@@ -313,8 +313,8 @@ class Critic(rllib.template.Model):
         num_svo = x.shape[1]
         action = action[:,0:num_svo]
         x = torch.cat([x,action], dim=2)
-        if torch.any(torch.isinf(action)) or torch.any(torch.isnan(action)): breakpoint()
-        if torch.any(torch.isinf(x)) or torch.any(torch.isnan(x)): breakpoint()
+        # if torch.any(torch.isinf(action)) or torch.any(torch.isnan(action)): breakpoint()
+        # if torch.any(torch.isinf(x)) or torch.any(torch.isnan(x)): breakpoint()
         return torch.mean(self.fm1(x),dim=1), torch.mean(self.fm2(x),dim=1)
     
     def q1(self, state, action):
@@ -325,8 +325,8 @@ class Critic(rllib.template.Model):
         num_svo = x.shape[1]
         action = action[:,0:num_svo]
         x = torch.cat([x,action], dim=2)
-        if torch.any(torch.isinf(action)) or torch.any(torch.isnan(action)): breakpoint()
-        if torch.any(torch.isinf(x)) or torch.any(torch.isnan(x)): breakpoint()
+        # if torch.any(torch.isinf(action)) or torch.any(torch.isnan(action)): breakpoint()
+        # if torch.any(torch.isinf(x)) or torch.any(torch.isnan(x)): breakpoint()
         return torch.mean(x, dim=1)
         # x = self.fe(state)
         # num_svo = x.shape[1]

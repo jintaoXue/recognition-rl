@@ -422,17 +422,14 @@ class EvaluateRecogV2(rllib.EvaluateSingleAgent):
     @torch.no_grad()
     def select_action(self, state):
         self.select_action_start()
-        state = state.to(self.device)
-        action, logprob, mean = self.actor.sample(state)
-        # print('action: ', action, mean)
-        # return mean
-        return action.cpu()
-    @torch.no_grad()
-    def select_action(self, state):
-        self.select_action_start()
-        action, _, _ = self.actor.sample(state.to(self.device))
-        action = action.cpu()
+        # action, _, _ = self.actor.sample(state.to(self.device))
+        # action = action.cpu()
         # print('select_action', action.shape)
+        valid_len = state.obs_character.shape[1]
+        action = torch.Tensor(1,1,1).uniform_(0.1,0.9)
+        action = action.repeat(1,self.dim_action,1)
+        action[0,valid_len:] = -1
         return action
+
     def store(self, experience, **kwargs):
         return
