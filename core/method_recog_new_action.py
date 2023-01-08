@@ -109,6 +109,7 @@ class RecogV1(MethodSingleAgent):
         action, logprob, _ = self.actor.sample(state)
         # actor_loss = (-self.critic.q1(state, action) + self.alpha * logprob).mean() * self.actor_loss_scale
         # breakpoint()
+        print(self.critic.q1(state, action), 'logprob', logprob)
         actor_loss = ((-self.critic.q1(state, action) + self.alpha * logprob).mean())
         # actor_loss = torch.nn.init.uniform(actor_loss, a=0, b=1)
         # print('-self.critic.q1(state, action) :{}, self.alpha * logprob:{}\n'.format(-self.critic.q1(state, action) , self.alpha * logprob))
