@@ -556,6 +556,14 @@ def main():
         models_sa.isac__bottleneck__adaptive().update(config)
         env_master = gallery.evaluate__fix_svo__two_background__bottleneck(config, 0.8, 0.5,mode)
 
+    elif version == 'v7-1-0':  ### fix_randoms_svo
+        if mode != 'evaluate':
+            raise NotImplementedError
+
+        config.description += '--fix_randoms_svo_background__bottleneck'
+        models_sa.svos_as_action__bottleneck__adaptive().update(config)
+        env_master = gallery.ray_recog__dynamic_action_background__bottleneck(config, mode)
+
     elif version == 'v7-2-0': 
         if mode != 'evaluate':
             raise NotImplementedError
