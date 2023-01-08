@@ -229,6 +229,8 @@ class Actor(rllib.template.Model):
         self.std_no = nn.Tanh()
         #todo
         config.set('dim_action', 1)
+        #self.dim_action evaluate的时候需要修改
+        self.dim_action = 1
         self.max_other_vehicles = 19
         self.fe = config.get('net_actor_fe', FeatureExtractor)(config, 0)
         self.mean = config.get('net_actor_fm', FeatureMapper)(config, 0 ,self.fe.dim_feature, config.dim_action)

@@ -1045,7 +1045,7 @@ def ray_recog__new_action_woattn_background__bottleneck(config, mode='train', sc
     ] *scale)
 
     ### method param
-    from config.method import config_recog_action_svo as config_method
+    from config.method import config_recog_action_svo_woattn as config_method
     config.set('methods', [config_method])
 
     return init(config, mode, Env, Method)

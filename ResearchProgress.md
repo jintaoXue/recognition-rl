@@ -200,7 +200,7 @@ control oriented meta learning这篇论文交流
 
 cut state函数有问题，重新训练
 
-2023-01-02-10:36:55----Nothing--isac_recog__new_adaptive
+2023-01-02-10:36:55----Nothing--isac_recog__new_adaptive            
 
 改setting，跑wo attn，看成功率	
 
@@ -223,3 +223,14 @@ recog 是对应的89.0
 现在固定other svo为0.8试试
 
 发现梯度值很大，引入loss scale
+
+
+
+1/8修改了训练代码，将multiagent模型放入Env当中
+
+115去做验证
+
+116：~/github/zdk/recognition-rl/results/RecogV2-EnvInteractiveSingleAgent/2023-01-07-20:16:44----Nothing--recog__dynamic_action
+
+
+

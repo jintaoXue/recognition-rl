@@ -10,7 +10,7 @@ from core.model_vectornet import PointNetWithAgentHistoryOur
 from core.model_vectornet import PointNetWithAgentHistory  ### no_character
 from core.model_vectornet import PointNetWithCharacterAgentHistory  ### robust_character
 from core.model_vectornet import PointNetWithCharactersAgentHistory  ### adaptive_character
-from core.recognition_net import RecognitionNet, RecogNetSVO, RecogNetMultiSVO , RecogNetMultiSVOWoattn,\
+from core.recognition_net import RecognitionNet, RecogNetSVO, RecogNetMultiSVO , RecogNetMultiSVOWoattn,RecogNetSvoWoattn,\
     RecognitionNetNew,PointNetWithCharactersAgentHistoryRecog, RecognitionWoAttention, RecognitionNetSample
 
 config_meta = rllib.basic.YamlConfig(
@@ -102,6 +102,7 @@ config_ppo_attn = rllib.basic.YamlConfig(
 #### IndependentSAC_recog ##############################################
 ########################################################################
 
+#1. recog as a part of actor net
 config_isac_recog = rllib.basic.YamlConfig(
     net_actor_fe=RecognitionNetNew,
     net_critic_fe=PointNetWithCharactersAgentHistory,
@@ -147,9 +148,18 @@ config_woattn = rllib.basic.YamlConfig(
     **config_meta.to_dict(),
 )
 
+
+####### 2.Recog as the Actor 
 config_recog_action_svo = rllib.basic.YamlConfig(
     net_actor_fe=RecogNetSVO,
     net_critic_fe=RecogNetSVO,
+    buffer=ReplayBufferSingleAgent,
+    **config_meta.to_dict(),
+)
+
+config_recog_action_svo_woattn = rllib.basic.YamlConfig(
+    net_actor_fe=RecogNetSvoWoattn,
+    net_critic_fe=RecogNetSvoWoattn,
     buffer=ReplayBufferSingleAgent,
     **config_meta.to_dict(),
 )

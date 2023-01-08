@@ -31,6 +31,8 @@ def init(config, mode, Env, Method) -> universe.EnvMaster_v1:
         Method = method_evaluate.EvaluateSACsupervise
     elif config.method == 'ISAC_recog_woattn' :
         Method = method_evaluate.EvaluateSACRecogWoattn
+    elif config.method == 'RecogV2':
+        Method = method_evaluate.EvaluateRecogV2
     else:
         raise NotImplementedError
     
@@ -66,7 +68,7 @@ def init_fix_svo(config, mode, Env,Method, ego_svo, other_svo):
     return env_master
 
 
-from gallery_sa import get_sac__new_bottleneck__adaptive_character_config
+from gallery_sa import get_sac__new_bottleneck__adaptive_character_config, get_sac__bottleneck__new_action_config
 from gallery_sa import get_sac__bottleneck__adaptive_character_config
 from gallery_sa import get_sac__intersection__adaptive_character_config
 from gallery_sa import get_sac__merge__adaptive_character_config
@@ -81,6 +83,7 @@ from gallery_sa import get_sac__bottleneck__no_character_config
 from gallery_sa import get_sac__intersection__no_character_config
 from gallery_sa import get_sac__merge__no_character_config
 from gallery_sa import get_sac__roundabout__no_character_config
+
 
 def evaluate_ray_sac__bottleneck__idm_background(config, mode='evalute', scale=1):
     from universe import EnvInteractiveSingleAgent as Env
@@ -905,6 +908,27 @@ def evaluate__supervise__four_background__bottleneck(config, mode='train', scale
         
         ### method param
         from config.method import config_supervise as config_method
+        config.set('methods', [config_method])
+
+        return init(config, mode, Env, Method)
+
+def ray_recog__dynamic_action_background__bottleneck(config, mode='train',scale=1):
+        from universe import EnvInteractiveSingleAgent as Env
+
+        from core.method_recog_action_dynamic import RecogV2 as Method
+
+        from config.bottleneck_evaluate import config_env__new_action_multi_svo_same_other_svo
+
+        ### adaptive
+        config_env__adaptive = copy.deepcopy(config_env__new_action_multi_svo_same_other_svo)
+        config_env__adaptive.set('config_neural_policy', get_sac__bottleneck__new_action_config(config))
+
+        config.set('envs', [
+            config_env__adaptive,
+        ])
+        
+        ### method param
+        from config.method import config_recog_action_multi_svo as config_method
         config.set('methods', [config_method])
 
         return init(config, mode, Env, Method)

@@ -1,6 +1,7 @@
 from builtins import breakpoint
 from turtle import forward
 from matplotlib.pyplot import axis
+from pyparsing import actions
 from pyrsistent import b
 import rllib
 
@@ -19,6 +20,9 @@ from torch.nn.modules.linear import NonDynamicallyQuantizableLinear
 ################################################################################################################
 
 
+
+###### recog + load action model################################################################################
+################################################################################################################
 class RecognitionNet(rllib.template.Model):
     def __init__(self, config, model_id=0):
         super().__init__(config, model_id)
@@ -276,7 +280,6 @@ class RecognitionNetNew(rllib.template.Model):
         self.attention = attns.detach().clone().cpu()
 
         outputs = torch.cat([outputs, self.character_embedding(state_.character.unsqueeze(1))], dim=1)
-
         return outputs
 class RecognitionNetSample(RecognitionNet):
     def forward(self, state: rllib.basic.Data, **kwargs):
@@ -344,9 +347,6 @@ class RecognitionNetSample(RecognitionNet):
         outputs = outputs.transpose(0, 1)
 
         return outputs
-
-
-
 class RecognitionWoAttention(rllib.template.Model):
     def __init__(self, config, model_id=0):
         super().__init__(config, model_id)
@@ -412,6 +412,7 @@ class RecognitionWoAttention(rllib.template.Model):
 
         return outputs
 
+'''for the Env to load and evaluate'''
 class PointNetWithCharactersAgentHistoryRecog(rllib.template.Model):
     #如果state 的 horizon 大于10
     def __init__(self, config, model_id):
@@ -505,6 +506,9 @@ class PointNetWithCharactersAgentHistoryRecog(rllib.template.Model):
         outputs = torch.cat([outputs, self.character_embedding(state_.character.unsqueeze(1))], dim=1)
         return outputs
 
+###### recog as action #########################################################################################
+################################################################################################################
+'''output a single svo(all the obstacles have same svos)'''
 class RecogNetSVO(rllib.template.Model):
     def __init__(self, config, model_id=0):
         super().__init__(config, model_id)
@@ -593,6 +597,47 @@ class RecogNetSVO(rllib.template.Model):
         outputs = torch.cat([outputs, self.character_embedding(state.character.unsqueeze(1))], dim=1)
         return outputs
 
+class RecogNetSvoWoattn(rllib.template.Model):
+    def __init__(self, config, model_id=0):
+        super().__init__(config, model_id)
+        ##########需要加载的参数
+        dim_embedding = 128
+        dim_character_embedding = 32
+        self.dim_embedding_agent = dim_embedding + dim_character_embedding
+
+        self.character_embedding = nn.Linear(1, dim_character_embedding)
+        self.agent_embedding = DeepSetModule(self.dim_state.agent, self.dim_embedding_agent//2)
+        self.agent_embedding_v1 = nn.Sequential(
+            nn.Linear(self.dim_state.agent, self.dim_embedding_agent), nn.ReLU(inplace=True),
+            nn.Linear(self.dim_embedding_agent, self.dim_embedding_agent), nn.ReLU(inplace=True),
+            nn.Linear(self.dim_embedding_agent, self.dim_embedding_agent //2),
+        )
+        # self.global_head_recognition = MultiheadAttentionGlobalHeadRecognition(dim_embedding, out_dim=1, nhead=4, dropout=0.0 if config.evaluate else 0.1)
+        # self.out_proj = NonDynamicallyQuantizableLinear(self.dim_embedding_agent, out_features = 1, bias=True)
+
+        self.dim_feature = self.dim_embedding_agent + dim_character_embedding
+
+    def forward(self, state: rllib.basic.Data, **kwargs):
+        # breakpoint()
+        batch_size = state.ego.shape[0]
+        num_agents = state.obs.shape[1]
+        ### data generation
+        obs = state.obs[:,:,-1]
+        # obs_mask = state.obs_mask[:,:,-1].to(torch.bool)
+        # obs_character = state.obs_character[:,:,-1]
+        ### embedding
+        obs = torch.where(obs == np.inf, torch.tensor(0, dtype=torch.float32, device=obs.device), obs)
+
+        outputs = torch.cat([
+            self.agent_embedding(state.obs.flatten(end_dim=1), state.obs_mask.to(torch.bool).flatten(end_dim=1)).view(batch_size,num_agents, self.dim_embedding_agent //2),
+            self.agent_embedding_v1(obs)
+        ], dim=2)
+
+        if outputs.shape[1] != 0: outputs.mean(dim=1, keepdim=True)
+        character_embedding = self.character_embedding(state.character.unsqueeze(1)).unsqueeze(1).repeat(1,outputs.shape[1],1)
+        outputs = torch.cat([outputs, character_embedding], dim=2)
+        return outputs
+'''output a single svo(all the obstacles have same/different svos)'''
 class RecogNetMultiSVO(rllib.template.Model):
     def __init__(self, config, model_id=0):
         super().__init__(config, model_id)
@@ -738,6 +783,8 @@ class RecogNetMultiSVOWoattn(rllib.template.Model):
         # outputs = outputs.transpose(0, 1)
 
         return outputs
+
+'''for Env to load the net'''
 class PointNetwithActionSVO(rllib.template.Model):
     #作为action为svo的网络
     def __init__(self, config, model_id):
