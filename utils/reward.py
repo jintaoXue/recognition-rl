@@ -134,7 +134,8 @@ class RewardFunctionRecogCharacterV2(universe.RewardFunc):
         # reward_character = - 2*RMSEloss + 1
         #3.
         RMSEloss = np.clip(RMSEloss,0,0.5)
-        reward_character= 0.3*np.clip(1/np.tan(1.25*np.pi*RMSEloss), -0.5, 1) - 0.2 + 4*(0.2 - np.clip(RMSEloss, 0, 0.2))
-        reward[0] += reward_character*0.5
+        reward_character= 0.3*np.clip(1/np.tan(1.25*np.pi*RMSEloss), -0.5, 1) - 0.4 + 2*(0.2 - np.clip(RMSEloss, 0, 0.2))
+        # reward_character= 0.3*np.clip(1/np.tan(1.25*np.pi*RMSEloss), -0.5, 1) - 0.2 + 4*(0.2 - np.clip(RMSEloss, 0, 0.2))
+        reward[0] += reward_character
         # print('rewad : {}and RMSEloss:{}'.format(reward, RMSEloss))    
         return reward
