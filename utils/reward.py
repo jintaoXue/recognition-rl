@@ -100,7 +100,7 @@ class RewardFunctionGlobalCoordination(universe.RewardFunc):  ### CoPO
 
 
 
-class RewardFunctionRecogCharacter(universe.RewardFunc):
+class RewardFunctionRecogCharacterV1(universe.RewardFunc):
     MSEloss = torch.nn.MSELoss()
     def run_step(self, state, action, agents_master: universe.AgentsMaster, episode_info):
         '''single agent'''

@@ -38,15 +38,15 @@ class RecogV1(MethodSingleAgent):
 
     lr_critic = 5e-4
     lr_actor = 1e-4
-    lr_tune = 1e-4
+    lr_tune = 0.5e-4
 
     tau = 0.005
 
     buffer_size = 750000
-    batch_size = 32
+    batch_size = 128
 
     start_timesteps = 50000
-    start_timesteps = 100  ## ! warning
+    # start_timesteps = 100  ## ! warning
     before_training_steps = 0
 
     save_model_interval = 1000
@@ -109,7 +109,7 @@ class RecogV1(MethodSingleAgent):
         action, logprob, _ = self.actor.sample(state)
         # actor_loss = (-self.critic.q1(state, action) + self.alpha * logprob).mean() * self.actor_loss_scale
         # breakpoint()
-        print(self.critic.q1(state, action), 'logprob', logprob)
+        # print(self.critic.q1(state, action), 'logprob', logprob)
         actor_loss = ((-self.critic.q1(state, action) + self.alpha * logprob).mean())
         # actor_loss = torch.nn.init.uniform(actor_loss, a=0, b=1)
         # print('-self.critic.q1(state, action) :{}, self.alpha * logprob:{}\n'.format(-self.critic.q1(state, action) , self.alpha * logprob))
