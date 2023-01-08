@@ -442,6 +442,8 @@ class svos_as_action__bottleneck__adaptive(ModelPath):
 
     method = 'RecogV2'
     model_dir = '~/github/zdk/recognition-rl/results/RecogV2-EnvInteractiveSingleAgent/2023-01-07-20:16:44----Nothing--recog__dynamic_action/saved_models_method'
-
+    #so so
     model_num = 92000
+    
+    model_num = 94000
     
