@@ -33,6 +33,8 @@ def init(config, mode, Env, Method) -> universe.EnvMaster_v1:
         Method = method_evaluate.EvaluateSACRecogWoattn
     elif config.method == 'RecogV2':
         Method = method_evaluate.EvaluateRecogV2
+    elif config.method == 'RecogV1':
+        Method = method_evaluate.EvaluateRecogV2
     else:
         raise NotImplementedError
     
@@ -918,6 +920,26 @@ def ray_recog__dynamic_action_background__bottleneck(config, mode='train',scale=
         from universe import EnvInteractiveSingleAgent as Env
 
         from core.method_recog_action_dynamic import RecogV2 as Method
+
+        from config.bottleneck_evaluate import config_env__new_action_same_other
+
+        ### adaptive
+        config_env__adaptive = copy.deepcopy(config_env__new_action_same_other)
+        config_env__adaptive.set('config_neural_policy', get_sac__bottleneck__new_action_config(config))
+
+        config.set('envs', [
+            config_env__adaptive,
+        ])
+        
+        ### method param
+        from config.method import config_recog_action_svo as config_method
+        config.set('methods', [config_method])
+
+        return init(config, mode, Env, Method)
+def ray_recog__new_action_background__bottleneck(config, mode='train',scale=1):
+        from universe import EnvInteractiveSingleAgent as Env
+
+        from core.method_recog_new_action import RecogV1 as Method
 
         from config.bottleneck_evaluate import config_env__new_action_multi_svo_same_other_svo
 

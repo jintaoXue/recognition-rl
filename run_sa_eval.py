@@ -528,7 +528,12 @@ def main():
         config.description += '--supervise__four_background__bottleneck-hr30act10'
         models_sa.supervise__bottleneck__adaptive().update(config)
         env_master = gallery.evaluate__supervise__four_background__bottleneck(config, mode)
-    
+    elif version == 'v6-6-0': 
+        if mode != 'evaluate':
+            raise NotImplementedError
+        config.description += '--recog__single_svo_action'
+        models_sa.svo_as_action__bottleneck__adaptive().update(config)
+        env_master = gallery.ray_recog__dynamic_action_background__bottleneck(config, mode)
     elif version == 'v6-6-2': 
         if mode != 'evaluate':
             raise NotImplementedError

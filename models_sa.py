@@ -438,6 +438,14 @@ class sac__roundabout__duplicity(ModelPath):
     model_num = 319400  ### high iid index
 
 
+class svo_as_action__bottleneck__adaptive(ModelPath):
+
+    method = 'RecogV1'
+    model_dir = '~/github/zdk/recognition-rl/results/RecogV1-EnvInteractiveSingleAgent/2023-01-07-20:57:41----Nothing--isac_recog__new_action'
+    #so so
+    model_num = 58000
+
+
 class svos_as_action__bottleneck__adaptive(ModelPath):
 
     method = 'RecogV2'

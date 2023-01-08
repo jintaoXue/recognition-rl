@@ -411,6 +411,23 @@ class EvaluateSACAdvDecouple(EvaluateSACAdv):
         self.models_to_load = [self.critic, self.actor, self.critic_adv, self.actor_adv]
 
         return
+class EvaluateRecogV1(rllib.EvaluateSingleAgent):
+    def select_method(self):
+        config, method_name = self.config, self.method_name
+        from core.method_recog_new_action import Actor
+        self.actor = config.get('net_actor', Actor)(config).to(self.device)
+        self.models_to_load = [self.actor]
+        return
+    @torch.no_grad()
+    def select_action(self, state):
+        self.select_action_start()
+        action, _, _ = self.actor.sample(state.to(self.device))
+        action = action.cpu()
+        print('select_action', action)
+        return action
+
+    def store(self, experience, **kwargs):
+        return
 
 class EvaluateRecogV2(rllib.EvaluateSingleAgent):
     def select_method(self):
