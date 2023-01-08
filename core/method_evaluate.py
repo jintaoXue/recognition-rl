@@ -427,7 +427,7 @@ class EvaluateRecogV2(rllib.EvaluateSingleAgent):
         # print('select_action', action.shape)
         valid_len = state.obs_character.shape[1]
         action = torch.Tensor(1,1,1).uniform_(0.1,0.9)
-        action = action.repeat(1,self.dim_action,1)
+        action = action.repeat(1,19,1)
         action[0,valid_len:] = -1
         return action
 
