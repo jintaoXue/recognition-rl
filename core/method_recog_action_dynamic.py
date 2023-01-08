@@ -45,8 +45,8 @@ class RecogV2(MethodSingleAgent):
     buffer_size = 750000
     batch_size = 128
 
-    start_timesteps = 50000
-    # start_timesteps = 1000  ## ! warning
+    # start_timesteps = 50000
+    start_timesteps = 128 ## ! warning
     before_training_steps = 0
 
     save_model_interval = 1000
@@ -263,7 +263,6 @@ class Actor(rllib.template.Model):
 
 
     def sample(self, state):
-
         mean, logstd= self(state)
         num_svo = state.obs_character.shape[1]
         cov = torch.diag_embed(torch.exp(logstd))

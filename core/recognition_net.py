@@ -758,7 +758,7 @@ class RecogNetMultiSVOWoattn(rllib.template.Model):
         # self.global_head_recognition = MultiheadAttentionGlobalHeadRecognition(dim_embedding, out_dim=1, nhead=4, dropout=0.0 if config.evaluate else 0.1)
         self.out_proj = NonDynamicallyQuantizableLinear(dim_embedding, out_features = dim_embedding, bias=True)
 
-        self.dim_feature = dim_embedding+dim_character_embedding + dim_character_embedding
+        self.dim_feature = dim_embedding
 
     def forward(self, state: rllib.basic.Data, **kwargs):
         # breakpoint()
@@ -778,7 +778,6 @@ class RecogNetMultiSVOWoattn(rllib.template.Model):
 
 
         outputs = self.out_proj(obs_embedding)
-        breakpoint()
         #(num_agents, batch, 1) -> (batch, num_agents, 1)
         # outputs = outputs.transpose(0, 1)
 
