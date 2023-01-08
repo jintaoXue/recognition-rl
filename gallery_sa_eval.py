@@ -34,7 +34,7 @@ def init(config, mode, Env, Method) -> universe.EnvMaster_v1:
     elif config.method == 'RecogV2':
         Method = method_evaluate.EvaluateRecogV2
     elif config.method == 'RecogV1':
-        Method = method_evaluate.EvaluateRecogV2
+        Method = method_evaluate.EvaluateRecogV1
     else:
         raise NotImplementedError
     
