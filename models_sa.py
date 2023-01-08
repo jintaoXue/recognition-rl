@@ -441,7 +441,7 @@ class sac__roundabout__duplicity(ModelPath):
 class svo_as_action__bottleneck__adaptive(ModelPath):
 
     method = 'RecogV1'
-    model_dir = '~/github/zdk/recognition-rl/results/RecogV1-EnvInteractiveSingleAgent/2023-01-07-20:57:41----Nothing--isac_recog__new_action'
+    model_dir = '~/github/zdk/recognition-rl/results/RecogV1-EnvInteractiveSingleAgent/2023-01-07-20:57:41----Nothing--isac_recog__new_action/saved_models_method'
     #so so
     model_num = 58000
 
