@@ -19,7 +19,7 @@ from torch.optim import Adam
 
 from torch.distributions import Normal, MultivariateNormal
 
-from rllib.utils import init_weights
+# from rllib.utils import init_weights
 
 import rllib
 from rllib.template import MethodSingleAgent, Model
@@ -358,3 +358,12 @@ def write_character(file, character) :
 
     
 
+def init_weights(m):
+    if isinstance(m, (nn.Conv2d, nn.Linear)):
+        nn.init.orthogonal_(m.weight)
+        try: nn.init.constant_(m.bias, 0.5)
+        except: pass
+    if isinstance(m, nn.LSTM):
+        for name, param in m.named_parameters():
+            if name.startswith('weight'): nn.init.orthogonal_(param)
+    return
