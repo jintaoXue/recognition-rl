@@ -590,7 +590,7 @@ def main():
             raise NotImplementedError
         import numpy as np
         for ego_svo in np.linspace(0, 0, num=1):
-            for other_svo in np.linspace(0.3, 1, num=8):
+            for other_svo in np.linspace(0, 1, num=11):
                 ego_svo = round(ego_svo,1)
                 other_svo = round(other_svo,1)
                 config.description = 'evaluate' + '--fix_{}_{}__recog__dynamic_action'.format(ego_svo, other_svo)
