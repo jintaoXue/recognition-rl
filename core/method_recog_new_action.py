@@ -314,8 +314,8 @@ def write_character(file, character) :
     
 def init_weights(m):
     if isinstance(m, (nn.Conv2d, nn.Linear)):
-        nn.init.orthogonal_(m.weight)
-        try: nn.init.constant_(m.bias, 0.5)
+        nn.init.uniform_(m.weight)
+        try: nn.init.constant_(m.bias, 0.01)
         except: pass
     if isinstance(m, nn.LSTM):
         for name, param in m.named_parameters():
