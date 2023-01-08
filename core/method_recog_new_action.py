@@ -43,7 +43,7 @@ class RecogV1(MethodSingleAgent):
     tau = 0.005
 
     buffer_size = 750000
-    batch_size = 128
+    batch_size = 32
 
     start_timesteps = 50000
     # start_timesteps = 100  ## ! warning
