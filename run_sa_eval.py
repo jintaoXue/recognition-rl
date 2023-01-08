@@ -533,7 +533,7 @@ def main():
             raise NotImplementedError
         config.description += '--recog__single_svo_action'
         models_sa.svo_as_action__bottleneck__adaptive().update(config)
-        env_master = gallery.ray_recog__dynamic_action_background__bottleneck(config, mode)
+        env_master = gallery.ray_recog__new_action_background__bottleneck(config, mode)
     elif version == 'v6-6-2': 
         if mode != 'evaluate':
             raise NotImplementedError
