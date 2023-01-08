@@ -12,8 +12,8 @@ import models_ma
 
 
 def init(config, mode, Env, Method) -> Tuple[rllib.basic.Writer, universe.EnvMaster_v0, rllib.template.Method]:
-    # repos = ['~/github/zdk/rl-lib', '~/github/ali/universe', '~/github/zdk/recognition-rl']
-    # config.set('github_repos', repos)
+    repos = ['~/github/zdk/rl-lib', '~/github/ali/universe', '~/github/zdk/recognition-rl']
+    config.set('github_repos', repos)
 
     model_name = Method.__name__ + '-' + Env.__name__
     writer_cls = rllib.basic.PseudoWriter
