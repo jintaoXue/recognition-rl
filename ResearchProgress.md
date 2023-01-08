@@ -228,9 +228,11 @@ recog 是对应的89.0
 
 1/8修改了训练代码，将multiagent模型放入Env当中
 
-115去做验证
+115去做验证+supervise
 
 116：~/github/zdk/recognition-rl/results/RecogV2-EnvInteractiveSingleAgent/2023-01-07-20:16:44----Nothing--recog__dynamic_action
 
 
+49：/data0/zdk/github/zdk/recognition-rl/results/RecogV1-EnvInteractiveSingleAgent/2023-01--20:57:41----Nothing--isac_recog__new_action
 
+新的一版：
