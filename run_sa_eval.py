@@ -562,6 +562,8 @@ def main():
         import numpy as np
         for ego_svo in np.linspace(0, 0, num=1):
             for other_svo in np.linspace(0, 1, num=11):
+                ego_svo = round(ego_svo,1)
+                other_svo = round(other_svo,1)
                 config.description = 'evaluate' + '--fix_{}_{}__one_background__bottleneck'.format(ego_svo, other_svo)
                 models_sa.isac__bottleneck__adaptive().update(config)
                 env_master = gallery.evaluate__fix_svo__new_one_background__bottleneck(config, ego_svo, other_svo,mode)
@@ -572,6 +574,8 @@ def main():
                 ray.init(num_cpus=psutil.cpu_count(), num_gpus=torch.cuda.device_count(), include_dashboard=False)
         for ego_svo in np.linspace(0, 0, num=1):
             for other_svo in np.linspace(0, 1, num=11):
+                ego_svo = round(ego_svo,1)
+                other_svo = round(other_svo,1)
                 config.description = 'evaluate' + '--recog_fix_{}_{}__one_background__bottleneck'.format(ego_svo, other_svo)
                 models_sa.isac_recog__bottleneck__adaptive().update(config)
                 env_master = gallery.evaluate__recog_fix_svo__new_one_background__bottleneck(config, ego_svo, other_svo,mode)
@@ -586,7 +590,9 @@ def main():
             raise NotImplementedError
         import numpy as np
         for ego_svo in np.linspace(0, 0, num=1):
-            for other_svo in np.linspace(0, 1, num=11):
+            for other_svo in np.linspace(0.3, 1, num=8):
+                ego_svo = round(ego_svo,1)
+                other_svo = round(other_svo,1)
                 config.description = 'evaluate' + '--fix_{}_{}__recog__dynamic_action'.format(ego_svo, other_svo)
                 models_sa.svos_as_action__bottleneck__adaptive().update(config)
                 env_master = gallery.ray_fix_svo__dynamic_action_background__bottleneck(config, ego_svo, other_svo,mode)
