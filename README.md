@@ -19,8 +19,6 @@ core/method_supervise_offline里面的datasize参数定义训练样本大小
 ls -l  | grep "^-" | wc -l
 
 
-
-
 ## evaluate
 
 ### multi-agent, social behavior

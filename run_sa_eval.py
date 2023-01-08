@@ -580,6 +580,21 @@ def main():
                 del env_master
                 ray.shutdown()
                 ray.init(num_cpus=psutil.cpu_count(), num_gpus=torch.cuda.device_count(), include_dashboard=False)
+    
+    elif version == 'v7-2-1':  ##corresponding to v6-6-2
+        if mode != 'evaluate':
+            raise NotImplementedError
+        import numpy as np
+        for ego_svo in np.linspace(0, 0, num=1):
+            for other_svo in np.linspace(0, 1, num=11):
+                config.description = 'evaluate' + '--fix_{}_{}__recog__dynamic_action'.format(ego_svo, other_svo)
+                models_sa.svos_as_action__bottleneck__adaptive().update(config)
+                env_master = gallery.ray_fix_svo__dynamic_action_background__bottleneck(config, ego_svo, other_svo,mode)
+                env_master.create_tasks(func=run_one_episode)
+                ray.get([t.run.remote(n_iters=200) for t in env_master.tasks])
+                del env_master
+                ray.shutdown()
+                ray.init(num_cpus=psutil.cpu_count(), num_gpus=torch.cuda.device_count(), include_dashboard=False)
     else:
         raise NotImplementedError
 
