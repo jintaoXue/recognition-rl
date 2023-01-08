@@ -448,3 +448,5 @@ class svos_as_action__bottleneck__adaptive(ModelPath):
     model_num = 94000
     
     model_num = 96000
+
+    model_num = 98000
