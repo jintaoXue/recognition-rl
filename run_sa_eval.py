@@ -606,6 +606,7 @@ def main():
                 del env_master
                 ray.shutdown()
                 ray.init(num_cpus=psutil.cpu_count(), num_gpus=torch.cuda.device_count(), include_dashboard=False)
+        return
     
     elif version == 'v7-2-1':  ##corresponding to v6-6-2
         if mode != 'evaluate':
@@ -623,6 +624,7 @@ def main():
                 del env_master
                 ray.shutdown()
                 ray.init(num_cpus=psutil.cpu_count(), num_gpus=torch.cuda.device_count(), include_dashboard=False)
+        return
     
     elif version == 'v7-2-2':  ##corresponding to run_sa.py v6-6-0
         if mode != 'evaluate':
@@ -640,6 +642,7 @@ def main():
                 del env_master
                 ray.shutdown()
                 ray.init(num_cpus=psutil.cpu_count(), num_gpus=torch.cuda.device_count(), include_dashboard=False)
+        return
     
     elif version == 'v7-3-0':  ##supervise learning
         if mode != 'evaluate':
@@ -657,6 +660,7 @@ def main():
                 del env_master
                 ray.shutdown()
                 ray.init(num_cpus=psutil.cpu_count(), num_gpus=torch.cuda.device_count(), include_dashboard=False)
+        return
 
     else:
         raise NotImplementedError
