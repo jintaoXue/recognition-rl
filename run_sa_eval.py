@@ -525,7 +525,7 @@ def main():
         if mode != 'evaluate':
             raise NotImplementedError
 
-        config.description += '--supervise__four_background__bottleneck-hr30act10'
+        config.description += '--supervise__four_background__bottleneck-hr10act1'
         models_sa.supervise__bottleneck__adaptive().update(config)
         env_master = gallery.evaluate__supervise__four_background__bottleneck(config, mode)
     
@@ -533,7 +533,7 @@ def main():
         if mode != 'evaluate':
             raise NotImplementedError
 
-        config.description += '--supervise__four_background__bottleneck-hr30act10'
+        config.description += '--supervise__four_background__bottleneck-hr10act1'
         models_sa.supervise__bottleneck__adaptive().update(config)
         env_master = gallery.evaluate__supervise__one_background__bottleneck(config, mode)
 
