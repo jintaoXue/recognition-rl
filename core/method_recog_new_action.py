@@ -124,6 +124,7 @@ class RecogV1(MethodSingleAgent):
                 recog_charater = torch.where(mean == np.inf, torch.tensor(np.inf, dtype=torch.float32, device=self.device),mean)
             real_character = real_character[~torch.isinf(real_character)]
             recog_charater = recog_charater[~torch.isinf(recog_charater)]
+            if(recog_charater.shape != real_character.shape) : breakpoint()
             RMSE_loss = torch.sqrt(self.critic_loss(recog_charater, real_character))
             file = open(self.output_dir + '/' + 'character.txt', 'w')
             write_character(file, recog_charater)

@@ -116,10 +116,10 @@ class RewardFunctionRecogCharacterV1(universe.RewardFunc):
         # reward_character= 0.1*np.clip(1/np.tan(1.25*np.pi*RMSEloss), -0.5, 1) + (0.2 - np.clip(RMSEloss, 0, 0.2))  
         #v3 not enough
         # reward_character = 2 - 5*RMSEloss
-        #v4 good
+        #v3-1 good
         # reward_character = 1 - 2.5*RMSEloss
-        #v5 
-        reward_character = 1 - 2.5*RMSEloss
+        #v4 good
+        reward_character = 0.5*(1 - 2.5*RMSEloss)
         reward[0] += reward_character
         return reward
 
