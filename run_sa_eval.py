@@ -535,7 +535,7 @@ def main():
 
         config.description += '--supervise__four_background__bottleneck-hr30act10'
         models_sa.supervise__bottleneck__adaptive().update(config)
-        env_master = gallery.evaluate__supervise__four_background__bottleneck(config, mode)
+        env_master = gallery.evaluate__supervise__one_background__bottleneck(config, mode)
 
     elif version == 'v6-6-0': 
         if mode != 'evaluate':
