@@ -107,11 +107,11 @@ class RewardFunctionRecogCharacterV1(universe.RewardFunc):
         reward = RewardFunctionNoCharacter.run_step(self, state, action, agents_master, episode_info)
         # assert action.shape[0] == 1 and len(state) == 1 \
         #     and len(agents_master.vehicles_neural) == 1 and len(reward) == 1
-        valid_len = len(agents_master.state.obs)
-        if valid_len == 0 : return reward
-        if np.any(np.where(action<0.0, True, False)): 
-            reward[0] -= -1
-            return reward
+        # valid_len = len(agents_master.state.obs)
+        # if valid_len == 0 : return reward
+        # if np.any(np.where(action<0.0, True, False)): 
+        #     reward[0] -= -0.2
+        #     return reward
         true_character = torch.full(action.shape,agents_master.vehicles_rule[0].character)
         RMSEloss = torch.sqrt(self.MSEloss(torch.tensor(action),true_character))
         RMSEloss = np.clip(RMSEloss,0,0.5)
