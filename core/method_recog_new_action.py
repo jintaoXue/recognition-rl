@@ -38,14 +38,14 @@ class RecogV1(MethodSingleAgent):
 
     lr_critic = 5e-4
     lr_actor = 1e-4
-    lr_tune = 0.5e-4
+    lr_tune = 0.2e-4
 
     tau = 0.005
 
     buffer_size = 750000
     batch_size = 128
 
-    start_timesteps = 50000
+    start_timesteps = 100000
     # start_timesteps = 100  ## ! warning
     before_training_steps = 0
 

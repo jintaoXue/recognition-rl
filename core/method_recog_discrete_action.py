@@ -38,7 +38,7 @@ class RecogV1(MethodSingleAgent):
 
     lr_critic = 5e-4
     lr_actor = 1e-4
-    lr_tune = 1e-4
+    lr_tune = 0.5e-4
 
     tau = 0.005
 
