@@ -927,7 +927,7 @@ def evaluate__supervise__one_background__bottleneck(config, mode='train', scale=
 
         ### adaptive
         config_env__adaptive = copy.deepcopy(config_env__neural_background)
-        config_env__adaptive.set('config_neural_policy', get_sac__bottleneck__adaptive_character_config(config))
+        config_env__adaptive.set('config_neural_policy', get_sac__bottleneck__new_action_config(config))
 
 
 
