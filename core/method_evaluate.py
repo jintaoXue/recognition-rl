@@ -280,31 +280,6 @@ class EvaluateSACRecogWoattn(rllib.EvaluateSingleAgent):
     def store(self, experience, **kwargs):
         return
 
-class EvaluateSACsupervise(rllib.EvaluateSingleAgent):
-    def select_method(self):
-        config, method_name = self.config, self.method_name
-
-        from core.method_supervise import Actor
-        self.actor = config.get('net_actor', Actor)(config).to(self.device)
-        self.models_to_load = [self.actor]
-        return
-
-
-    @torch.no_grad()
-    def select_action(self, state):
-        self.select_action_start()
-        state = state.to(self.device)
-
-        # print(state.ego[:,:10,:])
-        action, logprob, mean = self.actor.sample(state)
-
-        return action.cpu()
-
-
-
-    def store(self, experience, **kwargs):
-        return
-
 class EvaluatePPO(rllib.EvaluateSingleAgent):
     def select_method(self):
         config, method_name = self.config, self.method_name
@@ -411,6 +386,7 @@ class EvaluateSACAdvDecouple(EvaluateSACAdv):
         self.models_to_load = [self.critic, self.actor, self.critic_adv, self.actor_adv]
 
         return
+
 class EvaluateRecogV1(rllib.EvaluateSingleAgent):
     def select_method(self):
         config, method_name = self.config, self.method_name
@@ -447,6 +423,31 @@ class EvaluateRecogV2(rllib.EvaluateSingleAgent):
         action = action.repeat(1,19,1)
         action[0,valid_len:] = -1
         return action
+
+    def store(self, experience, **kwargs):
+        return
+
+class EvaluateSupervise(rllib.EvaluateSingleAgent):
+    def select_method(self):
+        config, method_name = self.config, self.method_name
+
+        from core.method_supervise import Actor
+        self.actor = config.get('net_actor', Actor)(config).to(self.device)
+        self.models_to_load = [self.actor]
+        return
+
+
+    @torch.no_grad()
+    def select_action(self, state):
+        self.select_action_start()
+        state = state.to(self.device)
+
+        # print(state.ego[:,:10,:])
+        action, logprob, mean = self.actor.sample(state)
+
+        return action.cpu()
+
+
 
     def store(self, experience, **kwargs):
         return

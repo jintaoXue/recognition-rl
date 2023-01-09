@@ -521,13 +521,22 @@ def main():
         models_sa.isac_recog_woattn__bottleneck__adaptive().update(config)
         env_master = gallery.evaluate__recog_woattn__one_background__bottleneck(config, mode)
 
-    elif version == 'v6-5':  ### adaptive + supervise + four backgrounds
+    elif version == 'v6-5-0':  ### adaptive + supervise + four backgrounds
         if mode != 'evaluate':
             raise NotImplementedError
 
         config.description += '--supervise__four_background__bottleneck-hr30act10'
         models_sa.supervise__bottleneck__adaptive().update(config)
         env_master = gallery.evaluate__supervise__four_background__bottleneck(config, mode)
+    
+    elif version == 'v6-5-1':  ### adaptive + supervise + one backgrounds
+        if mode != 'evaluate':
+            raise NotImplementedError
+
+        config.description += '--supervise__four_background__bottleneck-hr30act10'
+        models_sa.supervise__bottleneck__adaptive().update(config)
+        env_master = gallery.evaluate__supervise__four_background__bottleneck(config, mode)
+
     elif version == 'v6-6-0': 
         if mode != 'evaluate':
             raise NotImplementedError
@@ -615,7 +624,7 @@ def main():
                 ray.shutdown()
                 ray.init(num_cpus=psutil.cpu_count(), num_gpus=torch.cuda.device_count(), include_dashboard=False)
     
-    elif version == 'v7-2-2':  ##corresponding to v6-6-0
+    elif version == 'v7-2-2':  ##corresponding to run_sa.py v6-6-0
         if mode != 'evaluate':
             raise NotImplementedError
         import numpy as np
@@ -626,6 +635,23 @@ def main():
                 config.description = 'evaluate' + '--fix_{}_{}__recog__new_action'.format(ego_svo, other_svo)
                 models_sa.svo_as_action__bottleneck__adaptive().update(config)
                 env_master = gallery.ray_fix_svo__new_action_background__bottleneck(config, ego_svo, other_svo,mode)
+                env_master.create_tasks(func=run_one_episode)
+                ray.get([t.run.remote(n_iters=200) for t in env_master.tasks])
+                del env_master
+                ray.shutdown()
+                ray.init(num_cpus=psutil.cpu_count(), num_gpus=torch.cuda.device_count(), include_dashboard=False)
+    
+    elif version == 'v7-3-0':  ##supervise learning
+        if mode != 'evaluate':
+            raise NotImplementedError
+        import numpy as np
+        for ego_svo in np.linspace(0, 0, num=1):
+            for other_svo in np.linspace(0, 1, num=11):
+                ego_svo = round(ego_svo,1)
+                other_svo = round(other_svo,1)
+                config.description = 'evaluate' + '--fix_{}_{}__supervise_action'.format(ego_svo, other_svo)
+                models_sa.supervise__bottleneck__adaptive().update(config)
+                env_master = gallery.ray_fix_svo__supervise__bottleneck(config, ego_svo, other_svo,mode)
                 env_master.create_tasks(func=run_one_episode)
                 ray.get([t.run.remote(n_iters=200) for t in env_master.tasks])
                 del env_master
