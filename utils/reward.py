@@ -120,7 +120,7 @@ class RewardFunctionRecogCharacterV1(universe.RewardFunc):
         # reward_character = 1 - 2.5*RMSEloss
         #v5 
         reward_character = 1 - 2.5*RMSEloss
-        reward[0] += reward_character*0.5
+        reward[0] += reward_character
         return reward
 
 class RewardFunctionRecogCharacterV2(universe.RewardFunc):

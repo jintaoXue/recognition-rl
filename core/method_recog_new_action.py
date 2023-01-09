@@ -38,7 +38,7 @@ class RecogV1(MethodSingleAgent):
 
     lr_critic = 5e-4
     lr_actor = 1e-4
-    lr_tune = 0.2e-4
+    lr_tune = 0.5e-4
 
     tau = 0.005
 
@@ -64,7 +64,7 @@ class RecogV1(MethodSingleAgent):
         self.actor_optimizer = Adam(self.actor.parameters(), lr=self.lr_actor)
 
         self.critic_loss = nn.MSELoss()
-        self.character_loss = nn.MSELoss()
+        # self.character_loss = nn.MSELoss()
         #same other svo
         self.dim_action = 1
         ### automatic entropy tuning
@@ -100,46 +100,21 @@ class RecogV1(MethodSingleAgent):
 
         current_q1, current_q2 = self.critic(state, action)
         critic_loss = (self.critic_loss(current_q1, target_q) + self.critic_loss(current_q2, target_q))
-        # print('critic_loss: {}'.format(critic_loss))
         self.critic_optimizer.zero_grad()
         critic_loss.backward()
         self.critic_optimizer.step()
 
         '''actor'''
         action, logprob, mean = self.actor.sample(state)
-        # actor_loss = (-self.critic.q1(state, action) + self.alpha * logprob).mean() * self.actor_loss_scale
-        # breakpoint()
-        # print(self.critic.q1(state, action), 'logprob', logprob)
         actor_loss = ((-self.critic.q1(state, action) + self.alpha * logprob).mean())
-        # actor_loss = torch.nn.init.uniform(actor_loss, a=0, b=1)
-        # print('-self.critic.q1(state, action) :{}, self.alpha * logprob:{}\n'.format(-self.critic.q1(state, action) , self.alpha * logprob))
-        # print('actor_loss : {}'.format(actor_loss) ,actor_loss)
         self.actor_optimizer.zero_grad()
-        # for name, parms in self.actor.named_parameters():	
-        #     print('-->name:', name)
-        #     print('-->para:', parms)
-        #     print('-->grad_requirs:',parms.requires_grad)
-        #     print('-->grad_value:',parms.grad)
-        #     print("===")
         actor_loss.backward()
-        # for name, parms in self.actor.named_parameters():	
-        #     print('-->name:', name)
-        #     print('-->para:', parms)
-        #     print('-->grad_requirs:',parms.requires_grad)
-        #     print('-->grad_value:',parms.grad)
-        #     print("===")
-        # breakpoint()
-        # nn.utils.clip_grad_norm_(self.actor.parameters(), max_norm=0.1)
         self.actor_optimizer.step()
-        # for name, p in self.actor.recog.named_parameters():
-        #     print(name, p)  
-        # time.sleep(2)
         '''automatic entropy tuning'''
         alpha_loss = self.log_alpha.exp() * (-logprob.mean() - self.target_entropy).detach()
         self.alpha_optimizer.zero_grad()
         alpha_loss.backward()
         self.alpha_optimizer.step()
-
         self.alpha = self.log_alpha.exp().detach()
         
         '''character MSE'''
@@ -149,17 +124,7 @@ class RecogV1(MethodSingleAgent):
                 recog_charater = torch.where(mean == np.inf, torch.tensor(np.inf, dtype=torch.float32, device=self.device),mean)
             real_character = real_character[~torch.isinf(real_character)]
             recog_charater = recog_charater[~torch.isinf(recog_charater)]
-            # breakpoint()
-            # real_character = torch.where(real_character == np.inf, torch.tensor(-1, dtype=torch.float32, device=state.obs.device), real_character)
-            # recog_charater = torch.where(recog_charater == np.inf, torch.tensor(-1, dtype=torch.float32, device=state.obs.device), recog_charater)
-            character_loss = self.character_loss(recog_charater, real_character)
-            RMSE_loss = torch.sqrt(character_loss)
-            # print("actor loss : {} , character loss: {}".format(actor_loss, character_loss))
-            # time.sleep(10)
-            # self.recog_optimizer.zero_grad()
-            # # character_loss.backward()
-            # RMSE_loss.backward()    
-            # self.recog_optimizer.step()
+            RMSE_loss = torch.sqrt(self.critic_loss(recog_charater, real_character))
             file = open(self.output_dir + '/' + 'character.txt', 'w')
             write_character(file, recog_charater)
             file.write('*******************************\n')
@@ -181,10 +146,8 @@ class RecogV1(MethodSingleAgent):
     @torch.no_grad()
     def select_actions(self, state):
         self.select_action_start()
-
         if self.step_select < self.start_timesteps:
             action = torch.Tensor(len(state), self.dim_action).uniform_(0,1)
-            
         else:
             # print('select: ', self.step_select)
             states = rllib.buffer.stack_data(state)
@@ -216,10 +179,8 @@ class Actor(rllib.template.Model):
 
     def __init__(self, config, model_id=0):
         super().__init__(config, model_id)
-        # self.recog = config.get('net_actor_recog', RecognitionNet)(config, 0)
         self.mean_no = nn.Tanh()
         self.std_no = nn.Tanh()
-        #todo
         config.set('dim_action', 1)
         self.dim_action = 1
         self.fe = config.get('net_actor_fe', FeatureExtractor)(config, 0)
@@ -232,15 +193,9 @@ class Actor(rllib.template.Model):
         mean = self.mean_no(self.mean(x))
         logstd = self.std_no(self.std(x))
         logstd = (self.logstd_max-self.logstd_min) * logstd + (self.logstd_max+self.logstd_min)
-        #torch.isnan(x).any()
-        # if torch.isnan(mean).any() :
-        #     print('_______________________')
-        #     breakpoint()
         return mean, logstd *0.5
 
-
     def sample(self, state):
-
         mean, logstd= self(state)
         cov = torch.diag_embed(torch.exp(logstd))
         dist = MultivariateNormal(mean, cov)
@@ -253,16 +208,12 @@ class Actor(rllib.template.Model):
         action = torch.tanh(u)
         logprob = dist.log_prob(u).unsqueeze(1) \
                 - torch.log(1 - action.pow(2) + 1e-6).sum(dim=1, keepdim=True)
-
         return action, logprob, mean
     
-
     def sample_deprecated(self, state):
         mean, logstd = self(state)
-
         dist = Normal(mean, torch.exp(logstd))
         u = dist.rsample()
-
         ### Enforcing Action Bound
         action = torch.tanh(u)
         logprob = dist.log_prob(u) - torch.log(1-action.pow(2) + 1e-6)
@@ -282,19 +233,11 @@ class Critic(rllib.template.Model):
         self.apply(init_weights)
 
     def forward(self, state, action):
-        # obs_character = self.recog(state)
-        #####
-        # x = self.fe(state, obs_character)
         x = self.fe(state)
-        # x = self.fe(state)
-        # breakpoint()
         x = torch.cat([x, action], 1)
         return self.fm1(x), self.fm2(x)
     
     def q1(self, state, action):
-        # obs_character = self.recog(state)
-        #####
-        # x = self.fe(state, obs_character)
         x = self.fe(state)
         x = torch.cat([x, action], 1)
         return self.fm1(x)
@@ -309,13 +252,4 @@ def write_character(file, character) :
     str1=str(character)
     file.write(str1 + '\n\n')
 
-    
-# def init_weights(m):
-#     if isinstance(m, (nn.Conv2d, nn.Linear)):
-#         nn.init.uniform_(m.weight)
-#         try: nn.init.constant_(m.bias, 0.01)
-#         except: pass
-#     if isinstance(m, nn.LSTM):
-#         for name, param in m.named_parameters():
-#             if name.startswith('weight'): nn.init.orthogonal_(param)
-#     return
+
