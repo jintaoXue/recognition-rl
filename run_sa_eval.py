@@ -615,7 +615,7 @@ def main():
                 ray.shutdown()
                 ray.init(num_cpus=psutil.cpu_count(), num_gpus=torch.cuda.device_count(), include_dashboard=False)
     
-    elif version == 'v7-2-2':  ##corresponding to v6-6-2
+    elif version == 'v7-2-2':  ##corresponding to v6-6-0
         if mode != 'evaluate':
             raise NotImplementedError
         import numpy as np
