@@ -561,7 +561,7 @@ def main():
         models_sa.isac__bottleneck__adaptive().update(config)
         env_master = gallery.evaluate__fix_svo__two_background__bottleneck(config, 0.8, 0.5,mode)
 
-    elif version == 'v7-1-0':  ### fix_randoms_svo
+    elif version == 'v7-1-0':  ### fix_randoms_svo, test 
         if mode != 'evaluate':
             raise NotImplementedError
 
