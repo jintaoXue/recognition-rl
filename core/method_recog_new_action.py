@@ -121,10 +121,10 @@ class RecogV1(MethodSingleAgent):
         if self.step_update % self.print_svo_mse_interval == 0:
             real_character = state.obs_character[:,0,-1]
             with torch.no_grad():
-                recog_charater = torch.where(mean == np.inf, torch.tensor(np.inf, dtype=torch.float32, device=self.device),mean)
+                recog_charater = torch.where(real_character == np.inf, torch.tensor(np.inf, dtype=torch.float32, device=self.device),mean)
             real_character = real_character[~torch.isinf(real_character)]
             recog_charater = recog_charater[~torch.isinf(recog_charater)]
-            if(recog_charater.shape != real_character.shape) : breakpoint()
+            # if(recog_charater.shape != real_character.shape) : breakpoint()
             RMSE_loss = torch.sqrt(self.critic_loss(recog_charater, real_character))
             file = open(self.output_dir + '/' + 'character.txt', 'w')
             write_character(file, recog_charater)
