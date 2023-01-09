@@ -28,7 +28,7 @@ def init(config, mode, Env, Method) -> universe.EnvMaster_v1:
     elif config.method == 'IndependentSAC_recog':
         Method = method_evaluate.EvaluateSACRecog
     elif config.method == 'IndependentSAC_supervise' or config.method == 'IndependentSACsupervise':
-        Method = method_evaluate.EvaluateSACsupervise
+        Method = method_evaluate.EvaluateSupervise
     elif config.method == 'ISAC_recog_woattn' :
         Method = method_evaluate.EvaluateSACRecogWoattn
     elif config.method == 'RecogV2':
