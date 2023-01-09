@@ -106,7 +106,7 @@ class RecogV1(MethodSingleAgent):
         self.critic_optimizer.step()
 
         '''actor'''
-        action, logprob, _ = self.actor.sample(state)
+        action, logprob, mean = self.actor.sample(state)
         # actor_loss = (-self.critic.q1(state, action) + self.alpha * logprob).mean() * self.actor_loss_scale
         # breakpoint()
         # print(self.critic.q1(state, action), 'logprob', logprob)
@@ -144,12 +144,9 @@ class RecogV1(MethodSingleAgent):
         
         '''character MSE'''
         if self.step_update % self.print_svo_mse_interval == 0:
-            with torch.no_grad():
-                recog_charater, _ = self.actor(state) 
-    
             real_character = state.obs_character[:,0,-1]
-            
-            recog_charater = torch.where(real_character == np.inf, torch.tensor(np.inf, dtype=torch.float32, device=state.obs.device),recog_charater)
+            with torch.no_grad():
+                recog_charater = torch.where(mean == np.inf, torch.tensor(np.inf, dtype=torch.float32, device=self.device),mean)
             real_character = real_character[~torch.isinf(real_character)]
             recog_charater = recog_charater[~torch.isinf(recog_charater)]
             # breakpoint()

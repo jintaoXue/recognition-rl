@@ -140,7 +140,7 @@ class AgentListMasterNeuralBackground(AgentListMaster):
             references: torch.Size([num_agents_learnable, dim_action])
         """
         assert len(references) == len(self.vehicles_neural)
-
+        
         state_bg = [s.to_tensor().unsqueeze(0) for s in self.state_neural_nackground]
         if len(state_bg) > 0:
             states_bg = rllib.buffer.stack_data(state_bg)
@@ -325,9 +325,11 @@ class AgentListMasterNeuralBackgroundRecog(AgentListMaster):
         """
         # assert len(obs_svo) == len(self.vehicles_neural)
         #froms
-        obs_svos = np.expand_dims(obs_svo, axis = 1).repeat(len(self.state.obs_character),axis=1)
+        obs_svo = torch.from_numpy(obs_svo).to(self.device)
+        obs_svos = obs_svo.unsqueeze(1).repeat(1,len(self.state.obs_character),1)
+        # obs_svos = np.expand_dims(obs_svo, axis = 1).repeat(len(self.state.obs_character),axis=1)
         state = self.state.to_tensor().unsqueeze(0)
-        references, _= self.neural_policy.forward_with_svo(state, obs_svos)
+        references= self.neural_policy.forward_with_svo(state.to(self.device), obs_svos.to(self.device))
         state_bg = [s.to_tensor().unsqueeze(0) for s in self.state_neural_nackground]
 
         if len(state_bg) > 0:

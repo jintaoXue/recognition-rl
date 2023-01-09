@@ -592,7 +592,7 @@ class RecogNetSVO(rllib.template.Model):
         all_embs = torch.cat([ego_embedding.unsqueeze(1), obs_embedding, route_embedding.unsqueeze(1), lane_embedding, bound_embedding], dim=1)
         type_embedding = self.type_embedding(state)
 
-        outputs, attns = self.global_head_recognition(all_embs, type_embedding, invalid_polys)
+        outputs, _ = self.global_head_recognition(all_embs, type_embedding, invalid_polys)
         # self.attention = attns.detach().clone().cpu()
         outputs = torch.cat([outputs, self.character_embedding(state.character.unsqueeze(1))], dim=1)
         return outputs
@@ -816,21 +816,21 @@ class PointNetwithActionSVO(rllib.template.Model):
         state_ = cut_state(state)
         batch_size = state_.ego.shape[0]
         num_agents = state_.obs.shape[1]
-        num_lanes = state.lane.shape[1]
-        num_bounds = state.bound.shape[1]
+        num_lanes = state_.lane.shape[1]
+        num_bounds = state_.bound.shape[1]
 
         ### data generation
         ego = state_.ego[:,-1]
         ego_mask = state_.ego_mask.to(torch.bool)[:,[-1]]
         obs = state_.obs[:,:,-1]
         obs_mask = state_.obs_mask[:,:,-1].to(torch.bool)
-        obs_character = state.obs_character[:,:,-1]
-        route = state.route
-        route_mask = state.route_mask.to(torch.bool)
-        lane = state.lane
-        lane_mask = state.lane_mask.to(torch.bool)
-        bound = state.bound
-        bound_mask = state.bound_mask.to(torch.bool)
+        obs_character = state_.obs_character[:,:,-1]
+        route = state_.route
+        route_mask = state_.route_mask.to(torch.bool)
+        lane = state_.lane
+        lane_mask = state_.lane_mask.to(torch.bool)
+        bound = state_.bound
+        bound_mask = state_.bound_mask.to(torch.bool)
 
         ### embedding
         ego_embedding = torch.cat([
@@ -870,7 +870,7 @@ class PointNetwithActionSVO(rllib.template.Model):
         all_embs = torch.cat([ego_embedding.unsqueeze(1), obs_embedding, route_embedding.unsqueeze(1), lane_embedding, bound_embedding], dim=1)
         type_embedding = self.type_embedding(state_)
         outputs, attns = self.global_head(all_embs, type_embedding, invalid_polys)
-        self.attention = attns.detach().clone().cpu()
+        # self.attention = attns.detach().clone().cpu()
 
         outputs = torch.cat([outputs, self.character_embedding(state_.character.unsqueeze(1))], dim=1)
         return outputs
@@ -878,13 +878,13 @@ class PointNetwithActionSVO(rllib.template.Model):
     def forward_with_svo(self, state: rllib.basic.Data, obs_character : np.ndarray ,**kwargs):
         #从 agent master类收到的感知信息
         state_ = cut_state(state)
-        state_ = state_.to(self.device)
-        obs_character = torch.from_numpy(obs_character).to(self.device)
+        # state_ = state_.to(self.device)
+        # obs_character = torch.from_numpy(obs_character).to(self.device)
         # print('agent master obs_svos', obs_character.shape)
         batch_size = state_.ego.shape[0]
         num_agents = state_.obs.shape[1]
-        num_lanes = state.lane.shape[1]
-        num_bounds = state.bound.shape[1]
+        num_lanes = state_.lane.shape[1]
+        num_bounds = state_.bound.shape[1]
 
         ### data generation
         ego = state_.ego[:,-1]
@@ -937,7 +937,7 @@ class PointNetwithActionSVO(rllib.template.Model):
         all_embs = torch.cat([ego_embedding.unsqueeze(1), obs_embedding, route_embedding.unsqueeze(1), lane_embedding, bound_embedding], dim=1)
         type_embedding = self.type_embedding(state_)
         outputs, attns = self.global_head(all_embs, type_embedding, invalid_polys)
-        self.attention = attns.detach().clone().cpu()
+        # self.attention = attns.detach().clone().cpu()
 
         outputs = torch.cat([outputs, self.character_embedding(state_.character.unsqueeze(1))], dim=1)
         return outputs
@@ -1034,9 +1034,9 @@ class Actor(rllib.template.Model):
     def forward_with_svo(self, state, obs_svos):
         x = self.fe.forward_with_svo(state, obs_svos)
         mean = self.mean_no(self.mean(x))
-        logstd = self.std_no(self.std(x))
-        logstd = (self.logstd_max-self.logstd_min) * logstd + (self.logstd_max+self.logstd_min)
-        return mean, logstd *0.5
+        # logstd = self.std_no(self.std(x))
+        # logstd = (self.logstd_max-self.logstd_min) * logstd + (self.logstd_max+self.logstd_min)
+        return mean
 
     def sample(self, state):
         mean, logstd = self(state)
