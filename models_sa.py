@@ -452,6 +452,7 @@ class svo_as_action__bottleneck__adaptive(ModelPath):
     model_num = 92000
     model_num = 100000
     model_num = 120000
+    model_num = 80000
 
 class svos_as_action__bottleneck__adaptive(ModelPath):
 

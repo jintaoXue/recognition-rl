@@ -236,6 +236,8 @@ recog 是对应的89.0
 49：/data0/zdk/github/zdk/recognition-rl/results/RecogV1-EnvInteractiveSingleAgent/2023-01--20:57:41----Nothing--isac_recog__new_action
 
 新的一版：
-
+43服务器
 ~/github/zdk/recognition-rl/results/RecogV1-EnvInteractiveSingleAgent/2023-01-09-00:01:10----Nothing--isac_recog__new_action
 对其进行验证
+supervise
+下面要跑woattn的

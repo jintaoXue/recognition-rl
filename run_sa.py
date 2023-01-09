@@ -229,7 +229,7 @@ def main():
         writer, env_master, method = gallery.ray_recog__new_action_background__bottleneck(config, mode, scale)
     
     elif version == 'v6-6-1':
-        scale = 1
+        scale = 10
         config.description += '--recog_new_action_woattn'
         writer, env_master, method = gallery.ray_recog__new_action_woattn_background__bottleneck(config, mode, scale)
     
