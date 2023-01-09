@@ -140,7 +140,6 @@ class AgentListMasterNeuralBackground(AgentListMaster):
             references: torch.Size([num_agents_learnable, dim_action])
         """
         assert len(references) == len(self.vehicles_neural)
-        
         state_bg = [s.to_tensor().unsqueeze(0) for s in self.state_neural_nackground]
         if len(state_bg) > 0:
             states_bg = rllib.buffer.stack_data(state_bg)
