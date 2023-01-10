@@ -633,10 +633,11 @@ class RecogNetSvoWoattn(rllib.template.Model):
             self.agent_embedding_v1(obs)
         ], dim=2)
 
-        if outputs.shape[1] != 0: outputs = outputs.mean(dim=1, keepdim=True)
-        outputs = outputs.squeeze(-1)
-        character_embedding = self.character_embedding(state.character.unsqueeze(1)).repeat(1,outputs.shape[1])
-        outputs = torch.cat([outputs, character_embedding], dim=2)
+        if outputs.shape[1] != 0: outputs = outputs.mean(dim=1)
+        else :
+            outputs = torch.full([batch_size,self.dim_embedding_agent], -1, dtype=torch.float32).to(self.device)
+        character_embedding = self.character_embedding(state.character.unsqueeze(1))
+        outputs = torch.cat([outputs, character_embedding], dim=1)
         return outputs
 '''output a single svo(all the obstacles have same/different svos)'''
 class RecogNetMultiSVO(rllib.template.Model):
