@@ -632,8 +632,8 @@ class RecogNetSvoWoattn(rllib.template.Model):
             self.agent_embedding(state.obs.flatten(end_dim=1), state.obs_mask.to(torch.bool).flatten(end_dim=1)).view(batch_size,num_agents, self.dim_embedding_agent //2),
             self.agent_embedding_v1(obs)
         ], dim=2)
-
-        if outputs.shape[1] != 0: outputs.mean(dim=1, keepdim=True)
+        
+        if outputs.shape[1] != 0: outputs = outputs.mean(dim=1, keepdim=True)
         character_embedding = self.character_embedding(state.character.unsqueeze(1)).unsqueeze(1).repeat(1,outputs.shape[1],1)
         outputs = torch.cat([outputs, character_embedding], dim=2)
         return outputs
