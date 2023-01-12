@@ -456,7 +456,18 @@ class svo_as_action__bottleneck__adaptive(ModelPath):
     model_num = 120000
     model_dir = '~/github/zdk/recognition-rl/results/RecogV1-EnvInteractiveSingleAgent/2023-01-09-09:46:28----Nothing--isac_recog__new_action/saved_models_method'
     model_num = 477000
+    model_num = 457000
+    
+    '''in test 516000 445000 395000 354000 300000 273000 235000'''
+    # model_num = 118000
+    # model_num = 142000
+    # model_num = 195000
+    model_num = 395000
+class svo_as_action_woattn__bottleneck(ModelPath):
 
+    method = 'RecogV1'
+    model_dir = '~/github/zdk/recognition-rl/results/RecogV1-EnvInteractiveSingleAgent/2023-01-11-16:47:38----Nothing--recog_new_action_woattn/saved_models_method'
+    model_num = 200000
 
 class svos_as_action__bottleneck__adaptive(ModelPath):
 

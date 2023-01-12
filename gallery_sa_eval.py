@@ -981,6 +981,26 @@ def ray_recog__new_action_background__bottleneck(config, mode='train',scale=1):
         config.set('methods', [config_method])
 
         return init(config, mode, Env, Method)
+def ray_recog_new_action_woattn__background__bottleneck(config, mode='train',scale=1):
+        from universe import EnvInteractiveSingleAgent as Env
+
+        from core.method_recog_new_action import RecogV1 as Method
+
+        from config.bottleneck_evaluate import config_env__new_action_same_other
+
+        ### adaptive
+        config_env__adaptive = copy.deepcopy(config_env__new_action_same_other)
+        config_env__adaptive.set('config_neural_policy', get_sac__bottleneck__new_action_config(config))
+
+        config.set('envs', [
+            config_env__adaptive,
+        ])
+        
+        ### method param
+        from config.method import config_recog_action_svo_woattn as config_method
+        config.set('methods', [config_method])
+
+        return init(config, mode, Env, Method)
 
 def ray_fix_svo__dynamic_action_background__bottleneck(config, ego_svo, other_svo, mode='train',scale=1):
         from universe import EnvInteractiveSingleAgentFixSvo as Env
@@ -1041,6 +1061,27 @@ def ray_fix_svo__supervise__bottleneck(config, ego_svo, other_svo, mode='train',
         
         ### method param
         from config.method import config_supervise as config_method
+        config.set('methods', [config_method])
+
+        return init_fix_svo(config, mode, Env,Method, ego_svo, other_svo)
+
+def ray_fix_svo__new_action_woattn__bottleneck(config, ego_svo, other_svo, mode='train',scale=1):
+        from universe import EnvInteractiveSingleAgentFixSvo as Env
+
+        from core.method_recog_new_action import RecogV1 as Method
+
+        from config.bottleneck_evaluate import config_env__new_action_fix_svo
+
+        ### adaptive
+        config_env__adaptive = copy.deepcopy(config_env__new_action_fix_svo)
+        config_env__adaptive.set('config_neural_policy', get_sac__bottleneck__new_action_config(config))
+
+        config.set('envs', [
+            config_env__adaptive,
+        ])
+        
+        ### method param
+        from config.method import config_recog_action_svo_woattn as config_method
         config.set('methods', [config_method])
 
         return init_fix_svo(config, mode, Env,Method, ego_svo, other_svo)
