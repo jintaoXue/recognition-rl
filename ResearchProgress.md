@@ -241,3 +241,18 @@ recog 是对应的89.0
 对其进行验证
 supervise
 下面要跑woattn的
+
+
+
+1/14号：
+
+rl的四个实验：
+
+​	policy在method或者env中+要不要加MSE这一项
+
+supervise+woattn
+
+整理论文
+
+修改RecogV2，将MSE作为单独的loss放入method中，和reward分开
+

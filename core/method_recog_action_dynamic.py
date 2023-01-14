@@ -107,10 +107,23 @@ class RecogV2(MethodSingleAgent):
         self.critic_optimizer.step()
 
         '''actor'''
+
         action, logprob, _ = self.actor.sample(state)
+
+        real_character = state.obs_character[:,:,-1]
+        valid_len = real_character.shape[1]
+        recog_charater = action[:,:valid_len]
+        recog_charater = torch.where(real_character == np.inf, torch.tensor(np.inf, dtype=torch.float32, device=state.obs.device),recog_charater)
+        real_character = real_character[~torch.isinf(real_character)]
+        recog_charater = recog_charater[~torch.isinf(recog_charater)]
+        # breakpoint()
+        # real_character = torch.where(real_character == np.inf, torch.tensor(-1, dtype=torch.float32, device=state.obs.device), real_character)
+        # recog_charater = torch.where(recog_charater == np.inf, torch.tensor(-1, dtype=torch.float32, device=state.obs.device), recog_charater)
+        character_loss = self.character_loss(recog_charater, real_character)
+        RMSE_loss = torch.sqrt(character_loss)
         # actor_loss = (-self.critic.q1(state, action) + self.alpha * logprob).mean() * self.actor_loss_scale
         # breakpoint()
-        actor_loss = ((-self.critic.q1(state, action) + self.alpha * logprob).mean())
+        actor_loss = ((-self.critic.q1(state, action) + self.alpha * logprob).mean()) + RMSE_loss
         # if torch.any(torch.isinf(actor_loss)) or torch.any(torch.isnan(actor_loss)): breakpoint()
         # actor_loss = torch.nn.init.uniform(actor_loss, a=0, b=1)
         # print('-self.critic.q1(state, action) :{}, self.alpha * logprob:{}\n'.format(-self.critic.q1(state, action) , self.alpha * logprob))
@@ -145,20 +158,6 @@ class RecogV2(MethodSingleAgent):
         
         '''character MSE'''
         if self.step_update % self.print_svo_mse_interval == 0:
-            with torch.no_grad():
-                recog_charater, _= self.actor(state) 
-            real_character = state.obs_character[:,:,-1]
-            valid_len = real_character.shape[1]
-            recog_charater = recog_charater[:,:valid_len]
-            recog_charater = torch.where(real_character == np.inf, torch.tensor(np.inf, dtype=torch.float32, device=state.obs.device),recog_charater)
-            real_character = real_character[~torch.isinf(real_character)]
-            recog_charater = recog_charater[~torch.isinf(recog_charater)]
-            # breakpoint()
-            # real_character = torch.where(real_character == np.inf, torch.tensor(-1, dtype=torch.float32, device=state.obs.device), real_character)
-            # recog_charater = torch.where(recog_charater == np.inf, torch.tensor(-1, dtype=torch.float32, device=state.obs.device), recog_charater)
-            with torch.no_grad():
-                character_loss = self.character_loss(recog_charater, real_character)
-                RMSE_loss = torch.sqrt(character_loss)
             # print("actor loss : {} , character loss: {}".format(actor_loss, character_loss))
             # time.sleep(10)
             # self.recog_optimizer.zero_grad()
@@ -188,7 +187,7 @@ class RecogV2(MethodSingleAgent):
         self.select_action_start()
 
         if self.step_select < self.start_timesteps:
-            action = torch.Tensor(len(state), self.dim_action).uniform_(0.1,0.9)
+            action = torch.Tensor(len(state), self.dim_action).uniform_(0.0,1.0)
         else:
             # print('select: ', self.step_select)
             states = rllib.buffer.stack_data(state)
@@ -203,7 +202,7 @@ class RecogV2(MethodSingleAgent):
         self.select_action_start()
         if self.step_select < self.start_timesteps:
             valid_len = state.obs_character.shape[1]
-            action = torch.Tensor(1,1,1).uniform_(0.1,0.9)
+            action = torch.Tensor(1,1,1).uniform_(0.0,1.0)
             action = action.repeat(1,self.dim_action,1)
             action[0,valid_len:] = -1
         else:
