@@ -67,6 +67,26 @@ def ray_supervise_offline__new_adaptive_background__bottleneck(config, mode='tra
     config.set('methods', [config_method])
 
     return init(config, mode, Env, Method)
+def ray_supervise_offline_woattn__bottleneck(config, mode='train', scale=1):
+    from universe import EnvInteractiveSingleAgent as Env
+    #todo
+    from core.method_supervise_offline import IndependentSACsupervise as Method
+
+    ### env param
+    from config.bottleneck import config_env__neural_background_same_other_svo as config_bottleneck
+    
+    from gallery_sa import get_sac__new_bottleneck__adaptive_character_config
+    config_bottleneck.set('config_neural_policy', get_sac__new_bottleneck__adaptive_character_config(config))
+    config.set('training_data_path', f'./results/data_offline/bottleneck/')
+    config.set('envs', [
+        config_bottleneck
+    ])
+
+    ### method param
+    from config.method import config_woattn as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env, Method)
 
 def main():
     config = rllib.basic.YamlConfig()
@@ -92,7 +112,11 @@ def main():
         scale = 10
         config.description += '--supervise-offline-hrz10-act1'
         writer, method = ray_supervise_offline__new_adaptive_background__bottleneck(config, mode, scale)
-
+    
+    elif version == 'v6-5-7':
+        scale = 10
+        config.description += '--supervise-offline-woattn'
+        writer, method = ray_supervise_offline_woattn__bottleneck(config, mode, scale)
 
     # try:
     #     env_master.create_tasks(method, func=run_one_episode)
