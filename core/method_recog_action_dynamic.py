@@ -38,11 +38,11 @@ class RecogV2(MethodSingleAgent):
 
     lr_critic = 5e-4
     lr_actor = 1e-4
-    lr_tune = 0.5e-4
+    lr_tune = 0.2e-4
 
     tau = 0.005
 
-    buffer_size = 750000
+    buffer_size = 700000
     batch_size = 128
 
     start_timesteps = 150000
