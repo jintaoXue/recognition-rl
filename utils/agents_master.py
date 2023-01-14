@@ -366,10 +366,11 @@ class AgentListMasterNeuralBackgroundRecogMultiSVO(AgentListMasterNeuralBackgrou
         #froms
 
         obs_svos = obs_svos[:,:len(self.state.obs_character)]
+        obs_svos = torch.from_numpy(obs_svos).to(self.device)
         # obs_svos = np.expand_dims(obs_svos, axis=-1)
         state = self.state.to_tensor().unsqueeze(0)
         # print('agent master obs_svos', obs_svos.shape)
-        references, _= self.neural_policy.forward_with_svo(state, obs_svos)
+        references = self.neural_policy.forward_with_svo(state.to(self.device), obs_svos.to(self.device))
         state_bg = [s.to_tensor().unsqueeze(0) for s in self.state_neural_nackground]
 
         if len(state_bg) > 0:

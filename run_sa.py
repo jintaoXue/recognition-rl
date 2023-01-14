@@ -234,7 +234,7 @@ def main():
         writer, env_master, method = gallery.ray_recog__new_action_woattn_background__bottleneck(config, mode, scale)
     
     elif version == 'v6-6-2':
-        scale = 16
+        scale = 1
         config.description += '--recog__dynamic_action'
         writer, env_master, method = gallery.ray_recog__dynamic_action_background__bottleneck(config, mode, scale)
     elif version == 'v6-6-3':
