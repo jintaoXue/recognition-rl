@@ -133,21 +133,20 @@ class RewardFunctionRecogCharacterV2(universe.RewardFunc):
     def run_step(self, state, action, agents_master: universe.AgentsMaster, episode_info):
         '''single agent'''
         reward = RewardFunctionNoCharacter.run_step(self, state, action, agents_master, episode_info)
-        # assert action.shape[0] == 1 and len(state) == 1 \
-        #     and len(agents_master.vehicles_neural) == 1 and len(reward) == 1
-        valid_len = len(agents_master.state.obs)
-        if valid_len == 0 : return reward
-        action = action[:,:valid_len]
-        true_character = torch.full(action.shape,agents_master.vehicles_rule[0].character)
-        breakpoint()
-        RMSEloss = torch.sqrt(self.MSEloss(torch.tensor(action),true_character))
-        # reward_character = np.clip(1/np.tan(2.5*np.pi*np.clip(RMSEloss,0,0.2)), 0, 2) + 0.4 - 2*RMSEloss 
-        # reward_character = 0.05*np.clip(1/np.tan(np.pi*np.clip(RMSEloss,0,0.5)), 0, 10) - 0.3*RMSEloss + 0.1
-        # reward_character = - 2*RMSEloss + 1
-        #3.
-        RMSEloss = np.clip(RMSEloss,0,0.5)
-        reward_character = 0.5*(1 - 2.5*RMSEloss)
-        # reward_character= 0.3*np.clip(1/np.tan(1.25*np.pi*RMSEloss), -0.5, 1) - 0.2 + 4*(0.2 - np.clip(RMSEloss, 0, 0.2))
-        reward[0] += reward_character
+        # # assert action.shape[0] == 1 and len(state) == 1 \
+        # #     and len(agents_master.vehicles_neural) == 1 and len(reward) == 1
+        # valid_len = len(agents_master.state.obs)
+        # if valid_len == 0 : return reward
+        # action = action[:,:valid_len]
+        # true_character = torch.full(action.shape,agents_master.vehicles_rule[0].character)
+        # RMSEloss = torch.sqrt(self.MSEloss(torch.tensor(action),true_character))
+        # # reward_character = np.clip(1/np.tan(2.5*np.pi*np.clip(RMSEloss,0,0.2)), 0, 2) + 0.4 - 2*RMSEloss 
+        # # reward_character = 0.05*np.clip(1/np.tan(np.pi*np.clip(RMSEloss,0,0.5)), 0, 10) - 0.3*RMSEloss + 0.1
+        # # reward_character = - 2*RMSEloss + 1
+        # #3.
+        # RMSEloss = np.clip(RMSEloss,0,0.5)
+        # reward_character = 0.5*(1 - 2.5*RMSEloss)
+        # # reward_character= 0.3*np.clip(1/np.tan(1.25*np.pi*RMSEloss), -0.5, 1) - 0.2 + 4*(0.2 - np.clip(RMSEloss, 0, 0.2))
+        # reward[0] += reward_character
         # print('rewad : {}and RMSEloss:{}'.format(reward, RMSEloss))    
         return reward
