@@ -45,8 +45,8 @@ class RecogV2(MethodSingleAgent):
     buffer_size = 700000
     batch_size = 128
 
-    start_timesteps = 150000
-    # start_timesteps = 128 ## ! warning
+    # start_timesteps = 100000
+    start_timesteps = 128 ## ! warning
     before_training_steps = 0
 
     save_model_interval = 1000
@@ -245,7 +245,7 @@ class Actor(rllib.template.Model):
         logstd = self.std_no(self.std(x))
         #to do
         mean = torch.cat([mean, torch.full((len(x), \
-            self.max_other_vehicles- num_svo, self.dim_action), -1.0).to(self.device)], dim = 1)
+            self.max_other_vehicles - num_svo, self.dim_action), -1.0).to(self.device)], dim = 1)
         logstd = torch.cat([logstd, torch.full((len(x), \
             self.max_other_vehicles- num_svo,self.dim_action), -1.0).to(self.device)], dim = 1)
         logstd = (self.logstd_max-self.logstd_min) * logstd + (self.logstd_max+self.logstd_min)
@@ -264,8 +264,8 @@ class Actor(rllib.template.Model):
     def sample(self, state):
         mean, logstd= self(state)
         num_svo = state.obs_character.shape[1]
-        cov = torch.diag_embed(torch.exp(logstd))
-        dist = MultivariateNormal(mean, cov)
+        cov = torch.diag_embed(torch.exp(logstd[:,:num_svo]))
+        dist = MultivariateNormal(mean[:,:num_svo], cov)
         u = dist.rsample()
         # if mean.shape[0] == 1:
         #     print('    policy entropy: ', dist.entropy().detach().cpu())
@@ -273,9 +273,13 @@ class Actor(rllib.template.Model):
         #     print('    policy std:     ', torch.exp(logstd).detach().cpu())
         ### Enforcing Action Bound
         action = torch.tanh(u)
-        logprob = dist.log_prob(u)[:,:num_svo].sum(-1).unsqueeze(1) \
-                - torch.log(1 - action[:,:num_svo].pow(2) + 1e-6).sum(dim=1)
+        # logprob = dist.log_prob(u)[:,:num_svo].sum(-1).unsqueeze(1) \
+        #         - torch.log(1 - action[:,:num_svo].pow(2) + 1e-6).sum(dim=1)
+        logprob = dist.log_prob(u).sum(-1).unsqueeze(1) \
+                - torch.log(1 - action.pow(2) + 1e-6).sum(dim=1)
+        action = action/2 + 0.5
         # print('sample', action.shape)
+        action = torch.cat([action, mean[:,num_svo:]], dim=1)
         
         return action, logprob, mean
     
