@@ -264,6 +264,7 @@ class Actor(rllib.template.Model):
     def sample(self, state):
         mean, logstd= self(state)
         num_svo = state.obs_character.shape[1]
+        if num_svo == 0 : return mean, torch.tensor(-1.0, dtype=torch.float32, device=self.device), mean
         cov = torch.diag_embed(torch.exp(logstd[:,:num_svo]))
         dist = MultivariateNormal(mean[:,:num_svo], cov)
         u = dist.rsample()
@@ -277,10 +278,10 @@ class Actor(rllib.template.Model):
         #         - torch.log(1 - action[:,:num_svo].pow(2) + 1e-6).sum(dim=1)
         logprob = dist.log_prob(u).sum(-1).unsqueeze(1) \
                 - torch.log(1 - action.pow(2) + 1e-6).sum(dim=1)
+        print('logprob ', logprob)
         action = action/2 + 0.5
         # print('sample', action.shape)
         action = torch.cat([action, mean[:,num_svo:]], dim=1)
-        
         return action, logprob, mean
     
 
