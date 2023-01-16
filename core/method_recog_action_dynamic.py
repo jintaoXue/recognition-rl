@@ -278,7 +278,7 @@ class Actor(rllib.template.Model):
         #         - torch.log(1 - action[:,:num_svo].pow(2) + 1e-6).sum(dim=1)
         logprob = dist.log_prob(u).sum(-1).unsqueeze(1) \
                 - torch.log(1 - action.pow(2) + 1e-6).sum(dim=1)
-        print('logprob ', logprob)
+        # print('logprob ', logprob)
         action = action/2 + 0.5
         # print('sample', action.shape)
         action = torch.cat([action, mean[:,num_svo:]], dim=1)
