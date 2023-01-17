@@ -295,13 +295,13 @@ class Actor(rllib.template.Model):
         dist = MultivariateNormal(mean, cov)
         u = dist.rsample()
 
-        print(mean, cov)
-        print(mean.shape,cov.shape)
-        if mean.shape[0] == 1:
-            print('    policy entropy: ', dist.entropy().detach().cpu())
-            print('    policy mean:    ', mean.detach().cpu())
-            print('    policy std:     ', torch.exp(logstd).detach().cpu())
-            print()
+        # print(mean, cov)
+        # print(mean.shape,cov.shape)
+        # if mean.shape[0] == 1:
+        #     print('    policy entropy: ', dist.entropy().detach().cpu())
+        #     print('    policy mean:    ', mean.detach().cpu())
+        #     print('    policy std:     ', torch.exp(logstd).detach().cpu())
+        #     print()
 
 
 
