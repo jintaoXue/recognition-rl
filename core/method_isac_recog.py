@@ -36,11 +36,11 @@ class IndependentSAC_recog(MethodSingleAgent):
 
     lr_critic = 5e-4
     lr_actor = 1e-4
-    lr_tune = 1e-4
+    lr_tune = 0.5e-4
 
     tau = 0.005
 
-    buffer_size = 750000
+    buffer_size = 700000
     batch_size = 128
 
     # start_timesteps = 30000
@@ -48,7 +48,7 @@ class IndependentSAC_recog(MethodSingleAgent):
     before_training_steps = 0
 
     save_model_interval = 1000
-    actor_loss_scale = 0.1
+    print_svo_mse_interval = 10
     def __init__(self, config: rllib.basic.YamlConfig, writer):
         super().__init__(config, writer)
 
@@ -134,19 +134,25 @@ class IndependentSAC_recog(MethodSingleAgent):
 
         current_q1, current_q2 = self.critic(state, action)
         critic_loss = (self.critic_loss(current_q1, target_q) + self.critic_loss(current_q2, target_q))
-        print('critic_loss: {}'.format(critic_loss))
+        # print('critic_loss: {}'.format(critic_loss))
         self.critic_optimizer.zero_grad()
         critic_loss.backward()
         self.critic_optimizer.step()
 
         '''actor'''
-        action, logprob, _ = self.actor.sample(state)
-        # actor_loss = (-self.critic.q1(state, action) + self.alpha * logprob).mean() * self.actor_loss_scale
+        action, logprob ,_ = self.actor.sample(state)
         # breakpoint()
-        actor_loss = ((-self.critic.q1(state, action) + self.alpha * logprob).mean())*self.actor_loss_scale
+        _,_,recog_charater = self.actor(state) 
+        real_character = state.obs_character[:,:,-1]
+        recog_charater = torch.where(real_character == np.inf, torch.tensor(np.inf, dtype=torch.float32, device=state.obs.device),recog_charater)
+        real_character = real_character[~torch.isinf(real_character)]
+        recog_charater = recog_charater[~torch.isinf(recog_charater)]
+        character_loss = self.character_loss(recog_charater, real_character)
+        RMSE_loss = torch.sqrt(character_loss)
+        actor_loss = ((-self.critic.q1(state, action) + self.alpha * logprob).mean()) + RMSE_loss
         # actor_loss = torch.nn.init.uniform(actor_loss, a=0, b=1)
         # print('-self.critic.q1(state, action) :{}, self.alpha * logprob:{}\n'.format(-self.critic.q1(state, action) , self.alpha * logprob))
-        print('actor_loss : {}'.format(actor_loss) ,actor_loss)
+        # print('actor_loss : {}'.format(actor_loss) ,actor_loss)
         self.actor_optimizer.zero_grad()
         # for name, parms in self.actor.named_parameters():	
         #     print('-->name:', name)
@@ -163,9 +169,9 @@ class IndependentSAC_recog(MethodSingleAgent):
         #     print("===")
         # breakpoint()
         # nn.utils.clip_grad_norm_(self.actor.parameters(), max_norm=0.1)
-        torch.nn.utils.clip_grad_value_(self.actor.fe.global_head_recognition.parameters(), 1e-30)
-        torch.nn.utils.clip_grad_value_(self.actor.fe.agent_embedding_recog.parameters(), 1e-30)
-        torch.nn.utils.clip_grad_value_(self.actor.fe.ego_embedding_recog.parameters(), 1e-30)
+        # torch.nn.utils.clip_grad_value_(self.actor.fe.global_head_recognition.parameters(), 1e-30)
+        # torch.nn.utils.clip_grad_value_(self.actor.fe.agent_embedding_recog.parameters(), 1e-30)
+        # torch.nn.utils.clip_grad_value_(self.actor.fe.ego_embedding_recog.parameters(), 1e-30)
         self.actor_optimizer.step()
 
         # for name, p in self.actor.recog.named_parameters():
@@ -180,31 +186,38 @@ class IndependentSAC_recog(MethodSingleAgent):
         self.alpha = self.log_alpha.exp().detach()
         
         '''character MSE'''
-        with torch.no_grad():
-            _,_,recog_charater = self.actor(state)      
-        real_character = state.obs_character[:,:,-1]
+        if self.step_update % self.print_svo_mse_interval == 0:
+            file = open(self.output_dir + '/' + 'character.txt', 'w')
+            write_character(file, recog_charater)
+            file.write('*******************************\n')
+            write_character(file, recog_charater - real_character)
+            file.close()
+            self.writer.add_scalar(f'{self.tag_name}/loss_character', RMSE_loss.detach().item(), self.step_update) 
+        # with torch.no_grad():
+        #     _,_,recog_charater = self.actor(state)      
+        # real_character = state.obs_character[:,:,-1]
         
-        recog_charater = torch.where(real_character == np.inf, torch.tensor(np.inf, dtype=torch.float32, device=state.obs.device),recog_charater)
-        real_character = real_character[~torch.isinf(real_character)]
-        recog_charater = recog_charater[~torch.isinf(recog_charater)]
-        # breakpoint()
-        # real_character = torch.where(real_character == np.inf, torch.tensor(-1, dtype=torch.float32, device=state.obs.device), real_character)
-        # recog_charater = torch.where(recog_charater == np.inf, torch.tensor(-1, dtype=torch.float32, device=state.obs.device), recog_charater)
-        character_loss = self.character_loss(recog_charater, real_character)
-        RMSE_loss = torch.sqrt(character_loss)
-        # print("actor loss : {} , character loss: {}".format(actor_loss, character_loss))
-        # time.sleep(10)
-        # self.recog_optimizer.zero_grad()
-        # # character_loss.backward()
-        # RMSE_loss.backward()    
-        # self.recog_optimizer.step()
-        file = open(self.output_dir + '/' + 'character.txt', 'w')
-        write_character(file, recog_charater)
-        file.write('*******************************\n')
-        write_character(file, recog_charater - real_character)
-        file.close()
+        # recog_charater = torch.where(real_character == np.inf, torch.tensor(np.inf, dtype=torch.float32, device=state.obs.device),recog_charater)
+        # real_character = real_character[~torch.isinf(real_character)]
+        # recog_charater = recog_charater[~torch.isinf(recog_charater)]
+        # # breakpoint()
+        # # real_character = torch.where(real_character == np.inf, torch.tensor(-1, dtype=torch.float32, device=state.obs.device), real_character)
+        # # recog_charater = torch.where(recog_charater == np.inf, torch.tensor(-1, dtype=torch.float32, device=state.obs.device), recog_charater)
+        # character_loss = self.character_loss(recog_charater, real_character)
+        # RMSE_loss = torch.sqrt(character_loss)
+        # # print("actor loss : {} , character loss: {}".format(actor_loss, character_loss))
+        # # time.sleep(10)
+        # # self.recog_optimizer.zero_grad()
+        # # # character_loss.backward()
+        # # RMSE_loss.backward()    
+        # # self.recog_optimizer.step()
+        # file = open(self.output_dir + '/' + 'character.txt', 'w')
+        # write_character(file, recog_charater)
+        # file.write('*******************************\n')
+        # write_character(file, recog_charater - real_character)
+        # file.close()
 
-        self.writer.add_scalar(f'{self.tag_name}/loss_character', RMSE_loss.detach().item(), self.step_update)   
+        # self.writer.add_scalar(f'{self.tag_name}/loss_character', RMSE_loss.detach().item(), self.step_update)   
         self.writer.add_scalar(f'{self.tag_name}/loss_critic', critic_loss.detach().item(), self.step_update)
         self.writer.add_scalar(f'{self.tag_name}/loss_actor', actor_loss.detach().item(), self.step_update)
         self.writer.add_scalar(f'{self.tag_name}/alpha', self.alpha.detach().item(), self.step_update)

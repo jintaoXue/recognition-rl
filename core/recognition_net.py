@@ -241,7 +241,7 @@ class RecognitionNetNew(rllib.template.Model):
         obs_svos = obs_svos.transpose(0, 1)
         self.obs_svos = obs_svos
         # breakpoint()
-        print(obs_svos)
+        # print(obs_svos)
         state_ = cut_state(state)
         ### data generation
         ego = state_.ego[:,-1]
