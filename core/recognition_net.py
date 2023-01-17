@@ -236,7 +236,7 @@ class RecognitionNetNew(rllib.template.Model):
         obs_svos, attns = self.global_head_recognition(all_embs, type_embedding, invalid_polys_recog, num_agents)
         # self.attention = attns.detach().clone().cpu()
         obs_svos = self.tanh(obs_svos)
-        obs_svos = (1 + self.tanh(obs_svos))/2
+        # obs_svos = (1 + self.tanh(obs_svos))/2
         #(num_agents, batch, 1) -> (batch, num_agents, 1)
         obs_svos = obs_svos.transpose(0, 1)
         self.obs_svos = obs_svos
