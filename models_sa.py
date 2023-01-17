@@ -180,7 +180,7 @@ class isac_recog__bottleneck__adaptive(ModelPath):
     model_num = 192000
     model_num = 220000
     model_num = 230000
-
+    
 class isac_recog_woattn__bottleneck__adaptive(ModelPath):
     method = 'ISAC_recog_woattn'
 
