@@ -256,7 +256,7 @@ class Actor(rllib.template.Model):
     def forward(self, state):        
         #add character into state
         obs_character = self.recog(state)
-        print(obs_character)
+        # print(obs_character)
         # #evaluate
         # real_character = state.obs_character[:,:,-1]
         # recog_character = obs_character[~torch.isinf(real_character)]
