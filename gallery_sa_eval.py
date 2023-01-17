@@ -943,7 +943,7 @@ def evaluate__supervise__one_background__bottleneck(config, mode='train', scale=
 def evaluate__supervise_woattn__one_background__bottleneck(config, mode='train', scale=1):
     #to do
         from universe import EnvInteractiveSingleAgent as Env
-        from core.method_supervise import IndependentSACsupervise as Method
+        from core.method_supervise_offline import IndependentSACsupervise as Method
 
         from config.bottleneck_evaluate import config_env__neural_background
 
