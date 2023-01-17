@@ -562,7 +562,7 @@ def main():
         models_sa.isac__bottleneck__adaptive().update(config)
         env_master = gallery.evaluate__fix_svo__four_background__bottleneck(config, mode)
 
-    elif version == 'v7-1':  ### ours 
+    elif version == 'v7-0-1':  ### ours 
         if mode != 'evaluate':
             raise NotImplementedError
 
@@ -570,15 +570,15 @@ def main():
         models_sa.isac__bottleneck__adaptive().update(config)
         env_master = gallery.evaluate__fix_svo__two_background__bottleneck(config, 0.8, 0.5,mode)
 
-    elif version == 'v7-1-0':  ### fix_randoms_svo, test 
+    elif version == 'v7-0-2':  ### fix_randoms_svo, test 
         if mode != 'evaluate':
             raise NotImplementedError
 
         config.description += '--fix_randoms_svo_background__bottleneck'
         models_sa.svos_as_action__bottleneck__adaptive().update(config)
         env_master = gallery.ray_recog__dynamic_action_background__bottleneck(config, mode)
-
-    elif version == 'v7-2-0': 
+    
+    elif version == 'v7-0-3': #isac
         if mode != 'evaluate':
             raise NotImplementedError
         import numpy as np
@@ -594,6 +594,21 @@ def main():
                 del env_master
                 ray.shutdown()
                 ray.init(num_cpus=psutil.cpu_count(), num_gpus=torch.cuda.device_count(), include_dashboard=False)
+        return
+
+    elif version == 'v7-1-0':   #v6-4-1
+        if mode != 'evaluate':
+            raise NotImplementedError
+        #v6-4-1
+        config.description += '--recog__in_method'
+        models_sa.isac_recog__bottleneck__adaptive().update(config)
+        env_master = gallery.evaluate__isac_recog__one_background__bottleneck(config, mode)
+        env_master.create_tasks(func=run_one_episode)
+        ray.get([t.run.remote(n_iters=200) for t in env_master.tasks])
+        del env_master
+        ray.shutdown()
+        ray.init(num_cpus=psutil.cpu_count(), num_gpus=torch.cuda.device_count(), include_dashboard=False)
+        import numpy as np
         for ego_svo in np.linspace(0, 0, num=1):
             for other_svo in np.linspace(0, 1, num=11):
                 ego_svo = round(ego_svo,1)
@@ -605,8 +620,7 @@ def main():
                 ray.get([t.run.remote(n_iters=200) for t in env_master.tasks])
                 del env_master
                 ray.shutdown()
-                ray.init(num_cpus=psutil.cpu_count(), num_gpus=torch.cuda.device_count(), include_dashboard=False)
-        return
+                ray.init(num_cpus=psutil.cpu_count(), num_gpus=torch.cuda.device_count(), include_dashboard=False)  
     
     elif version == 'v7-2-1':  ##corresponding to v6-6-2
         if mode != 'evaluate':
