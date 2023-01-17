@@ -222,7 +222,10 @@ class supervise__bottleneck__adaptive(ModelPath):
     #2023-1
     model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveSingleAgent/2023-01-07-20:37:27----Nothing--supervise-offline-hrz10-act1/saved_models_method'
     model_num = 1028000
-
+class supervise_woattn_bottleneck__adaptive(ModelPath):
+    model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveSingleAgent/2023-01-14-16:24:28----Nothing--supervise-offline-woattn/saved_models_method'
+    model_num = 1832000
+    
 class supervise__bottleneck__adaptive__given_number(ModelPath):
     def update(self, config: rllib.basic.YamlConfig, model_num):
         self.model_num = model_num

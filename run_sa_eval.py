@@ -689,9 +689,18 @@ def main():
                 ray.init(num_cpus=psutil.cpu_count(), num_gpus=torch.cuda.device_count(), include_dashboard=False)
         return
     
-    elif version == 'v7-3-0':  ##supervise learning
+    elif version == 'v7-3-0':  ##supervise learning 
         if mode != 'evaluate':
             raise NotImplementedError
+
+        config.description += '--supervise_offline'
+        models_sa.supervise__bottleneck__adaptive().update(config)
+        env_master = gallery.evaluate__supervise__one_background__bottleneck(config, mode)
+        env_master.create_tasks(func=run_one_episode)
+        ray.get([t.run.remote(n_iters=200) for t in env_master.tasks])
+        del env_master
+        ray.shutdown()
+        ray.init(num_cpus=psutil.cpu_count(), num_gpus=torch.cuda.device_count(), include_dashboard=False)
         import numpy as np
         for ego_svo in np.linspace(0, 0, num=1):
             for other_svo in np.linspace(0, 1, num=11):
@@ -700,6 +709,31 @@ def main():
                 config.description = 'evaluate' + '--fix_{}_{}__supervise_action'.format(ego_svo, other_svo)
                 models_sa.supervise__bottleneck__adaptive().update(config)
                 env_master = gallery.ray_fix_svo__supervise__bottleneck(config, ego_svo, other_svo,mode)
+                env_master.create_tasks(func=run_one_episode)
+                ray.get([t.run.remote(n_iters=200) for t in env_master.tasks])
+                del env_master
+                ray.shutdown()
+                ray.init(num_cpus=psutil.cpu_count(), num_gpus=torch.cuda.device_count(), include_dashboard=False)
+        return
+    elif version == 'v7-3-1':  ##supervise learning + without attention
+        if mode != 'evaluate':
+            raise NotImplementedError
+        import numpy as np
+        config.description += '--supervise_offline_woattn'
+        models_sa.supervise_woattn_bottleneck__adaptive().update(config)
+        env_master = gallery.evaluate__supervise_woattn__one_background__bottleneck(config, mode)
+        env_master.create_tasks(func=run_one_episode)
+        ray.get([t.run.remote(n_iters=200) for t in env_master.tasks])
+        del env_master
+        ray.shutdown()
+        ray.init(num_cpus=psutil.cpu_count(), num_gpus=torch.cuda.device_count(), include_dashboard=False)
+        for ego_svo in np.linspace(0, 0, num=1):
+            for other_svo in np.linspace(0, 1, num=11):
+                ego_svo = round(ego_svo,1)
+                other_svo = round(other_svo,1)
+                config.description = 'evaluate' + '--fix_{}_{}__supervise_woattn'.format(ego_svo, other_svo)
+                models_sa.supervise_woattn_bottleneck__adaptive().update(config)
+                env_master = gallery.ray_fix_svo__supervise_woattn_bottleneck(config, ego_svo, other_svo,mode)
                 env_master.create_tasks(func=run_one_episode)
                 ray.get([t.run.remote(n_iters=200) for t in env_master.tasks])
                 del env_master
