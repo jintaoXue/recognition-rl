@@ -158,7 +158,7 @@ def main():
 
     elif version == 'v6-4-1':
         scale = 1
-        config.description += '--isac_recog__new_adaptive'
+        config.description += '--RILMthM'
         writer, env_master, method = gallery.ray_isac_recog__new_adaptive_background__bottleneck(config, mode, scale)
 
     elif version == 'v6-4-2':
@@ -235,7 +235,7 @@ def main():
     
     elif version == 'v6-6-2':
         scale = 1   
-        config.description += '--recog__dynamic_action'
+        config.description += '--RILEnvM'
         writer, env_master, method = gallery.ray_recog__dynamic_action_background__bottleneck(config, mode, scale)
     elif version == 'v6-6-3':
         scale = 1

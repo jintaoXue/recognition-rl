@@ -8,8 +8,8 @@ import torch
 
 class RewardFunctionNoCharacter(universe.RewardFunc):
     def run_step(self, state, action, agents_master: universe.AgentsMaster, episode_info):
-        REWARD_C = -1000
-        REWARD_B = -1000
+        REWARD_C = -500
+        REWARD_B = -500
         collision = episode_info.collision
         off_road = episode_info.off_road
         off_route = episode_info.off_route

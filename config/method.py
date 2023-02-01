@@ -166,7 +166,7 @@ config_recog_action_svo_woattn = rllib.basic.YamlConfig(
 
 config_recog_action_multi_svo = rllib.basic.YamlConfig(
     net_actor_fe=RecogNetMultiSVO,
-    net_critic_fe=RecogNetMultiSVO,
+    net_critic_fe=RecogNetSVO,
     buffer=ReplayBufferSingleAgent,
     **config_meta.to_dict(),
 )

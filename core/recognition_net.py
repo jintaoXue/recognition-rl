@@ -639,7 +639,7 @@ class RecogNetSvoWoattn(rllib.template.Model):
         character_embedding = self.character_embedding(state.character.unsqueeze(1))
         outputs = torch.cat([outputs, character_embedding], dim=1)
         return outputs
-'''output a single svo(all the obstacles have same/different svos)'''
+'''output Multi svo(all the obstacles have same/different svos)'''
 class RecogNetMultiSVO(rllib.template.Model):
     def __init__(self, config, model_id=0):
         super().__init__(config, model_id)
@@ -732,7 +732,8 @@ class RecogNetMultiSVO(rllib.template.Model):
         # if(len(outputs.shape) == 2 or len(character_embed.shape) == 2):breakpoint()
         outputs = torch.cat([outputs, character_embed], dim=2)
         return outputs
-
+class RecogNetCritic(rllib.template.Model):
+    pass
 class RecogNetMultiSVOWoattn(rllib.template.Model):
     def __init__(self, config, model_id=0):
         super().__init__(config, model_id)

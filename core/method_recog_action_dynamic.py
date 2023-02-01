@@ -227,12 +227,11 @@ class Actor(rllib.template.Model):
         self.mean_no = nn.Tanh()
         self.std_no = nn.Tanh()
         #todo
-        config.set('dim_action', 1)
+        config.set('dim_action', 19)
         #self.dim_action evaluate的时候需要修改
-        self.dim_action = 1
-        self.max_other_vehicles = 19
+        self.dim_action = 19
         self.fe = config.get('net_actor_fe', FeatureExtractor)(config, 0)
-        self.mean = config.get('net_actor_fm', FeatureMapper)(config, 0 ,self.fe.dim_feature, config.dim_action)
+        self.mean = config.get('net_actor_fm', FeatureMapper)(config, 0 ,self.fe.dim_feature, 1)
         self.std = copy.deepcopy(self.mean)
         self.apply(init_weights)
 
@@ -243,11 +242,12 @@ class Actor(rllib.template.Model):
         mean = self.mean(x)
         mean = self.mean_no(mean)
         logstd = self.std_no(self.std(x))
+        # print('in forward',logstd)
         #to do
         mean = torch.cat([mean, torch.full((len(x), \
-            self.max_other_vehicles - num_svo, self.dim_action), -1.0).to(self.device)], dim = 1)
+            self.dim_action - num_svo,1), -1.0).to(self.device)], dim = 1)
         logstd = torch.cat([logstd, torch.full((len(x), \
-            self.max_other_vehicles- num_svo,self.dim_action), -1.0).to(self.device)], dim = 1)
+            self.dim_action - num_svo,1), -1.0).to(self.device)], dim = 1)
         logstd = (self.logstd_max-self.logstd_min) * logstd + (self.logstd_max+self.logstd_min)
         #torch.isnan(x).any()
         # if torch.isnan(mean).any() :
@@ -264,7 +264,8 @@ class Actor(rllib.template.Model):
     def sample(self, state):
         mean, logstd= self(state)
         num_svo = state.obs_character.shape[1]
-        if num_svo == 0 : return mean, torch.tensor(-1.0, dtype=torch.float32, device=self.device), mean
+        if num_svo == 0 : return mean, torch.tensor(0.0, dtype=torch.float32, device=self.device), mean
+
         cov = torch.diag_embed(torch.exp(logstd[:,:num_svo]))
         dist = MultivariateNormal(mean[:,:num_svo], cov)
         u = dist.rsample()
@@ -276,6 +277,8 @@ class Actor(rllib.template.Model):
         action = torch.tanh(u)
         # logprob = dist.log_prob(u)[:,:num_svo].sum(-1).unsqueeze(1) \
         #         - torch.log(1 - action[:,:num_svo].pow(2) + 1e-6).sum(dim=1)
+        # kkk = dist.log_prob(u).sum(-1).unsqueeze(1)
+        # print("in sample log std", kkk)
         logprob = dist.log_prob(u).sum(-1).unsqueeze(1) \
                 - torch.log(1 - action.pow(2) + 1e-6).sum(dim=1)
         # print('logprob ', logprob)
@@ -301,8 +304,8 @@ class Actor(rllib.template.Model):
 class Critic(rllib.template.Model):
     def __init__(self, config, model_id=0):
         super().__init__(config, model_id)
-        config.set('dim_action', 1)
-        self.dim_action = 1
+        config.set('dim_action', 19)
+        self.dim_action = 19
         # self.recog = config.get('net_actor_recog', RecognitionNet)(config, 0)
         self.fe = config.get('net_critic_fe', FeatureExtractor)(config, 0)
         self.fm1 = config.get('net_critic_fm', FeatureMapper)(config, 0, self.fe.dim_feature+self.dim_action, 1)
@@ -314,33 +317,22 @@ class Critic(rllib.template.Model):
         #####
         # x = self.fe(state, obs_character)
         x = self.fe(state)
-        num_svo = x.shape[1]
-        action = action[:,0:num_svo]
-        x = torch.cat([x,action], dim=2)
+        # num_svo = x.shape[1]
+        # action = action[:,0:num_svo]
+        x = torch.cat([x,action.squeeze(-1)], dim=1)
         # if torch.any(torch.isinf(action)) or torch.any(torch.isnan(action)): breakpoint()
         # if torch.any(torch.isinf(x)) or torch.any(torch.isnan(x)): breakpoint()
-        return torch.mean(self.fm1(x),dim=1), torch.mean(self.fm2(x),dim=1)
+        return self.fm1(x), self.fm2(x)
     
     def q1(self, state, action):
         # obs_character = self.recog(state)
         #####
         # x = self.fe(state, obs_character)
         x = self.fe(state)
-        num_svo = x.shape[1]
-        action = action[:,0:num_svo]
-        x = torch.cat([x,action], dim=2)
+        x = torch.cat([x,action.squeeze(-1)], dim=1)
         # if torch.any(torch.isinf(action)) or torch.any(torch.isnan(action)): breakpoint()
         # if torch.any(torch.isinf(x)) or torch.any(torch.isnan(x)): breakpoint()
-        return torch.mean(x, dim=1)
-        # x = self.fe(state)
-        # num_svo = x.shape[1]
-        # list_fm1 = []
-
-        # for i in range(0, num_svo):
-        #     x_ = torch.cat([x[:,i],action[:,i:i+1]], dim=1)
-        #     list_fm1.append(self.fm1(x_))
-
-        # return torch.mean(torch.cat(list_fm1, dim=1),dim=1).unsqueeze(1)
+        return self.fm1(x)
     # def forward(self, state, action):
     #     x = self.fe(state)
     #     x = torch.cat([x, action], 1)
