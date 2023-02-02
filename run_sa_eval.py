@@ -533,7 +533,7 @@ def main():
         if mode != 'evaluate':
             raise NotImplementedError
 
-        config.description += '--supervise__one_background__bottleneck-hr10act1'
+        config.description += '--ILAttn'
         models_sa.supervise__bottleneck__adaptive().update(config)
         env_master = gallery.evaluate__supervise__one_background__bottleneck(config, mode)
     
@@ -594,7 +594,7 @@ def main():
         models_sa.svos_as_action__bottleneck__adaptive().update(config)
         env_master = gallery.ray_recog__dynamic_action_background__bottleneck(config, mode)
     
-    elif version == 'v7-0-3': #isac
+    elif version == 'v7-0-3': #isac v5-2-1
         if mode != 'evaluate':
             raise NotImplementedError
         import numpy as np
