@@ -10,7 +10,7 @@ from universe.carla.dataset import DatasetInteractive as dataset_cls
 from utils import scenarios_template
 from utils import scenarios_bottleneck
 from utils import perception_downsample
-
+from utils import agents_master
 from config import bottleneck
 
 
@@ -79,6 +79,11 @@ config_env__neural_background_same_other_svo.scenario_cls = scenarios_bottleneck
 config_env__new_action_same_other = copy.copy(bottleneck.config_env__new_action_background)
 config_env__new_action_same_other.update(config_env_evaluate)
 config_env__new_action_same_other.scenario_cls = scenarios_bottleneck.ScenarioBottleneckEvaluateFixOtherSvo
+
+config_env__multiact__mixbkgrd = copy.copy(bottleneck.config_env__multiact__mixbkgrd)
+config_env__multiact__mixbkgrd.update(config_env_evaluate)
+config_env__multiact__mixbkgrd.scenario_cls = scenarios_bottleneck.ScenarioBottleneckDiverseEvaluate
+# config_env__multiact__mixbkgrd.rule_vehicle_cls = agents_master.EndToEndVehicleWithCharacterBackground
 
 config_env__new_action_multi_svo_same_other_svo = copy.copy(bottleneck.config_env__new_action_multi_svo)
 config_env__new_action_multi_svo_same_other_svo.update(config_env_evaluate)

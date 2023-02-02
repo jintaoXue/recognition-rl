@@ -7,7 +7,7 @@ import tqdm
 import pickle
 import psutil
 import torch
-
+import copy
 
 
 def run_one_episode(env, method):
@@ -53,9 +53,20 @@ if __name__ == "__main__":
     #     merge.config_env__with_character,
     #     roundabout.config_env__with_character,
     # ])
-    config.set('envs', [
-        bottleneck.config_env__with_character_fix_other_svo,
-    ])
+    if version == 'v6-6-2':
+        config.set('envs', [
+            bottleneck.config_env__with_character_fix_other_svo,
+        ])
+    elif version == 'v6-6-2-1':
+        import gallery_sa
+        config_env__adaptive = copy.deepcopy(bottleneck.config_env__multiact__mixbkgrd)
+        config_env__adaptive.set('config_neural_policy_ours', gallery_sa.get_sac__bottleneck__new_action_config(config))
+        config_env__adaptive.set('config_neural_policy_robust', gallery_sa.get_sac__bottleneck__robust_character_config(config))
+        config_env__adaptive.set('config_neural_policy_flow', gallery_sa.get_sac__bottleneck__no_character_config(config))
+
+        config.set('envs', [
+            config_env__adaptive,
+        ])
     
     for env in config.envs:
         env.set('num_vehicles_range', rllib.basic.BaseData(min=20, max=20))

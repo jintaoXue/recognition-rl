@@ -45,8 +45,8 @@ class RecogV2(MethodSingleAgent):
     buffer_size = 700000
     batch_size = 128
 
-    # start_timesteps = 100000
-    start_timesteps = 128 ## ! warning
+    start_timesteps = 100000
+    # start_timesteps = 128 ## ! warning
     before_training_steps = 0
 
     save_model_interval = 1000

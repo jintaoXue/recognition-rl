@@ -1,12 +1,12 @@
 import rllib
 import universe
-
+import copy
 
 import numpy as np
 import os
 from typing import Dict
 import random
-
+from .agents_master import AgentListMaster
 from .scenarios_template import ScenarioRandomization, ScenarioRandomization_fix_svo
 
 
@@ -56,9 +56,22 @@ class ScenarioBottleneck(universe.Scenario):
         self.special_spawn_transforms = {st: special_spawn_transforms[st] for st in _special_spawn_transforms}
         return
 
-
-
-
+#diverse policy to controll the agent
+class ScenarioBottleneckDiverse(ScenarioBottleneck):
+    def register_agents(self, agents_master: universe.AgentsMaster):
+        for vi in range(self.scenario_randomization.num_vehicles):
+            config_vehicle = copy.copy(self.config.config_vehicle)
+            config_vehicle.set('decision_frequency', self.config.decision_frequency)
+            config_vehicle.set('control_frequency', self.config.control_frequency)
+            config_vehicle.set('perception_range', self.config.perception_range)
+            vehicle_cls = agents_master.get_vehicle_cls(num_agents=self.num_agents)
+            vehicle = vehicle_cls(config_vehicle, **self.scenario_randomization[vi].to_dict())
+            agents_master.register_vehicle(vehicle)
+        controll_types = self.scenario_randomization.controll_types
+        agents_master.control_types_num['robust'] = np.count_nonzero(controll_types == 1)
+        agents_master.control_types_num['flow'] = np.count_nonzero(controll_types == 2)
+        agents_master.control_types_num['idm'] = np.count_nonzero(controll_types == 3)
+        return
 
 
 
@@ -150,4 +163,31 @@ class ScenarioBottleneckEvaluateFixOtherSvo(ScenarioBottleneckEvaluate):  ### on
         self.scenario_randomization.characters[0] = 0.0
         # self.scenario_randomization.characters[1:] = self.scenario_randomization.characters[1]
         print(rllib.basic.prefix(self) + f'characters {self.step_reset}: ', self.scenario_randomization.characters)
+        return
+
+#include recog robust flow ......
+class ScenarioBottleneckDiverseEvaluate(ScenarioBottleneckEvaluate):  ### only for single-agent
+    def generate_scenario_randomization(self):
+        scenario_randomization_cls = self.config.get('scenario_randomization_cls', ScenarioRandomization)
+        # breakpoint()
+        dir_path = os.path.join(self.config.dataset_dir.map, f'../scenario_offline/{self.config.scenario_name}')
+        file_path = os.path.join(dir_path, f'{self.step_reset}.txt')
+        self.scenario_randomization = scenario_randomization_cls.load(file_path)
+        self.scenario_randomization.characters[0] = 0.0
+        # self.scenario_randomization.characters[1:] = self.scenario_randomization.characters[1]
+        print(rllib.basic.prefix(self) + f'characters {self.step_reset}: ', self.scenario_randomization.characters)
+        return
+    def register_agents(self, agents_master: universe.AgentsMaster):
+        for vi in range(self.scenario_randomization.num_vehicles):
+            config_vehicle = copy.copy(self.config.config_vehicle)
+            config_vehicle.set('decision_frequency', self.config.decision_frequency)
+            config_vehicle.set('control_frequency', self.config.control_frequency)
+            config_vehicle.set('perception_range', self.config.perception_range)
+            vehicle_cls = agents_master.get_vehicle_cls(num_agents=self.num_agents)
+            vehicle = vehicle_cls(config_vehicle, **self.scenario_randomization[vi].to_dict())
+            agents_master.register_vehicle(vehicle)
+        controll_types = self.scenario_randomization.controll_types
+        agents_master.control_types_num['robust'] = np.count_nonzero(controll_types == 1)
+        agents_master.control_types_num['flow'] = np.count_nonzero(controll_types == 2)
+        agents_master.control_types_num['idm'] = np.count_nonzero(controll_types == 3)
         return

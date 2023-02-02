@@ -1,4 +1,5 @@
 from matplotlib.pyplot import axis
+from pyparsing import actions
 import rllib
 
 import numpy as np
@@ -6,12 +7,13 @@ import copy
 import torch
 
 import universe
+from universe.common.color import ColorLib
 from universe.common.vehicle import Vehicle
-from universe.common.vehicle_neural import EndToEndVehicle
+from universe.common.vehicle_neural import NeuralVehicle,EndToEndVehicle
 from universe.common.vehicle_rule import IdmVehicle, RuleVehicle
 from universe.common.topology_map import TopologyMap
 from universe.perception import Perception
-
+from typing import List
 
 class EndToEndVehicleWithCharacter(EndToEndVehicle):
     def __init__(self, config, vi, global_path, transform, character):
@@ -24,6 +26,14 @@ class EndToEndVehicleWithCharacter(EndToEndVehicle):
         y = str(round(state.y, 2))
         character = str(np.round(self.character, 2))
         return str(type(self))[:-1] + f' vi: {self.vi}, x: {x}, y: {y}, svo: {character}>'
+
+#the vehicle with diverse type such as flow, robust 
+#thus the vehicle is controll by different policy in a same scenario
+class EndToEndVehicleDiverse(EndToEndVehicleWithCharacter) :
+    # type = flow, robust
+    def __init__(self, config, vi, global_path, transform, character, control_type):
+        super().__init__(config, vi, global_path, transform, character)
+        self.control_type = control_type
 
 class IdmVehicleWithCharacter(IdmVehicle):
     def __init__(self, config, vi, global_path, transform, character):
@@ -39,10 +49,6 @@ class IdmVehicleWithCharacter(IdmVehicle):
         if hasattr(self, 'leading_vehicle') and self.leading_vehicle != None:
             leading_vi = self.leading_vehicle.vi
         return str(type(self))[:-1] + f' vi: {self.vi}, x: {x}, y: {y}, v: {v}, leading: {leading_vi}>'
-
-
-
-
 
 class EndToEndVehicleWithCharacterBackground(RuleVehicle):
     dim_action = 2
@@ -76,12 +82,19 @@ class EndToEndVehicleWithCharacterBackground(RuleVehicle):
         character = str(np.round(self.character, 2))
         return str(type(self))[:-1] + f' vi: {self.vi}, x: {x}, y: {y}, v: {v}, svo: {character}>'
 
-
-
-
-
-
-
+class EndToEndVehicleBackgroundDiverse(EndToEndVehicleWithCharacterBackground) :
+    # type = flow, robust
+    def __init__(self, config, vi, global_path, transform, character, control_type):
+        super().__init__(config, vi, global_path, transform, character)
+        self.control_type = control_type
+    def __str__(self):
+        state = copy.deepcopy(self.get_state())
+        x = str(round(state.x, 2))
+        y = str(round(state.y, 2))
+        v = str(round(state.v, 2))
+        character = str(np.round(self.character, 2))
+        control_type = str(self.control_type)
+        return str(type(self))[:-1] + f' vi: {self.vi}, x: {x}, y: {y}, v: {v}, svo: {character}, control_type:{control_type}>'
 
 
 class AgentListMaster(universe.AgentsMaster):
@@ -163,12 +176,6 @@ class AgentListMasterNeuralBackground(AgentListMaster):
         return
     
 
-
-
-
-
-
-
 class AgentListMasterNeuralBackgroundManualTuneSVOCoPO(AgentListMasterNeuralBackground):
     """
         Only for multi agent without vehicles_rule.
@@ -221,11 +228,6 @@ class AgentListMasterNeuralBackgroundManualTuneSVOCoPO(AgentListMasterNeuralBack
         for vehicle in vehicles:
             vehicle.tick()
         return
-
-
-
-
-
 
 
 class AgentListMasterNeuralBackgroundManualTuneSVOCoPOAdv(AgentListMasterNeuralBackground):
@@ -394,3 +396,107 @@ class AgentListMasterNeuralBackgroundRecogMultiSVO(AgentListMasterNeuralBackgrou
         for vehicle in vehicles:
             vehicle.tick()
         return
+
+
+
+###########for mix agent including copo, flow
+
+class AgentListMasterSVOasActMixbackgrd(AgentListMaster):
+    def __init__(self, config: rllib.basic.YamlConfig, topology_map, **kwargs):
+        super().__init__(config, topology_map, **kwargs)
+        ##ours for ego agent 
+        config_neural_policy_ours = config.config_neural_policy_ours
+        config_neural_policy_ours.set('dim_state', config.dim_state)
+        config_neural_policy_ours.set('dim_action', config.dim_action)
+        ##robust
+        config_neural_policy_robust = config.config_neural_policy_robust
+        config_neural_policy_robust.set('dim_state', config.dim_state)
+        config_neural_policy_robust.set('dim_action', config.dim_action)
+        #flow
+        config_neural_policy_flow = config.config_neural_policy_flow
+        config_neural_policy_flow.set('dim_state', config.dim_state)
+        config_neural_policy_flow.set('dim_action', config.dim_action)
+
+        # core.model_vectornet.ReplayBufferMultiAgentMultiWorker -> buffer 
+        self.buffer_cls = config_neural_policy_robust.buffer
+        self.device = config_neural_policy_robust.device
+
+        #policy
+        # from core.recognition_net import Actor
+        from core.recognition_net import Actor
+        self.neural_policy_ours = Actor(config_neural_policy_ours).to(self.device)
+        self.neural_policy_robust = rllib.sac.Actor(config_neural_policy_robust).to(self.device)
+        self.neural_policy_flow = rllib.sac.Actor(config_neural_policy_flow).to(self.device)
+        self.neural_policy_ours.load_model()
+        self.neural_policy_robust.load_model()
+        self.neural_policy_flow.load_model()
+        self.control_types_num = {
+            "robust": 0,
+            "flow": 0,
+            "idm": 0, 
+            }
+        self.state = rllib.basic.data.Data()
+
+    def observe(self, step_reset, time_step):
+        if time_step == 0:
+            for vehicle in self.vehicles_neural + self.vehicles_rule:
+                self.vehicle_states[vehicle.vi, :self.horizon-1] = self.get_vehicle_state.run_step(vehicle)
+                self.vehicle_masks[vehicle.vi, :self.horizon-1] = 1
+        
+        for vehicle in self.vehicles_neural + self.vehicles_rule:
+            self.vehicle_states[vehicle.vi, time_step + self.horizon-1] = self.get_vehicle_state.run_step(vehicle)
+            self.vehicle_masks[vehicle.vi, time_step + self.horizon-1] = 3
+
+        vehicle_states = self.vehicle_states[:, time_step:time_step+self.horizon]
+        vehicle_masks = self.vehicle_masks[:, time_step:time_step+self.horizon]
+
+        state = self.perception.run_step(step_reset, time_step, self.vehicles_neural + self.vehicles_rule, vehicle_states, vehicle_masks)
+        self.state_neural_nackground = state[1:]
+        self.state = state[0]
+        # breakpoint()
+        return [state[0]]
+
+    def run_step(self, obs_svos):
+        """
+        Args:
+            obs_svos: torch.Size([batch, self.max_obs_vehicle])
+        """
+        # assert len(obs_svos) == len(self.vehicles_neural)
+        #froms
+
+        obs_svos = obs_svos[:,:len(self.state.obs_character)]
+        obs_svos = torch.from_numpy(obs_svos).to(self.device)
+        # obs_svos = np.expand_dims(obs_svos, axis=-1)
+        state = self.state.to_tensor().unsqueeze(0)
+        # print('agent master obs_svos', obs_svos.shape)
+        references = self.neural_policy_ours.forward_with_svo(state.to(self.device), obs_svos.to(self.device))
+        state_bg = [s.to_tensor().unsqueeze(0) for s in self.state_neural_nackground]
+
+        if len(state_bg) > 0:
+            states_bg = rllib.buffer.stack_data(state_bg)
+            self.buffer_cls.pad_state(None, states_bg)
+            states_bg = states_bg.cat(dim=0)
+            actions_bg =  self.get_action_bg(states_bg)
+            # actions_bg, _, _ = self.neural_policy.sample(states_bg.to(self.device))
+            # actions_bg = actions_bg.detach().cpu().numpy()
+        else:
+            actions_bg = []
+        
+        vehicles = self.vehicles_neural + self.vehicles_rule
+        references = references.detach().cpu().numpy()
+        targets_neural = [vehicle.get_target(reference) for vehicle, reference in zip(self.vehicles_neural, references)]
+        targets_rule = [vehicle.get_target(action_bg) for vehicle, action_bg in zip(self.vehicles_rule, actions_bg)]
+        targets = targets_neural + targets_rule
+        for _ in range(self.skip_num):
+            for vehicle, target in zip(vehicles, targets):
+                control = vehicle.get_control(target)
+                vehicle.forward(control)
+        for vehicle in vehicles:
+            vehicle.tick()
+        return
+    def get_action_bg(self, states_bg):
+        index_0 = self.control_types_num['robust']
+        index_1 = self.control_types_num['robust'] + self.control_types_num['flow']
+        actions_bg_robust, _, _ = self.neural_policy_robust.sample(states_bg[0:index_0].to(self.device))
+        actions_bg_flow,_,_ = self.neural_policy_flow.sample(states_bg[index_0:index_1].to(self.device))
+        return torch.cat([actions_bg_robust,actions_bg_flow], axis=0)

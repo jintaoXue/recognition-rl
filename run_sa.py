@@ -237,6 +237,13 @@ def main():
         scale = 1   
         config.description += '--RILEnvM'
         writer, env_master, method = gallery.ray_recog__dynamic_action_background__bottleneck(config, mode, scale)
+    
+    elif version == 'v6-6-2-1':
+        scale = 1   
+        config.description += '--RILEnvM-mix_background'
+        writer, env_master, method = gallery.ray_RILEnvM__mix_background__bottleneck(config, mode, scale)
+
+    
     elif version == 'v6-6-3':
         scale = 1
         config.description += '--recog_woattn__dynamic_action'

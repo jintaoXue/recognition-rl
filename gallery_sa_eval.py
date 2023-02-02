@@ -983,6 +983,30 @@ def ray_recog__dynamic_action_background__bottleneck(config, mode='train',scale=
         config.set('methods', [config_method])
 
         return init(config, mode, Env, Method)
+
+def ray_RILEnvM__mix_background__bottleneck(config, mode='train', scale=1):
+    from universe import EnvInteractiveSingleAgent as Env
+    #todo
+    from core.method_recog_action_dynamic import RecogV2 as Method
+    
+    from config.bottleneck_evaluate import config_env__multiact__mixbkgrd
+
+    ### adaptive
+    config_env__adaptive = copy.deepcopy(config_env__multiact__mixbkgrd)
+    config_env__adaptive.set('config_neural_policy_ours', get_sac__bottleneck__new_action_config(config))
+    config_env__adaptive.set('config_neural_policy_robust', get_sac__bottleneck__robust_character_config(config))
+    config_env__adaptive.set('config_neural_policy_flow', get_sac__bottleneck__no_character_config(config))
+
+    config.set('envs', [
+        config_env__adaptive,
+    ])
+
+    ### method param
+    from config.method import config_recog_action_multi_svo as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env, Method)
+
 def ray_recog__new_action_background__bottleneck(config, mode='train',scale=1):
         from universe import EnvInteractiveSingleAgent as Env
 

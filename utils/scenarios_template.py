@@ -1,3 +1,4 @@
+from matplotlib.pyplot import axis
 import rllib
 import universe
 
@@ -41,9 +42,28 @@ class ScenarioRandomization_share_character(ScenarioRandomization):
         # print(rllib.basic.prefix(self) + 'characters: ', characters)
         return characters
 
+#diverse controll policy for background agent
+class ScenarioRandomizationDivese(universe.ScenarioRandomization):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
+        self.characters = self.get_characters()
+        self.controll_types = self.get_control_type()
+    def get_characters(self):
+        characters = np.random.uniform(0,1, size=self.num_vehicles)
+        # print(rllib.basic.prefix(self) + 'characters: ', characters)
+        return characters.astype(np.float32)
 
+    def get_control_type(self):
+        #0是ego policy, 1是flow, 2是robust
+        control_types = np.random.randint(1,3, size=self.num_vehicles)
+        control_types = np.sort(control_types,axis=0)
+        control_types[0] = 0
+        return control_types.astype(np.int32)
 
+    def __getitem__(self, vi):
+        return super().__getitem__(vi) + \
+            rllib.basic.BaseData(character=self.characters[vi], control_type = self.controll_types[vi])
 
 
 

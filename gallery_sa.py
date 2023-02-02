@@ -61,6 +61,7 @@ def get_sac__new_bottleneck__adaptive_character_config(config):
         buffer=ReplayBuffer,
     )
     return config_neural_policy
+
 def get_sac__bottleneck__new_action_config(config):
     from core.method_isac_v0 import IndependentSAC_v0 as Method
     from core.model_vectornet import ReplayBufferMultiAgentMultiWorker as ReplayBuffer
@@ -86,6 +87,7 @@ def get_sac__bottleneck__new_action_config(config):
     )
     return config_neural_policy
 
+
 def get_sac__bottleneck__adaptive_character_config(config):
     from core.method_isac_v0 import IndependentSAC_v0 as Method
     from core.model_vectornet import ReplayBufferMultiAgentMultiWorker as ReplayBuffer
@@ -97,9 +99,7 @@ def get_sac__bottleneck__adaptive_character_config(config):
         # model_dir='~/github/zdk/recognition-rl/results/IndependentSAC_v0-EnvInteractiveMultiAgent/2022-09-11-15:19:29----ray_isac_adaptive_character__multi_scenario--buffer-rate-0.2/saved_models_method',
         model_dir='~/github/zdk/recognition-rl/models/IndependentSAC_v0-EnvInteractiveMultiAgent/2022-09-11-15:19:29----ray_isac_adaptive_character__multi_scenario--buffer-rate-0.2/saved_models_method',
         
-
         model_num=865800,
-
 
         device=torch.device('cuda:0' if torch.cuda.is_available() else 'cpu'),
         net_actor_fe=FeatureExtractor,
@@ -1037,7 +1037,7 @@ def ray_recog__new_action_woattn_background__bottleneck(config, mode='train', sc
     from core.method_recog_new_action import RecogV1 as Method
     
     ### env param
-    from config.bottleneck import config_env__new_action_background as config_bottleneck
+    from config.bottleneck import config_env__neural_background as config_bottleneck
     config_bottleneck.set('config_neural_policy', get_sac__bottleneck__new_action_config(config))
 
     config.set('envs', [
@@ -1062,6 +1062,29 @@ def ray_recog__dynamic_action_background__bottleneck(config, mode='train', scale
     config.set('envs', [
         config_bottleneck
     ] *scale)
+
+    ### method param
+    from config.method import config_recog_action_multi_svo as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env, Method)
+
+def ray_RILEnvM__mix_background__bottleneck(config, mode='train', scale=1):
+    from universe import EnvInteractiveSingleAgent as Env
+    #todo
+    from core.method_recog_action_dynamic import RecogV2 as Method
+    
+    from config.bottleneck import config_env__multiact__mixbkgrd
+
+    ### adaptive
+    config_env__adaptive = copy.deepcopy(config_env__multiact__mixbkgrd)
+    config_env__adaptive.set('config_neural_policy_ours', get_sac__bottleneck__new_action_config(config))
+    config_env__adaptive.set('config_neural_policy_robust', get_sac__bottleneck__robust_character_config(config))
+    config_env__adaptive.set('config_neural_policy_flow', get_sac__bottleneck__no_character_config(config))
+
+    config.set('envs', [
+        config_env__adaptive,
+    ])
 
     ### method param
     from config.method import config_recog_action_multi_svo as config_method
