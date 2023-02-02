@@ -536,6 +536,14 @@ def main():
         config.description += '--supervise__one_background__bottleneck-hr10act1'
         models_sa.supervise__bottleneck__adaptive().update(config)
         env_master = gallery.evaluate__supervise__one_background__bottleneck(config, mode)
+    
+    elif version == 'v6-5-1-1':  ### adaptive + supervise + copo flow backgrounds
+        if mode != 'evaluate':
+            raise NotImplementedError
+
+        config.description += '--ILAttn_mix_background'
+        models_sa.supervise__bottleneck__adaptive().update(config)
+        env_master = gallery.ray_ILAttn__mix_background__bottleneck(config, mode)
 
     elif version == 'v6-6-0': 
         if mode != 'evaluate':

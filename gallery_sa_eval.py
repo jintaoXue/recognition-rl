@@ -940,6 +940,28 @@ def evaluate__supervise__one_background__bottleneck(config, mode='train', scale=
         config.set('methods', [config_method])
 
         return init(config, mode, Env, Method)
+
+def ray_ILAttn__mix_background__bottleneck(config, mode='train', scale=1):
+    #to do
+    from universe import EnvInteractiveSingleAgent as Env
+    from core.method_supervise import IndependentSACsupervise as Method
+
+    from config.bottleneck_evaluate import config_env__multiact__mixbkgrd
+
+    ### adaptive
+    config_env__adaptive = copy.deepcopy(config_env__multiact__mixbkgrd)
+    config_env__adaptive.set('config_neural_policy_ours', get_sac__bottleneck__new_action_config(config))
+    config_env__adaptive.set('config_neural_policy_robust', get_sac__bottleneck__robust_character_config(config))
+    config_env__adaptive.set('config_neural_policy_flow', get_sac__bottleneck__no_character_config(config))
+
+    config.set('envs', [
+        config_env__adaptive,
+    ])
+    ### method param
+    from config.method import config_supervise as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env, Method)
 def evaluate__supervise_woattn__one_background__bottleneck(config, mode='train', scale=1):
     #to do
         from universe import EnvInteractiveSingleAgent as Env
