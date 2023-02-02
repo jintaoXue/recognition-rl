@@ -80,6 +80,12 @@ config_env__new_action_same_other = copy.copy(bottleneck.config_env__new_action_
 config_env__new_action_same_other.update(config_env_evaluate)
 config_env__new_action_same_other.scenario_cls = scenarios_bottleneck.ScenarioBottleneckEvaluateFixOtherSvo
 
+#ILAttn
+config_env__neural_background_mix = copy.copy(bottleneck.config_env__neural_background_mix)
+config_env__neural_background_mix.update(config_env_evaluate)
+config_env__neural_background_mix.scenario_cls = scenarios_bottleneck.ScenarioBottleneckDiverseEvaluate
+
+#RILEnvM
 config_env__multiact__mixbkgrd = copy.copy(bottleneck.config_env__multiact__mixbkgrd)
 config_env__multiact__mixbkgrd.update(config_env_evaluate)
 config_env__multiact__mixbkgrd.scenario_cls = scenarios_bottleneck.ScenarioBottleneckDiverseEvaluate

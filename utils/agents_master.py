@@ -82,7 +82,7 @@ class EndToEndVehicleWithCharacterBackground(RuleVehicle):
         character = str(np.round(self.character, 2))
         return str(type(self))[:-1] + f' vi: {self.vi}, x: {x}, y: {y}, v: {v}, svo: {character}>'
 
-class EndToEndVehicleBackgroundDiverse(EndToEndVehicleWithCharacterBackground) :
+class EndToEndVehicleBackgroundDiverse(EndToEndVehicleWithCharacterBackground):
     # type = flow, robust
     def __init__(self, config, vi, global_path, transform, character, control_type):
         super().__init__(config, vi, global_path, transform, character)
@@ -401,7 +401,7 @@ class AgentListMasterNeuralBackgroundRecogMultiSVO(AgentListMasterNeuralBackgrou
 
 ###########for mix agent including copo, flow
 
-class AgentListMasterSVOasActMixbackgrd(AgentListMaster):
+class AgentListMasterMixbackgrd(AgentListMaster):
     def __init__(self, config: rllib.basic.YamlConfig, topology_map, **kwargs):
         super().__init__(config, topology_map, **kwargs)
         ##ours for ego agent 
@@ -456,6 +456,47 @@ class AgentListMasterSVOasActMixbackgrd(AgentListMaster):
         # breakpoint()
         return [state[0]]
 
+    def get_action_bg(self, states_bg):
+        index_0 = self.control_types_num['robust']
+        index_1 = self.control_types_num['robust'] + self.control_types_num['flow']
+        actions_bg_robust, _, _ = self.neural_policy_robust.sample(states_bg[0:index_0].to(self.device))
+        actions_bg_flow,_,_ = self.neural_policy_flow.sample(states_bg[index_0:index_1].to(self.device))
+        return torch.cat([actions_bg_robust,actions_bg_flow], axis=0)
+
+    def run_step(self, references):
+        """
+        Args:
+            references: torch.Size([num_agents_learnable, dim_action])
+        """
+        # assert len(obs_svos) == len(self.vehicles_neural)
+        #froms
+        state_bg = [s.to_tensor().unsqueeze(0) for s in self.state_neural_nackground]
+
+        if len(state_bg) > 0:
+            states_bg = rllib.buffer.stack_data(state_bg)
+            self.buffer_cls.pad_state(None, states_bg)
+            states_bg = states_bg.cat(dim=0)
+            actions_bg =  self.get_action_bg(states_bg)
+            # actions_bg, _, _ = self.neural_policy.sample(states_bg.to(self.device))
+            # actions_bg = actions_bg.detach().cpu().numpy()
+        else:
+            actions_bg = []
+        
+        vehicles = self.vehicles_neural + self.vehicles_rule
+        targets_neural = [vehicle.get_target(reference) for vehicle, reference in zip(self.vehicles_neural, references)]
+        targets_rule = [vehicle.get_target(action_bg) for vehicle, action_bg in zip(self.vehicles_rule, actions_bg)]
+        targets = targets_neural + targets_rule
+        for _ in range(self.skip_num):
+            for vehicle, target in zip(vehicles, targets):
+                control = vehicle.get_control(target)
+                vehicle.forward(control)
+        for vehicle in vehicles:
+            vehicle.tick()
+        return
+    
+
+
+class AgentListMasterSVOasActMixbackgrd(AgentListMasterMixbackgrd):
     def run_step(self, obs_svos):
         """
         Args:
@@ -494,9 +535,3 @@ class AgentListMasterSVOasActMixbackgrd(AgentListMaster):
         for vehicle in vehicles:
             vehicle.tick()
         return
-    def get_action_bg(self, states_bg):
-        index_0 = self.control_types_num['robust']
-        index_1 = self.control_types_num['robust'] + self.control_types_num['flow']
-        actions_bg_robust, _, _ = self.neural_policy_robust.sample(states_bg[0:index_0].to(self.device))
-        actions_bg_flow,_,_ = self.neural_policy_flow.sample(states_bg[index_0:index_1].to(self.device))
-        return torch.cat([actions_bg_robust,actions_bg_flow], axis=0)
