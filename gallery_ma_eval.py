@@ -842,7 +842,7 @@ def evaluate_ray_isac_adaptive_character__bottleneck(config, mode='evaluate', sc
     from config.method import config_isac__adaptive_character as config_method
     config.set('methods', [config_method])
 
-    return init_recog(config, mode, Env)
+    return init_recog(config, mode, Env, Method)
 
 def evaluate_ray_RILMthM__bottleneck(config, mode='train', scale=1):
     from universe import EnvInteractiveMultiAgent as Env
