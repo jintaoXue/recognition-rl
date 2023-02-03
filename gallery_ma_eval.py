@@ -10,8 +10,8 @@ import torch
 
 
 def init(config, mode, Env) -> universe.EnvMaster_v1:
-    repos = ['~/github/zdk/rl-lib', '~/github/ali/universe', '~/github/zdk/recognition-rl']
-    config.set('github_repos', repos)
+    # repos = ['~/github/zdk/rl-lib', '~/github/ali/universe', '~/github/zdk/recognition-rl']
+    # config.set('github_repos', repos)
 
     from core.method_isac_v0 import IndependentSAC_v0 as Method
 
