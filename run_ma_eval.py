@@ -113,7 +113,7 @@ def main():
             raise NotImplementedError
 
         scale = 1
-        models_ma.isac_adaptive_character__bottleneck().update(config)
+        models_ma.RILMthM__bottleneck().update(config)
         env_master = gallery.evaluate_ray_RILMthM__bottleneck(config, mode, scale)
     
     elif version == 'v1-4-1':
@@ -121,7 +121,7 @@ def main():
             raise NotImplementedError
 
         scale = 1
-        models_ma.isac_adaptive_character__bottleneck().update(config)
+        models_ma.RILEnvM__bottleneck().update(config)
         env_master = gallery.evaluate_ray_RILEnvM__bottleneck(config, mode, scale)
     ################################################################################################
     ##### evaluate, training setting ###############################################################
