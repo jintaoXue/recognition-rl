@@ -147,7 +147,7 @@ def run_one_episode_multi_agent(env, method):
         action = ray.get(method.select_actions.remote(state)).cpu().numpy()
         # tt2 = time.time()
         experience, done, info = env.step(action)
-        tt3 = time.time()
+        # tt3 = time.time()
         # time_select_action += (tt2-tt1)
         # time_env_step += (tt3-tt2)
 

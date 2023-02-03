@@ -10,6 +10,7 @@ import time
 
 import os, glob
 from os.path import join
+from pyparsing import typing
 import torch
 import torch.nn as nn
 from torch.optim import Adam
@@ -72,7 +73,7 @@ class IndependentSACsupervise(MethodSingleAgent):
 
         self.training_data_path = config.training_data_path
 
-        self.data_size = 750000
+        self.data_size = 300
         #todo
         self.actor_target = copy.deepcopy(self.actor)
         self.models_to_save = [self.actor]
@@ -174,6 +175,13 @@ class IndependentSACsupervise(MethodSingleAgent):
         rllib.utils.soft_update(self.actor_target, self.actor, self.tau)
 
     def _batch_stack(self, batch):
+
+        if type(batch[0]) is list : 
+            #multiagent setting 
+            batch_ = []
+            for b in batch : batch_ += b 
+            batch = batch_
+
         result = rllib.buffer.stack_data(batch)
 
         state, next_state = result.state, result.next_state
