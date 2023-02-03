@@ -27,8 +27,8 @@ def init(config, mode, Env) -> universe.EnvMaster_v1:
 
 
 def init_recog(config, mode, Env, Method) -> universe.EnvMaster_v1:
-    repos = ['~/github/zdk/rl-lib', '~/github/ali/universe', '~/github/zdk/recognition-rl']
-    config.set('github_repos', repos)
+    # repos = ['~/github/zdk/rl-lib', '~/github/ali/universe', '~/github/zdk/recognition-rl']
+    # config.set('github_repos', repos)
 
 
 
@@ -829,6 +829,26 @@ def evaluate_ray_isac_adaptive_character__social_behavior__roundabout(config, mo
     return init(config, mode, Env)
 
 ##############evaluate recog ################
+
+
+
+
+def evaluate_ray_isac_adaptive_character__bottleneck(config, mode='evaluate', scale=5):
+    from universe import EnvInteractiveMultiAgent as Env
+
+    ### env param
+    from config.bottleneck_evaluate import config_env__with_character
+    config.set('envs', [config_env__with_character] *scale)
+
+    ### method param
+    from config.method import config_isac__adaptive_character as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env)
+
+
+
+
 
 def evaluate_ray_RILMthM__bottleneck(config, mode='train', scale=1):
     from universe import EnvInteractiveMultiAgent as Env

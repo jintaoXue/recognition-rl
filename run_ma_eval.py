@@ -108,6 +108,14 @@ def main():
     ##### evaluate, recognition ####################################################################
     ################################################################################################
 
+    elif version == 'vtrue':
+        if mode != 'evaluate':
+            raise NotImplementedError
+
+        scale = 1
+        models_ma.isac__bottleneck__adaptive().update(config)
+        env_master = gallery.evaluate_ray_isac_adaptive_character__bottleneck(config, mode, scale)
+
     elif version == 'v1-4-0':
         if mode != 'evaluate':
             raise NotImplementedError
