@@ -49,18 +49,18 @@ def init_recog(config, mode, Env, Method) -> universe.EnvMaster_v1:
 ################################################################################################
 
 
-def evaluate_ray_isac_adaptive_character__bottleneck(config, mode='evaluate', scale=5):
-    from universe import EnvInteractiveMultiAgent as Env
+# def evaluate_ray_isac_adaptive_character__bottleneck(config, mode='evaluate', scale=5):
+#     from universe import EnvInteractiveMultiAgent as Env
 
-    ### env param
-    from config.bottleneck_evaluate import config_env__with_character
-    config.set('envs', [config_env__with_character] *scale)
+#     ### env param
+#     from config.bottleneck_evaluate import config_env__with_character
+#     config.set('envs', [config_env__with_character] *scale)
 
-    ### method param
-    from config.method import config_isac__adaptive_character as config_method
-    config.set('methods', [config_method])
+#     ### method param
+#     from config.method import config_isac__adaptive_character as config_method
+#     config.set('methods', [config_method])
 
-    return init(config, mode, Env)
+#     return init(config, mode, Env)
 
 
 
@@ -832,6 +832,7 @@ def evaluate_ray_isac_adaptive_character__social_behavior__roundabout(config, mo
 
 def evaluate_ray_isac_adaptive_character__bottleneck(config, mode='evaluate', scale=5):
     from universe import EnvInteractiveMultiAgent as Env
+    from core.method_evaluate import EvaluateIndependentSAC as Method
 
     ### env param
     from config.bottleneck_evaluate import config_env__with_character
@@ -841,7 +842,7 @@ def evaluate_ray_isac_adaptive_character__bottleneck(config, mode='evaluate', sc
     from config.method import config_isac__adaptive_character as config_method
     config.set('methods', [config_method])
 
-    return init(config, mode, Env)
+    return init_recog(config, mode, Env)
 
 def evaluate_ray_RILMthM__bottleneck(config, mode='train', scale=1):
     from universe import EnvInteractiveMultiAgent as Env
