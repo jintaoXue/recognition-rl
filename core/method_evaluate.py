@@ -483,6 +483,19 @@ class EvaluateSupervise(rllib.EvaluateSingleAgent):
 
         return action.cpu()
 
+    @torch.no_grad()
+    def select_actions(self, state):
+        self.select_action_start()
+        from .model_vectornet import ReplayBufferMultiAgentWithCharacters
+        states = rllib.buffer.stack_data(state)
+        ReplayBufferMultiAgentWithCharacters.pad_state(None, states)
+        states = states.cat(dim=0)
+
+        states = states.to(self.device)
+
+        actions, logprob, mean = self.actor.sample(states)
+
+        return actions.cpu()
 
 
     def store(self, experience, **kwargs):

@@ -105,7 +105,7 @@ def ray_supervise_offline_multiagent__bottleneck(config, mode='train', scale=1):
     ])
 
     ### method param
-    from config.method import config_supervise as config_method
+    from config.method import config_supervise_multi as config_method
     config.set('methods', [config_method])
 
     return init(config, mode, Env, Method)

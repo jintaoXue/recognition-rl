@@ -29,9 +29,6 @@ def init(config, mode, Env) -> universe.EnvMaster_v1:
 def init_recog(config, mode, Env, Method) -> universe.EnvMaster_v1:
     # repos = ['~/github/zdk/rl-lib', '~/github/ali/universe', '~/github/zdk/recognition-rl']
     # config.set('github_repos', repos)
-
-
-
     model_name = Method.__name__ + '-' + Env.__name__
     writer_cls = rllib.basic.PseudoWriter
     writer = rllib.basic.create_dir(config, model_name, mode=mode, writer_cls=writer_cls)
@@ -846,10 +843,6 @@ def evaluate_ray_isac_adaptive_character__bottleneck(config, mode='evaluate', sc
 
     return init(config, mode, Env)
 
-
-
-
-
 def evaluate_ray_RILMthM__bottleneck(config, mode='train', scale=1):
     from universe import EnvInteractiveMultiAgent as Env
     from core.method_evaluate import EvaluateSACRecog as Method
@@ -888,8 +881,23 @@ def evaluate_ray_RILEnvM__bottleneck(config, mode='train', scale=1):
 
     return init_recog(config, mode, Env, Method)
 
+def evalute_ray_supervise_offline_multiagent__bottleneck(config, mode='train', scale=1):
+    from universe import EnvInteractiveMultiAgent as Env
+    #todo
+    from core.method_evaluate import EvaluateSupervise as Method
 
+    ### env param
+    from config.bottleneck import config_env as config_bottleneck
+    
+    config.set('envs', [
+        config_bottleneck
+    ])
 
+    ### method param
+    from config.method import config_supervise_multi as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env, Method)
 
 
 

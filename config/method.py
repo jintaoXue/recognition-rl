@@ -197,3 +197,10 @@ config_action_svo_multiagent = rllib.basic.YamlConfig(
     buffer=ReplayBufferMultiAgent,
     **config_meta.to_dict(),
 )
+
+config_supervise_multi = rllib.basic.YamlConfig(
+    net_actor_fe=PointNetWithCharactersAgentHistoryRecog,
+    net_recog=RecognitionNet,
+    buffer=ReplayBufferMultiAgent,
+    **config_meta.to_dict(),
+)

@@ -131,6 +131,14 @@ def main():
         scale = 1
         models_ma.RILEnvM__bottleneck().update(config)
         env_master = gallery.evaluate_ray_RILEnvM__bottleneck(config, mode, scale)
+    
+    elif version == 'v1-4-2':
+        if mode != 'evaluate':
+            raise NotImplementedError
+
+        scale = 1
+        models_ma.ILEnvM__bottleneck().update(config)
+        env_master = gallery.evaluate_ray_RILEnvM__bottleneck(config, mode, scale)
     ################################################################################################
     ##### evaluate, training setting ###############################################################
     ################################################################################################
