@@ -177,3 +177,16 @@ config_action_multi_svo_woattn = rllib.basic.YamlConfig(
     buffer=ReplayBufferSingleAgent,
     **config_meta.to_dict(),
 )
+
+########################################################################
+#### IndependentSAC_recog Multiagent ###################################
+########################################################################
+
+config_recog_multi_agent = rllib.basic.YamlConfig(
+    net_actor_fe=RecognitionNetNew,
+    net_critic_fe=PointNetWithCharactersAgentHistory,
+    # net_actor_recog=RecognitionNet,
+    # net_critic_recog=RecognitionNet,
+    buffer=ReplayBufferMultiAgent,
+    **config_meta.to_dict(),
+)

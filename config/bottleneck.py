@@ -78,8 +78,8 @@ config_env__with_character.reward_func = reward.RewardFunctionWithCharacter
 config_env__with_character_share = copy.copy(config_env__with_character)
 config_env__with_character_share.scenario_randomization_cls = scenarios_template.ScenarioRandomization_share_character
 
-config_env__with_character_fix_other_svo = copy.copy(config_env__with_character)
-config_env__with_character_fix_other_svo.scenario_randomization_cls = scenarios_template.ScenarioRandomizationWithoutMismatch
+# config_env__with_character_fix_other_svo = copy.copy(config_env__with_character)
+# config_env__with_character_fix_other_svo.scenario_randomization_cls = scenarios_template.ScenarioRandomizationWithoutMismatch
 
 
 

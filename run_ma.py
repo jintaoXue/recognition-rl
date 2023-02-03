@@ -74,7 +74,10 @@ def main():
     elif version == 'v1-3':
         writer, env_master, method = gallery.ray_isac_adaptive_character__bottleneck(config, mode)
     
-
+    elif version == 'v1-4-0':
+        scale = 1
+        config.description += '--RILMthM'
+        writer, env_master, method = gallery.ray_RILMthM__Mixbackground__bottleneck(config, mode, scale)
     ################################################################################################
     ##### intersection #############################################################################
     ################################################################################################

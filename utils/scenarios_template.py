@@ -47,10 +47,12 @@ class ScenarioRandomizationDivese(universe.ScenarioRandomization):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.characters = self.get_characters()
         self.controll_types = self.get_control_type()
+        self.characters = self.get_characters()
+
     def get_characters(self):
         characters = np.random.uniform(0,1, size=self.num_vehicles)
+        # characters = 
         # print(rllib.basic.prefix(self) + 'characters: ', characters)
         return characters.astype(np.float32)
 
