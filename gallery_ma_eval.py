@@ -897,7 +897,7 @@ def evalute_ray_supervise_offline_multiagent__bottleneck(config, mode='train', s
     from config.method import config_supervise_multi as config_method
     config.set('methods', [config_method])
 
-    return init(config, mode, Env, Method)
+    return init_recog(config, mode, Env, Method)
 
 
 
