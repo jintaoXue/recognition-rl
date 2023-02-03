@@ -103,7 +103,26 @@ def main():
     version = config.version
     if version == 'pseudo':
         raise NotImplementedError
+    
+    ################################################################################################
+    ##### evaluate, recognition ####################################################################
+    ################################################################################################
 
+    elif version == 'v1-4-0':
+        if mode != 'evaluate':
+            raise NotImplementedError
+
+        scale = 1
+        models_ma.isac_adaptive_character__bottleneck().update(config)
+        env_master = gallery.evaluate_ray_RILMthM__bottleneck(config, mode, scale)
+    
+    elif version == 'v1-4-1':
+        if mode != 'evaluate':
+            raise NotImplementedError
+
+        scale = 1
+        models_ma.isac_adaptive_character__bottleneck().update(config)
+        env_master = gallery.evaluate_ray_RILEnvM__bottleneck(config, mode, scale)
     ################################################################################################
     ##### evaluate, training setting ###############################################################
     ################################################################################################

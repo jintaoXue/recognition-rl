@@ -1,3 +1,5 @@
+from charset_normalizer import models
+from ray import method
 import rllib
 
 
@@ -662,6 +664,15 @@ class isac_adaptive_character__multi_scenario(ModelPath):
     model_num = 206600  ### ! tmp
     model_num = 289600  ### ! tmp
 
+class RILMthM__bottleneck(ModelPath):
+
+    method = 'IndependentSAC_recog'
+    model_dir = '~/github/zdk/recognition-rl/results/IndependentSAC_recog-EnvInteractiveMultiAgent/2023-02-03-13:19:11----Nothing--RILMthM/saved_models_method'
+    
+    model_num = 140000
+class RILEnvM__bottleneck(ModelPath):
+    method = 'RecogV2'
+    model_dir = ''
 
 
 

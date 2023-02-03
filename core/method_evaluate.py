@@ -214,71 +214,6 @@ class EvaluateSAC(rllib.EvaluateSingleAgent):
         return
 
 
-class EvaluateSACRecog(rllib.EvaluateSingleAgent):
-    def select_method(self):
-        config, method_name = self.config, self.method_name
-        from core.method_isac_recog import Actor
-        # class Actor(Actor):
-        #     def forward(self, state):
-        #         #add character into state
-        #         obs_character = self.recog(state)
-        #         # obs_character = np.random.uniform(0,1, size=obs_character)
-        #         # obs_character = torch.full(obs_character.size(), 0.880797).to(self.device)
-        #         # print(obs_character)
-        #         #####
-        #         x = self.fe(state, obs_character)
-        #         mean = self.mean_no(self.mean(x))
-        #         logstd = self.std_no(self.std(x))
-        #         logstd = (self.logstd_max-self.logstd_min) * logstd + (self.logstd_max+self.logstd_min)
-        #         return mean, logstd *0.5
-        # self.critic = config.get('net_critic', Critic)(config).to(self.device)
-        self.actor = config.get('net_actor', Actor)(config).to(self.device)
-        # self.models_to_load = [self.critic, self.actor]
-        self.models_to_load = [self.actor]
-        return
-    @torch.no_grad()
-    def select_action(self, state):
-        self.select_action_start()
-        state = state.to(self.device)
-        action, logprob, mean = self.actor.sample(state)
-        # print('action: ', action, mean)
-        # return mean
-        return action.cpu()
-    def store(self, experience, **kwargs):
-        return
-class EvaluateSACRecogWoattn(rllib.EvaluateSingleAgent):
-    def select_method(self):
-        config, method_name = self.config, self.method_name
-        from core.method_wo_attention import Actor
-        # class Actor(Actor):
-        #     def forward(self, state):
-        #         #add character into state
-        #         obs_character = self.recog(state)
-        #         # obs_character = np.random.uniform(0,1, size=obs_character)
-        #         # obs_character = torch.full(obs_character.size(), 0.880797).to(self.device)
-        #         # print(obs_character)
-        #         #####
-        #         x = self.fe(state, obs_character)
-        #         mean = self.mean_no(self.mean(x))
-        #         logstd = self.std_no(self.std(x))
-        #         logstd = (self.logstd_max-self.logstd_min) * logstd + (self.logstd_max+self.logstd_min)
-        #         return mean, logstd *0.5
-        # self.critic = config.get('net_critic', Critic)(config).to(self.device)
-        self.actor = config.get('net_actor', Actor)(config).to(self.device)
-        # self.models_to_load = [self.critic, self.actor]
-        # breakpoint()
-        self.models_to_load = [self.actor]
-        return
-    @torch.no_grad()
-    def select_action(self, state):
-        self.select_action_start()
-        state = state.to(self.device)
-        action, logprob, mean = self.actor.sample(state)
-        # print('action: ', action, mean)
-        # return mean
-        return action.cpu()
-    def store(self, experience, **kwargs):
-        return
 
 class EvaluatePPO(rllib.EvaluateSingleAgent):
     def select_method(self):
@@ -387,6 +322,93 @@ class EvaluateSACAdvDecouple(EvaluateSACAdv):
 
         return
 
+
+
+class EvaluateSACRecog(rllib.EvaluateSingleAgent):
+    def select_method(self):
+        config, method_name = self.config, self.method_name
+        from core.method_isac_recog import Actor
+        # class Actor(Actor):
+        #     def forward(self, state):
+        #         #add character into state
+        #         obs_character = self.recog(state)
+        #         # obs_character = np.random.uniform(0,1, size=obs_character)
+        #         # obs_character = torch.full(obs_character.size(), 0.880797).to(self.device)
+        #         # print(obs_character)
+        #         #####
+        #         x = self.fe(state, obs_character)
+        #         mean = self.mean_no(self.mean(x))
+        #         logstd = self.std_no(self.std(x))
+        #         logstd = (self.logstd_max-self.logstd_min) * logstd + (self.logstd_max+self.logstd_min)
+        #         return mean, logstd *0.5
+        # self.critic = config.get('net_critic', Critic)(config).to(self.device)
+        self.actor = config.get('net_actor', Actor)(config).to(self.device)
+        # self.models_to_load = [self.critic, self.actor]
+        self.models_to_load = [self.actor]
+        return
+    @torch.no_grad()
+    def select_action(self, state):
+        self.select_action_start()
+        state = state.to(self.device)
+        action, logprob, mean = self.actor.sample(state)
+        # print('action: ', action, mean)
+        # return mean
+        return action.cpu()
+
+    @torch.no_grad()
+    def select_actions(self, state):
+        self.select_action_start()
+        from .model_vectornet import ReplayBufferMultiAgentWithCharacters
+        states = rllib.buffer.stack_data(state)
+        ReplayBufferMultiAgentWithCharacters.pad_state(None, states)
+        states = states.cat(dim=0)
+
+        states = states.to(self.device)
+
+        actions, logprob, mean = self.actor.sample(states)
+
+        return actions.cpu()
+
+    def store(self, experience, **kwargs):
+        return
+
+
+
+class EvaluateSACRecogWoattn(rllib.EvaluateSingleAgent):
+    def select_method(self):
+        config, method_name = self.config, self.method_name
+        from core.method_wo_attention import Actor
+        # class Actor(Actor):
+        #     def forward(self, state):
+        #         #add character into state
+        #         obs_character = self.recog(state)
+        #         # obs_character = np.random.uniform(0,1, size=obs_character)
+        #         # obs_character = torch.full(obs_character.size(), 0.880797).to(self.device)
+        #         # print(obs_character)
+        #         #####
+        #         x = self.fe(state, obs_character)
+        #         mean = self.mean_no(self.mean(x))
+        #         logstd = self.std_no(self.std(x))
+        #         logstd = (self.logstd_max-self.logstd_min) * logstd + (self.logstd_max+self.logstd_min)
+        #         return mean, logstd *0.5
+        # self.critic = config.get('net_critic', Critic)(config).to(self.device)
+        self.actor = config.get('net_actor', Actor)(config).to(self.device)
+        # self.models_to_load = [self.critic, self.actor]
+        # breakpoint()
+        self.models_to_load = [self.actor]
+        return
+    @torch.no_grad()
+    def select_action(self, state):
+        self.select_action_start()
+        state = state.to(self.device)
+        action, logprob, mean = self.actor.sample(state)
+        # print('action: ', action, mean)
+        # return mean
+        return action.cpu()
+    def store(self, experience, **kwargs):
+        return
+
+
 class EvaluateRecogV1(rllib.EvaluateSingleAgent):
     def select_method(self):
         config, method_name = self.config, self.method_name
@@ -426,6 +448,20 @@ class EvaluateRecogV2(rllib.EvaluateSingleAgent):
 
     def store(self, experience, **kwargs):
         return
+
+    @torch.no_grad()
+    def select_actions(self, state):
+        self.select_action_start()
+        from .model_vectornet import ReplayBufferMultiAgentWithCharacters
+        states = rllib.buffer.stack_data(state)
+        ReplayBufferMultiAgentWithCharacters.pad_state(None, states)
+        states = states.cat(dim=0)
+
+        states = states.to(self.device)
+
+        actions, logprob, mean = self.actor.sample(states)
+
+        return actions.cpu()
 
 class EvaluateSupervise(rllib.EvaluateSingleAgent):
     def select_method(self):

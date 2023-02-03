@@ -26,6 +26,20 @@ def init(config, mode, Env) -> universe.EnvMaster_v1:
     return env_master
 
 
+def init_recog(config, mode, Env, Method) -> universe.EnvMaster_v1:
+    repos = ['~/github/zdk/rl-lib', '~/github/ali/universe', '~/github/zdk/recognition-rl']
+    config.set('github_repos', repos)
+
+
+
+    model_name = Method.__name__ + '-' + Env.__name__
+    writer_cls = rllib.basic.PseudoWriter
+    writer = rllib.basic.create_dir(config, model_name, mode=mode, writer_cls=writer_cls)
+    
+
+    from universe import EnvMaster_v1 as EnvMaster
+    env_master = EnvMaster(config, writer, env_cls=Env, method_cls=Method)
+    return env_master
 
 
 
@@ -814,9 +828,45 @@ def evaluate_ray_isac_adaptive_character__social_behavior__roundabout(config, mo
 
     return init(config, mode, Env)
 
+##############evaluate recog ################
 
+def evaluate_ray_RILMthM__bottleneck(config, mode='train', scale=1):
+    from universe import EnvInteractiveMultiAgent as Env
+    from core.method_evaluate import EvaluateSACRecog as Method
+    
+    ### env param
+    from config.bottleneck import config_env as config_bottleneck
+    # config_bottleneck.set('config_neural_policy', get_sac__new_bottleneck__adaptive_character_config(config))
 
+    config.set('envs', [
+        config_bottleneck,
+    ] *scale)
 
+    ### method param
+    from config.method import config_recog_multi_agent as config_method
+    config.set('methods', [config_method])
+
+    return init_recog(config, mode, Env, Method)
+
+def evaluate_ray_RILEnvM__bottleneck(config, mode='train', scale=1):
+    from utils.env import EnvInteractiveMultiAgentActSvo as Env
+    #todo
+    from core.method_evaluate import EvaluateRecogV2 as Method
+    
+    ### env param
+    from config.bottleneck import config_env__actsvo_multiagent as config_bottleneck
+    from gallery_ma import get_sac__bottleneck__new_action_config
+    config_bottleneck.set('config_neural_policy', get_sac__bottleneck__new_action_config(config))
+
+    config.set('envs', [
+        config_bottleneck,
+    ] *scale)
+
+    ### method param
+    from config.method import config_action_svo_multiagent as config_method
+    config.set('methods', [config_method])
+
+    return init_recog(config, mode, Env, Method)
 
 
 
