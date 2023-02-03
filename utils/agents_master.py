@@ -1,5 +1,6 @@
 from matplotlib.pyplot import axis
 from pyparsing import actions
+from pyrsistent import b
 import rllib
 
 import numpy as np
@@ -528,6 +529,69 @@ class AgentListMasterSVOasActMixbackgrd(AgentListMasterMixbackgrd):
         targets_neural = [vehicle.get_target(reference) for vehicle, reference in zip(self.vehicles_neural, references)]
         targets_rule = [vehicle.get_target(action_bg) for vehicle, action_bg in zip(self.vehicles_rule, actions_bg)]
         targets = targets_neural + targets_rule
+        for _ in range(self.skip_num):
+            for vehicle, target in zip(vehicles, targets):
+                control = vehicle.get_control(target)
+                vehicle.forward(control)
+        for vehicle in vehicles:
+            vehicle.tick()
+        return
+
+class AgentListMasterActSvoMultiAgent(AgentListMaster) :
+    """
+        Only for multi agent without vehicles_rule.
+    """
+    def __init__(self, config: rllib.basic.YamlConfig, topology_map, **kwargs):
+        super().__init__(config, topology_map, **kwargs)
+
+        config_neural_policy = config.config_neural_policy
+        config_neural_policy.set('dim_state', config.dim_state)
+        config_neural_policy.set('dim_action', config.dim_action)
+        self.buffer_cls = config_neural_policy.buffer
+        self.device = config_neural_policy.device
+        from core.recognition_net import Actor
+        self.neural_policy = Actor(config_neural_policy).to(self.device)
+        self.neural_policy.load_model()
+    
+    def observe(self, step_reset, time_step):
+        if time_step == 0:
+            for vehicle in self.vehicles_neural + self.vehicles_rule:
+                self.vehicle_states[vehicle.vi, :self.horizon-1] = self.get_vehicle_state.run_step(vehicle)
+                self.vehicle_masks[vehicle.vi, :self.horizon-1] = 1
+        
+        for vehicle in self.vehicles_neural + self.vehicles_rule:
+            self.vehicle_states[vehicle.vi, time_step + self.horizon-1] = self.get_vehicle_state.run_step(vehicle)
+            self.vehicle_masks[vehicle.vi, time_step + self.horizon-1] = 3
+
+        vehicle_states = self.vehicle_states[:, time_step:time_step+self.horizon]
+        vehicle_masks = self.vehicle_masks[:, time_step:time_step+self.horizon]
+
+        state = self.perception.run_step(step_reset, time_step, self.vehicles_neural, vehicle_states, vehicle_masks)
+        self.state = state
+        return state
+
+    def run_step(self, obs_svos, state):
+        """
+        Args:
+            obs_svos: torch.Size([batch, self.max_obs_vehicle])
+        """
+        # assert len(obs_svos) == len(self.vehicles_neural)
+        #froms
+        state = [s.to_tensor().unsqueeze(0) for s in state]
+        state = rllib.buffer.stack_data(state)
+        # state = self.buffer_cls._batch_stack(self.state)
+        self.buffer_cls.pad_state(None, state)
+        state = state.cat(dim=0)
+        obs_svos = obs_svos[:,:state.obs_character.shape[1]]
+        obs_svos = torch.from_numpy(obs_svos).to(self.device)
+        # obs_svos = np.expand_dims(obs_svos, axis=-1)
+        # print('agent master obs_svos', obs_svos.shape)
+        references = self.neural_policy.forward_with_svo(state.to(self.device), obs_svos)
+        
+        vehicles = self.vehicles_neural + self.vehicles_rule
+        references = references.detach().cpu().numpy()
+        targets_neural = [vehicle.get_target(reference) for vehicle, reference in zip(self.vehicles_neural, references)]
+        targets = targets_neural 
         for _ in range(self.skip_num):
             for vehicle, target in zip(vehicles, targets):
                 control = vehicle.get_control(target)

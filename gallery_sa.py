@@ -40,7 +40,7 @@ def init(config, mode, Env, Method) -> Tuple[rllib.basic.Writer, universe.EnvMas
 def get_sac__new_bottleneck__adaptive_character_config(config):
     from core.method_isac_v0 import IndependentSAC_v0 as Method
     from core.model_vectornet import ReplayBufferMultiAgentMultiWorker as ReplayBuffer
-    from core.model_vectornet import PointNetWithCharactersAgentHistory as FeatureExtractor
+    from core.model_vectornet import PointNetWithCharactersAgentHistoryCutstate as FeatureExtractor
     # from core.recognition_net import PointNetNewAction as FeatureExtractor
     config_neural_policy = rllib.basic.YamlConfig(
         evaluate=config.evaluate,
@@ -1084,7 +1084,7 @@ def ray_RILEnvM__mix_background__bottleneck(config, mode='train', scale=1):
 
     config.set('envs', [
         config_env__adaptive,
-    ])
+    ]*scale)
 
     ### method param
     from config.method import config_recog_action_multi_svo as config_method

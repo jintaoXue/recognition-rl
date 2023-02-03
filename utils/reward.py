@@ -16,6 +16,7 @@ class RewardFunctionNoCharacter(universe.RewardFunc):
         wrong_lane = episode_info.wrong_lane
 
         reward = []
+
         for i, agent in enumerate(agents_master.vehicles_neural):
             max_velocity = agent.max_velocity
 
@@ -129,7 +130,7 @@ class RewardFunctionRecogCharacterV1(universe.RewardFunc):
         return reward
 
 class RewardFunctionRecogCharacterV2(universe.RewardFunc):
-    MSEloss = torch.nn.MSELoss()
+    # MSEloss = torch.nn.MSELoss()
     def run_step(self, state, action, agents_master: universe.AgentsMaster, episode_info):
         '''single agent'''
         reward = RewardFunctionNoCharacter.run_step(self, state, action, agents_master, episode_info)

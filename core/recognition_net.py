@@ -910,10 +910,10 @@ class PointNetwithActionSVO(rllib.template.Model):
             self.character_embedding(state_.character.unsqueeze(1)),
         ], dim=1)
 
-
         obs = torch.where(obs == np.inf, torch.tensor(0, dtype=torch.float32, device=obs.device), obs)
-
         obs_character = torch.where(obs_character == np.inf, torch.tensor(-1, dtype=torch.float32, device=obs.device), obs_character)
+        # if obs.shape[0] != obs_character.shape[0]:breakpoint()
+        # if obs.shape[1] != obs_character.shape[1]:breakpoint()
         obs_embedding = torch.cat([
             self.agent_embedding(state_.obs.flatten(end_dim=1), state_.obs_mask.to(torch.bool).flatten(end_dim=1)).view(batch_size,num_agents, self.dim_embedding //2),
             self.agent_embedding_v1(obs),

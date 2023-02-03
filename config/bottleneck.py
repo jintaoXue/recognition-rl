@@ -81,6 +81,8 @@ config_env__with_character_share.scenario_randomization_cls = scenarios_template
 # config_env__with_character_fix_other_svo = copy.copy(config_env__with_character)
 # config_env__with_character_fix_other_svo.scenario_randomization_cls = scenarios_template.ScenarioRandomizationWithoutMismatch
 
+config_env__actsvo_multiagent = copy.copy(config_env)
+config_env__actsvo_multiagent.agents_master_cls = agents_master.AgentListMasterActSvoMultiAgent
 
 
 

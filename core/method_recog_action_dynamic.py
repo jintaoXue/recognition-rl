@@ -45,8 +45,8 @@ class RecogV2(MethodSingleAgent):
     buffer_size = 700000
     batch_size = 128
 
-    start_timesteps = 100000
-    # start_timesteps = 128 ## ! warning
+    start_timesteps = 30000
+    start_timesteps = 128 ## ! warning
     before_training_steps = 0
 
     save_model_interval = 1000
@@ -185,14 +185,18 @@ class RecogV2(MethodSingleAgent):
     @torch.no_grad()
     def select_actions(self, state):
         self.select_action_start()
+        states = rllib.buffer.stack_data(state)
+        self.buffer.pad_state(states)
+        states = states.cat(dim=0)
 
         if self.step_select < self.start_timesteps:
-            action = torch.Tensor(len(state), self.dim_action).uniform_(0.0,1.0)
+            batch = states.ego.shape[0]
+            valid_len = states.obs_character.shape[1]
+            action = torch.Tensor(1,1,1).uniform_(0.0,1.0)
+            action = action.repeat(batch,self.dim_action,1)
+            action[:,valid_len:] = -1
         else:
             # print('select: ', self.step_select)
-            states = rllib.buffer.stack_data(state)
-            self.buffer.pad_state(states)
-            states = states.cat(dim=0)
             action, _, _ = self.actor.sample(states.to(self.device))
             action = action.cpu()
         return action

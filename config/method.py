@@ -190,3 +190,10 @@ config_recog_multi_agent = rllib.basic.YamlConfig(
     buffer=ReplayBufferMultiAgent,
     **config_meta.to_dict(),
 )
+
+config_action_svo_multiagent = rllib.basic.YamlConfig(
+    net_actor_fe=RecogNetMultiSVO,
+    net_critic_fe=RecogNetSVO,
+    buffer=ReplayBufferMultiAgent,
+    **config_meta.to_dict(),
+)

@@ -40,7 +40,7 @@ def init(config, mode, Env, Method) -> Tuple[rllib.basic.Writer, universe.EnvMas
 def get_sac__new_bottleneck__adaptive_character_config(config):
     from core.method_isac_v0 import IndependentSAC_v0 as Method
     from core.model_vectornet import ReplayBufferMultiAgentMultiWorker as ReplayBuffer
-    from core.model_vectornet import PointNetWithCharactersAgentHistory as FeatureExtractor
+    from core.model_vectornet import PointNetWithCharactersAgentHistoryCutstate as FeatureExtractor
     # from core.recognition_net import PointNetNewAction as FeatureExtractor
     config_neural_policy = rllib.basic.YamlConfig(
         evaluate=config.evaluate,
@@ -62,6 +62,30 @@ def get_sac__new_bottleneck__adaptive_character_config(config):
     )
     return config_neural_policy
 
+def get_sac__bottleneck__new_action_config(config):
+    from core.method_isac_v0 import IndependentSAC_v0 as Method
+    from core.model_vectornet import ReplayBufferMultiAgentMultiWorker as ReplayBuffer
+    # from core.model_vectornet import PointNetWithCharactersAgentHistory as FeatureExtractor
+    from core.recognition_net import PointNetwithActionSVO as FeatureExtractor
+    config_neural_policy = rllib.basic.YamlConfig(
+        evaluate=config.evaluate,
+        method_name=Method.__name__,
+
+        # model_dir='~/github/zdk/recognition-rl/results/IndependentSAC_v0-EnvInteractiveMultiAgent/2022-09-11-15:19:29----ray_isac_adaptive_character__multi_scenario--buffer-rate-0.2/saved_models_method',
+        # model_dir='~/github/zdk/recognition-rl/models/IndependentSAC_v0-EnvInteractiveMultiAgent/2022-09-11-15:19:29----ray_isac_adaptive_character__multi_scenario--buffer-rate-0.2/saved_models_method',
+        
+        model_dir = '~/github/zdk/recognition-rl/models/origin_no_history_bottleneck/',
+
+        # model_num=865800,
+        model_num=445600,
+
+
+        device=torch.device('cuda:0' if torch.cuda.is_available() else 'cpu'),
+        net_actor_fe=FeatureExtractor,
+        net_critic_fe=FeatureExtractor,
+        buffer=ReplayBuffer,
+    )
+    return config_neural_policy
 ############################################################################
 #### bottleneck ############################################################
 ############################################################################
@@ -104,16 +128,16 @@ def ray_isac_adaptive_character__bottleneck(config, mode='train', scale=1):
 
     return init(config, mode)
 
-def ray_RILMthM__Mixbackground__bottleneck(config, mode='train', scale=1):
+def ray_RILMthM__bottleneck(config, mode='train', scale=1):
     from universe import EnvInteractiveMultiAgent as Env
     from core.method_isac_recog import IndependentSAC_recog as Method
     
     ### env param
     from config.bottleneck import config_env as config_bottleneck
-    config_bottleneck.set('config_neural_policy', get_sac__new_bottleneck__adaptive_character_config(config))
+    # config_bottleneck.set('config_neural_policy', get_sac__new_bottleneck__adaptive_character_config(config))
 
     config.set('envs', [
-        config_bottleneck
+        config_bottleneck,
     ] *scale)
 
     ### method param
@@ -122,7 +146,24 @@ def ray_RILMthM__Mixbackground__bottleneck(config, mode='train', scale=1):
 
     return init(config, mode, Env, Method)
 
+def ray_RILEnvM__bottleneck(config, mode='train', scale=1):
+    from utils.env import EnvInteractiveMultiAgentActSvo as Env
+    #todo
+    from core.method_recog_action_dynamic import RecogV2 as Method
+    
+    ### env param
+    from config.bottleneck import config_env__actsvo_multiagent as config_bottleneck
+    config_bottleneck.set('config_neural_policy', get_sac__bottleneck__new_action_config(config))
 
+    config.set('envs', [
+        config_bottleneck,
+    ] *scale)
+
+    ### method param
+    from config.method import config_action_svo_multiagent as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env, Method)
 
 
 ############################################################################
