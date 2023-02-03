@@ -2,7 +2,7 @@ import imp
 import rllib
 
 
-from core.model_vectornet import ReplayBufferMultiAgentMultiWorker as ReplayBufferMultiAgent
+from core.model_vectornet import PointNetWithCharactersAgentHistoryCutstate, ReplayBufferMultiAgentMultiWorker as ReplayBufferMultiAgent
 from core.model_vectornet import ReplayBufferSingleAgentMultiWorker as ReplayBufferSingleAgent
 from core.model_vectornet import RolloutBufferSingleAgentMultiWorker as RolloutBufferSingleAgent
 # from core.model_vectornet import RolloutBufferSingleAgentWithCharacters as RolloutBufferSingleAgent
@@ -42,8 +42,8 @@ config_isac__robust_character = rllib.basic.YamlConfig(
 
 
 config_isac__adaptive_character = rllib.basic.YamlConfig(
-    net_actor_fe=PointNetWithCharactersAgentHistory,
-    net_critic_fe=PointNetWithCharactersAgentHistory,
+    net_actor_fe=PointNetWithCharactersAgentHistoryCutstate,
+    net_critic_fe=PointNetWithCharactersAgentHistoryCutstate,
     buffer=ReplayBufferMultiAgent,
     **config_meta.to_dict(),
 )

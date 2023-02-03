@@ -1,4 +1,4 @@
-import imp
+
 import rllib
 import ray
 
@@ -93,6 +93,7 @@ def run_one_episode(env, method):
     env.writer.add_scalar('time_analysis/step', time_env_step, env.step_reset)
     return
 
+###################gallery#################
 def generate__supervise_data__bottleneck(config, mode='train', scale=1):
     from universe import EnvInteractiveSingleAgent as Env
     #todo
@@ -114,7 +115,23 @@ def generate__supervise_data__bottleneck(config, mode='train', scale=1):
 
     return init(config, mode, Env, Method)
 
+def ray_RILMthM__bottleneck(config, mode='train', scale=1):
+    from universe import EnvInteractiveMultiAgent as Env
+    from core.method_evaluate import EvaluateIndependentSAC as Method
+    
+    ### env param
+    from config.bottleneck import config_env as config_bottleneck
+    # config_bottleneck.set('config_neural_policy', get_sac__new_bottleneck__adaptive_character_config(config))
 
+    config.set('envs', [
+        config_bottleneck,
+    ] *scale)
+
+    ### method param
+    from config.method import config_isac__adaptive_character as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env, Method)
 
 if __name__ == "__main__":
     config = rllib.basic.YamlConfig()
@@ -144,7 +161,10 @@ if __name__ == "__main__":
         models_sa.isac__bottleneck__adaptive().update(config)
         writer, env_master, method= generate__supervise_data__bottleneck(config, mode)
 
-
+    if version == 'v1-4':  ### muiltiagent supervise learning 
+        config.description += '--supervise__generate_data__bottleneck-hr10act1'
+        models_sa.isac__bottleneck__adaptive().update(config)
+        writer, env_master, method= ray_RILMthM__bottleneck(config, mode)
 
     try:
         env_master.create_tasks(method, func=run_one_episode)
