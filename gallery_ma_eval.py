@@ -835,7 +835,7 @@ def evaluate_ray_RILMthM__bottleneck(config, mode='train', scale=1):
     from core.method_evaluate import EvaluateSACRecog as Method
     
     ### env param
-    from config.bottleneck import config_env as config_bottleneck
+    from config.bottleneck_evaluate import config_env__with_character as config_bottleneck
     # config_bottleneck.set('config_neural_policy', get_sac__new_bottleneck__adaptive_character_config(config))
 
     config.set('envs', [
@@ -854,7 +854,7 @@ def evaluate_ray_RILEnvM__bottleneck(config, mode='train', scale=1):
     from core.method_evaluate import EvaluateRecogV2 as Method
     
     ### env param
-    from config.bottleneck import config_env__actsvo_multiagent as config_bottleneck
+    from config.bottleneck_evaluate import config_env__actsvo_multiagent as config_bottleneck
     from gallery_ma import get_sac__bottleneck__new_action_config
     config_bottleneck.set('config_neural_policy', get_sac__bottleneck__new_action_config(config))
 

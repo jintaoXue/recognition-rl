@@ -32,12 +32,12 @@ config_env__with_character.update(config_env_evaluate)
 config_env__with_character.scenario_cls = scenarios_bottleneck.ScenarioBottleneckEvaluate
 
 
-
-
 config_env__with_character_assign = copy.copy(config_env__with_character)
 config_env__with_character_assign.scenario_cls = scenarios_bottleneck.ScenarioBottleneckEvaluate_assign
 
-
+config_env__actsvo_multiagent = copy.copy(bottleneck.config_env__actsvo_multiagent)
+config_env__actsvo_multiagent.update(config_env_evaluate)
+config_env__actsvo_multiagent.scenario_cls = scenarios_bottleneck.ScenarioBottleneckEvaluate
 
 
 ####################################################################################
