@@ -38,7 +38,7 @@ class RecogV2(MethodSingleAgent):
 
     lr_critic = 5e-4
     lr_actor = 1e-4
-    lr_tune = 0.2e-4
+    lr_tune = 0.5e-4
 
     tau = 0.005
 
@@ -46,7 +46,7 @@ class RecogV2(MethodSingleAgent):
     batch_size = 128
 
     start_timesteps = 30000
-    start_timesteps = 128 ## ! warning
+    # start_timesteps = 128 ## ! warning
     before_training_steps = 0
 
     save_model_interval = 1000
