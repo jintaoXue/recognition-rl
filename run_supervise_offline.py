@@ -48,7 +48,7 @@ def init(config, mode, Env, Method) -> Tuple[rllib.basic.Writer, universe.EnvMas
 
 
 def ray_supervise_offline__new_adaptive_background__bottleneck(config, mode='train', scale=1):
-    from universe import EnvInteractiveSingleAgent as Env
+    from universe import EnvInteractiveMultiAgent as Env
     #todo
     from core.method_supervise_offline import IndependentSACsupervise as Method
 
@@ -88,6 +88,29 @@ def ray_supervise_offline_woattn__bottleneck(config, mode='train', scale=1):
 
     return init(config, mode, Env, Method)
 
+
+def ray_supervise_offline_multiagent__bottleneck(config, mode='train', scale=1):
+    from universe import EnvInteractiveMultiAgent as Env
+    #todo
+    from core.method_supervise_offline import IndependentSACsupervise as Method
+
+    ### env param
+    from config.bottleneck import config_env as config_bottleneck
+    
+    from gallery_ma import get_sac__new_bottleneck__adaptive_character_config
+    config_bottleneck.set('config_neural_policy', get_sac__new_bottleneck__adaptive_character_config(config))
+    config.set('training_data_path', f'./results/data_offline/bottleneck/')
+    config.set('envs', [
+        config_bottleneck
+    ])
+
+    ### method param
+    from config.method import config_supervise as config_method
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env, Method)
+
+
 def main():
     config = rllib.basic.YamlConfig()
     from config.args import generate_args
@@ -117,6 +140,11 @@ def main():
         scale = 10
         config.description += '--supervise-offline-woattn'
         writer, method = ray_supervise_offline_woattn__bottleneck(config, mode, scale)
+    
+    elif version == 'v1-4':
+        scale = 10
+        config.description += '--supervise-MultiAgent'
+        writer, method = ray_supervise_offline_multiagent__bottleneck(config, mode, scale)
 
     # try:
     #     env_master.create_tasks(method, func=run_one_episode)
