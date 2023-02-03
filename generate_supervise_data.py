@@ -56,7 +56,7 @@ def init(config, mode, Env, Method) -> Tuple[rllib.basic.Writer, universe.EnvMas
 
     return writer, env_master, method
 
-def run_one_episode(env, method):
+def run_one_episode_single_agent(env, method):
     t1 = time.time()
     env.reset()
     state = env.state[0].to_tensor().unsqueeze(0)
@@ -92,6 +92,88 @@ def run_one_episode(env, method):
     env.writer.add_scalar('time_analysis/reset', t2-t1, env.step_reset)
     env.writer.add_scalar('time_analysis/step', time_env_step, env.step_reset)
     return
+
+###################run########################
+
+def run_one_episode_single_agent(env, method):
+    t1 = time.time()
+    env.reset()
+    state = env.state[0].to_tensor().unsqueeze(0)
+    t2 = time.time()
+    time_env_step = 0.0
+    while True:
+        if env.config.render:
+            env.render()
+
+        action = ray.get(method.select_action.remote(state)).cpu().numpy()
+        tt1 = time.time()
+        experience, done, info = env.step(action)
+
+        tt2 = time.time()
+        time_env_step += (tt2-tt1)
+
+        method.store.remote(experience, index=env.env_index)
+        dir_path = f'./results/data_offline/{env.config.scenario_name}'
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
+        file_path = os.path.join(dir_path, str(ray.get(method._get_buffer_len.remote())-1) + '.txt')
+        # print('file path: ', file_path, env.scenario.scenario_randomization.num_vehicles)
+        with open(file_path, 'wb') as f:
+            pickle.dump(experience, f)
+        print('buffer length: {}, safe txt'.format(ray.get(method._get_buffer_len.remote())))
+
+
+        # print('\n safe experience')
+        state = env.state[0].to_tensor().unsqueeze(0)
+        if done:
+            break
+    
+    env.writer.add_scalar('time_analysis/reset', t2-t1, env.step_reset)
+    env.writer.add_scalar('time_analysis/step', time_env_step, env.step_reset)
+    return
+
+def run_one_episode_multi_agent(env, method):
+    # t1 = time.time()
+    env.reset()
+    state = [s.to_tensor().unsqueeze(0) for s in env.state]
+    # t2 = time.time()
+    # time_select_action = 0.0
+    # time_env_step = 0.0
+    while True:
+        if env.config.render:
+            env.render()
+
+        # tt1 = time.time()
+        action = ray.get(method.select_actions.remote(state)).cpu().numpy()
+        # tt2 = time.time()
+        experience, done, info = env.step(action)
+        tt3 = time.time()
+        # time_select_action += (tt2-tt1)
+        # time_env_step += (tt3-tt2)
+
+        method.store.remote(experience, index=env.env_index)
+
+        dir_path = f'./results/data_offline/{env.config.scenario_name}'
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
+        file_path = os.path.join(dir_path, str(ray.get(method._get_buffer_len.remote())-1) + '.txt')
+        # print('file path: ', file_path, env.scenario.scenario_randomization.num_vehicles)
+        with open(file_path, 'wb') as f:
+            pickle.dump(experience, f)
+        print('buffer length: {}, safe txt'.format(ray.get(method._get_buffer_len.remote())))
+
+        state = [s.to_tensor().unsqueeze(0) for s in env.state]
+        if done:
+            break
+    
+    # env.writer.add_scalar('time_analysis/reset', t2-t1, env.step_reset)
+    # env.writer.add_scalar('time_analysis/select_action', time_select_action, env.step_reset)
+    # env.writer.add_scalar('time_analysis/step', time_env_step, env.step_reset)
+    return
+
+
+
+
 
 ###################gallery#################
 def generate__supervise_data__bottleneck(config, mode='train', scale=1):
@@ -156,18 +238,17 @@ if __name__ == "__main__":
     version = config.version
     
     if version == 'v6-5-6':  ### generate supervise data 
-
         config.description += '--supervise__generate_data__bottleneck-hr10act1'
         models_sa.isac__bottleneck__adaptive().update(config)
         writer, env_master, method= generate__supervise_data__bottleneck(config, mode)
 
     if version == 'v1-4':  ### muiltiagent supervise learning 
         config.description += '--supervise__generate_data__bottleneck-hr10act1'
-        models_sa.isac__bottleneck__adaptive().update(config)
+        models_ma.isac__bottleneck__adaptive().update(config)
         writer, env_master, method= ray_RILMthM__bottleneck(config, mode)
 
     try:
-        env_master.create_tasks(method, func=run_one_episode)
+        env_master.create_tasks(method, func=run_one_episode_multi_agent)
 
         for i_episode in range(10000):
             total_steps = ray.get([t.run.remote() for t in env_master.tasks])

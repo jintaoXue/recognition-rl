@@ -138,7 +138,15 @@ class isac_robust_character_copo__multi_scenario(ModelPath):
 #### adaptive character ####################################################
 ############################################################################
 
+class isac__bottleneck__adaptive(ModelPath):
+    method = 'IndependentSAC_v0'
 
+    #2022.10.10 test in 116 server
+    model_dir = '~/github/zdk/recognition-rl/models/IndependentSAC_v0-EnvInteractiveMultiAgent/2022-09-11-15:19:29----ray_isac_adaptive_character__multi_scenario--buffer-rate-0.2/saved_models_method'
+    model_num = 865800
+    #2022/12/21
+    model_dir = '~/github/zdk/recognition-rl/models/origin_no_history_bottleneck'
+    model_num = 445600
 
 class isac_adaptive_character__bottleneck(ModelPath):
     method = 'independentsac_v0'
