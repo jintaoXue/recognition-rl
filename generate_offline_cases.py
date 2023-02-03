@@ -53,10 +53,18 @@ if __name__ == "__main__":
     #     merge.config_env__with_character,
     #     roundabout.config_env__with_character,
     # ])
-    if version == 'v6-6-2':
+
+    ###multi agent
+    if version == 'v1-4':
+        config.set('envs', [
+            bottleneck.config_env,
+        ])
+
+    elif version == 'v6-6-2':
         config.set('envs', [
             bottleneck.config_env__with_character_fix_other_svo,
         ])
+    ###mix background
     elif version == 'v6-6-2-1':
         import gallery_sa
         config_env__adaptive = copy.deepcopy(bottleneck.config_env__multiact__mixbkgrd)
