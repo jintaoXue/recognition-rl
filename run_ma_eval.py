@@ -108,13 +108,29 @@ def main():
     ##### evaluate, recognition ####################################################################
     ################################################################################################
 
-    elif version == 'vtrue':
+    elif version == 'vtrue-0':
         if mode != 'evaluate':
             raise NotImplementedError
 
         scale = 1
         models_ma.isac__bottleneck__adaptive().update(config)
         env_master = gallery.evaluate_ray_isac_adaptive_character__bottleneck(config, mode, scale)
+    
+    elif version == 'vtrue-1': 
+        if mode != 'evaluate':
+            raise NotImplementedError
+        import numpy as np
+        for svo in np.linspace(0, 1, num=11):
+            svo = round(svo,1)
+            config.description = 'evaluate' + '--fix_{}__bottleneck'.format(svo)
+            models_ma.isac__bottleneck__adaptive().update(config)
+            env_master = gallery.evaluate_ray_isac_adaptive_character__bottleneck_fix_svo(config,svo,mode)
+            env_master.create_tasks(func=run_one_episode)
+            ray.get([t.run.remote(n_iters=config.num_episodes) for t in env_master.tasks])
+            del env_master
+            ray.shutdown()
+            ray.init(num_cpus=psutil.cpu_count(), num_gpus=torch.cuda.device_count(), include_dashboard=False)
+        return
 
     elif version == 'v1-4-0':
         if mode != 'evaluate':

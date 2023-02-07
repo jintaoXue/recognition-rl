@@ -50,3 +50,36 @@ class EnvInteractiveMultiAgentActSvo(EnvInteractiveMultiAgent):
             self.metric.on_episode_end()
             self.recorder.save()
         return experience[self.slice()], done, episode_info.to_dict()
+
+
+class EnvInteractiveMultiAgentFixSvo(EnvInteractiveMultiAgent):
+    def __init__(self, config: rllib.basic.YamlConfig, writer: rllib.basic.Writer, env_index=0, ego_svo=0.5,
+    other_svo=0.6):
+        super().__init__(config, writer, env_index)
+        self.ego_svo = ego_svo
+        self.other_svo = other_svo
+
+    def reset(self):
+        self.step_reset += 1
+        self.time_step = 0
+
+        self.dataset = self.datasets[self.step_reset % self.num_cases]
+        self.num_steps = len(self.dataset)
+
+        self.scenario = self.dataset.scenario
+        self.agents_master = self.dataset.agents_master
+        self.agents_master.destroy()
+
+        self.scenario.reset(self.ego_svo, self.other_svo, self.step_reset, sa=self.sa)
+        self.num_vehicles = self.scenario.num_vehicles
+        self.num_vehicles_max = self.scenario.num_vehicles_max
+        self.num_agents = self.scenario.num_agents
+        self.agents_master.reset(self.num_steps)
+
+        self.scenario.register_agents(self.agents_master)
+
+        self.state = self.agents_master.observe(self.step_reset, self.time_step)
+
+        self.metric.on_episode_start(self.step_reset, self.scenario, self.agents_master, self.num_steps, self.num_agents)
+        self.recorder.record_scenario(self.step_reset, self.scenario, self.agents_master)
+        return self.state[self.slice()]

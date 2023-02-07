@@ -31,6 +31,9 @@ config_env__with_character = copy.copy(bottleneck.config_env__with_character)
 config_env__with_character.update(config_env_evaluate)
 config_env__with_character.scenario_cls = scenarios_bottleneck.ScenarioBottleneckEvaluate
 
+config_env__fix_svo = copy.copy(bottleneck.config_env__with_character)
+config_env__fix_svo.update(config_env_evaluate)
+config_env__fix_svo.scenario_cls = scenarios_bottleneck.ScenarioBottleneckEvaluate_fix_our_others
 
 config_env__with_character_assign = copy.copy(config_env__with_character)
 config_env__with_character_assign.scenario_cls = scenarios_bottleneck.ScenarioBottleneckEvaluate_assign
