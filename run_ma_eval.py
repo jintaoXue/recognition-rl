@@ -129,7 +129,8 @@ def main():
             ray.get([t.run.remote(n_iters=config.num_episodes) for t in env_master.tasks])
             del env_master
             ray.shutdown()
-            ray.init(num_cpus=psutil.cpu_count(), num_gpus=torch.cuda.device_count(), include_dashboard=False)
+            ray.init(num_cpus=psutil.cpu_count(), num_gpus=torch.cuda.device_count(), include_dashboard=False, local_mode=True)
+        ray.shutdown()
         return
 
     elif version == 'v1-4-0':
