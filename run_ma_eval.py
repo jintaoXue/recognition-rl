@@ -126,11 +126,12 @@ def main():
             models_ma.isac__bottleneck__adaptive().update(config)
             env_master = gallery.evaluate_ray_isac_adaptive_character__bottleneck_fix_svo(config,svo,mode)
             env_master.create_tasks(func=run_one_episode)
-            ray.get([t.run.remote(n_iters=1) for t in env_master.tasks])
+            ray.get([t.run.remote(n_iters=config.num_episodes) for t in env_master.tasks])
             del env_master
             ray.shutdown()
-            ray.init(num_cpus=psutil.cpu_count(), num_gpus=torch.cuda.device_count(), include_dashboard=False, local_mode=True)
-        # ray.shutdown()
+            ray.init(num_cpus=psutil.cpu_count(), num_gpus=torch.cuda.device_count(), include_dashboard=False)
+        ray.shutdown()
+        return
         # svo = config.svo
         # config.description = 'evaluate' + '--fix_{}__bottleneck'.format(svo)
         # models_ma.isac__bottleneck__adaptive().update(config)
