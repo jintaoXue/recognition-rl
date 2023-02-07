@@ -38,7 +38,7 @@ def init_recog(config, mode, Env, Method) -> universe.EnvMaster_v1:
     env_master = EnvMaster(config, writer, env_cls=Env, method_cls=Method)
     return env_master
 
-def init_fix_svo(config, mode, Env,Method, svo):
+def init_fix_svo(config, mode, Env, Method, svo):
 
     # repos = ['~/github/zdk/rl-lib', '~/github/ali/universe', '~/github/zdk/recognition-rl']
     # config.set('github_repos', repos)
