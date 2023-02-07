@@ -24,6 +24,7 @@ def generate_args():
 
     argparser.add_argument('version', help='[Version] description.')
     argparser.add_argument('--dataset', default='', help='save render (default: False)')
+    argparser.add_argument('--svo', default=0.0, type=float, help='')
     args = argparser.parse_args()
     return args
 
