@@ -912,7 +912,7 @@ def evalute_ray_supervise_offline_multiagent__bottleneck(config, mode='train', s
     from core.method_evaluate import EvaluateSupervise as Method
 
     ### env param
-    from config.bottleneck import config_env as config_bottleneck
+    from config.bottleneck_evaluate import config_env__with_character as config_bottleneck
     
     config.set('envs', [
         config_bottleneck
