@@ -86,8 +86,8 @@ def main():
     
     elif version == 'v1-4-2':
         scale = 1
-        config.description += '--IL'
-        writer, env_master, method = gallery.ray_RILEnvM__bottleneck(config, mode, scale)
+        config.description += '--IL-close-loop'
+        writer, env_master, method = gallery.ray_IL__bottleneck(config, mode, scale)
         
     ################################################################################################
     ##### intersection #############################################################################

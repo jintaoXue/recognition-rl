@@ -166,12 +166,12 @@ def ray_RILEnvM__bottleneck(config, mode='train', scale=1):
     return init(config, mode, Env, Method)
 
 def ray_IL__bottleneck(config, mode='train', scale=1):
-    from utils.env import EnvInteractiveMultiAgentActSvo as Env
+    from utils.env import EnvInteractiveMultiAgent as Env
     #todo
-    from core.method_recog_action_dynamic import RecogV2 as Method
+    from core.method_supervise import IndependentSACsupervise as Method
     
     ### env param
-    from config.bottleneck import config_env__actsvo_multiagent as config_bottleneck
+    from config.bottleneck import config_env as config_bottleneck
     config_bottleneck.set('config_neural_policy', get_sac__bottleneck__new_action_config(config))
 
     config.set('envs', [
@@ -179,10 +179,11 @@ def ray_IL__bottleneck(config, mode='train', scale=1):
     ] *scale)
 
     ### method param
-    from config.method import config_action_svo_multiagent as config_method
+    from config.method import config_supervise_multi as config_method
     config.set('methods', [config_method])
 
     return init(config, mode, Env, Method)
+
 
 ############################################################################
 #### intersection ##########################################################
