@@ -676,6 +676,8 @@ class RILEnvM__bottleneck(ModelPath):
     method = 'RecogV2'
     model_dir = ''
 
-
-
+class ILEnvM__bottleneck(ModelPath):
+    method = 'IndependentSACsupervise'
+    model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveMultiAgent/2023-02-06-10:09:14----Nothing--supervise-MultiAgent/saved_models_method'
+    model_num = 78000
 

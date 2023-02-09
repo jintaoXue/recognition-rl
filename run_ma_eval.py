@@ -161,7 +161,8 @@ def main():
 
         scale = 1
         models_ma.ILEnvM__bottleneck().update(config)
-        env_master = gallery.evaluate_ray_RILEnvM__bottleneck(config, mode, scale)
+        env_master = gallery.evalute_ray_supervise_offline_multiagent__bottleneck(config, mode, scale)
+
     ################################################################################################
     ##### evaluate, training setting ###############################################################
     ################################################################################################
