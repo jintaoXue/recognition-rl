@@ -240,7 +240,7 @@ class RecognitionNetNew(rllib.template.Model):
         #(num_agents, batch, 1) -> (batch, num_agents, 1)
         obs_svos = obs_svos.transpose(0, 1)
         self.obs_svos = obs_svos
-        # breakpoint()
+        breakpoint()
         # print(obs_svos)
         state_ = cut_state(state)
         ### data generation
@@ -443,18 +443,16 @@ class PointNetWithCharactersAgentHistoryRecog(rllib.template.Model):
 
 
     def forward(self, state: rllib.basic.Data, obs_character : torch.Tensor ,**kwargs):
-        
-        state_ = cut_state(state)
-        batch_size = state_.ego.shape[0]
-        num_agents = state_.obs.shape[1]
+        batch_size = state.ego.shape[0]
+        num_agents = state.obs.shape[1]
         num_lanes = state.lane.shape[1]
         num_bounds = state.bound.shape[1]
 
         ### data generation
-        ego = state_.ego[:,-1]
-        ego_mask = state_.ego_mask.to(torch.bool)[:,[-1]]
-        obs = state_.obs[:,:,-1]
-        obs_mask = state_.obs_mask[:,:,-1].to(torch.bool)
+        ego = state.ego[:,-1]
+        ego_mask = state.ego_mask.to(torch.bool)[:,[-1]]
+        obs = state.obs[:,:,-1]
+        obs_mask = state.obs_mask[:,:,-1].to(torch.bool)
         # obs_character = state.obs_character[:,:,-1]
         route = state.route
         route_mask = state.route_mask.to(torch.bool)
@@ -465,9 +463,9 @@ class PointNetWithCharactersAgentHistoryRecog(rllib.template.Model):
 
         ### embedding
         ego_embedding = torch.cat([
-            self.ego_embedding(state_.ego, state_.ego_mask.to(torch.bool)),
+            self.ego_embedding(state.ego, state.ego_mask.to(torch.bool)),
             self.ego_embedding_v1(ego),
-            self.character_embedding(state_.character.unsqueeze(1)),
+            self.character_embedding(state.character.unsqueeze(1)),
         ], dim=1)
 
 
@@ -476,7 +474,7 @@ class PointNetWithCharactersAgentHistoryRecog(rllib.template.Model):
         obs_character = torch.where(obs_character == np.inf, torch.tensor(-1, dtype=torch.float32, device=obs.device), obs_character)
 
         obs_embedding = torch.cat([
-            self.agent_embedding(state_.obs.flatten(end_dim=1), state_.obs_mask.to(torch.bool).flatten(end_dim=1)).view(batch_size,num_agents, self.dim_embedding //2),
+            self.agent_embedding(state.obs.flatten(end_dim=1), state.obs_mask.to(torch.bool).flatten(end_dim=1)).view(batch_size,num_agents, self.dim_embedding //2),
             self.agent_embedding_v1(obs),
             self.character_embedding(obs_character),
         ], dim=2)
@@ -499,11 +497,11 @@ class PointNetWithCharactersAgentHistoryRecog(rllib.template.Model):
             bound_mask.any(dim=2),
         ], dim=1)
         all_embs = torch.cat([ego_embedding.unsqueeze(1), obs_embedding, route_embedding.unsqueeze(1), lane_embedding, bound_embedding], dim=1)
-        type_embedding = self.type_embedding(state_)
+        type_embedding = self.type_embedding(state)
         outputs, attns = self.global_head(all_embs, type_embedding, invalid_polys)
         self.attention = attns.detach().clone().cpu()
 
-        outputs = torch.cat([outputs, self.character_embedding(state_.character.unsqueeze(1))], dim=1)
+        outputs = torch.cat([outputs, self.character_embedding(state.character.unsqueeze(1))], dim=1)
         return outputs
 
 ###### recog as action #########################################################################################

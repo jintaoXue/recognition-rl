@@ -75,7 +75,7 @@ def main():
         writer, env_master, method = gallery.ray_isac_adaptive_character__bottleneck(config, mode)
     
     elif version == 'v1-4-0':
-        scale = 2
+        scale = 1
         config.description += '--RILMthM'
         writer, env_master, method = gallery.ray_RILMthM__bottleneck(config, mode, scale)
 
