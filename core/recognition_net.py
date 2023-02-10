@@ -240,7 +240,7 @@ class RecognitionNetNew(rllib.template.Model):
         #(num_agents, batch, 1) -> (batch, num_agents, 1)
         obs_svos = obs_svos.transpose(0, 1)
         self.obs_svos = obs_svos
-        breakpoint()
+        # breakpoint()
         # print(obs_svos)
         state_ = cut_state(state)
         ### data generation
