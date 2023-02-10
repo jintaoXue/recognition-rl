@@ -851,7 +851,6 @@ class MultiheadAttentionGlobalHead(nn.Module):
     def forward(self, inputs: torch.Tensor, type_embedding: torch.Tensor, mask: torch.Tensor):
         inputs = inputs.transpose(0, 1)
         type_embedding = type_embedding.transpose(0, 1)
-        breakpoint()
         outputs, attns = self.encoder(inputs[[0]], inputs + type_embedding, inputs, mask)
         # return torch.cat([outputs, inputs[[0]]], dim=2), attns
         # return outputs + inputs[[0]], attns
