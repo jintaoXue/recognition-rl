@@ -14,7 +14,7 @@ import torch.nn as nn
 import ray
 from typing import Dict
 from torch.nn.modules.linear import NonDynamicallyQuantizableLinear
-
+from rllib.template.model import FeatureMapper
 ################################################################################################################
 ###### model ###################################################################################################
 ################################################################################################################
@@ -169,7 +169,10 @@ class RecognitionNetNew(rllib.template.Model):
 
         self.static_embedding = DeepSetModule(self.dim_state.static, dim_embedding +dim_character_embedding)
         self.type_embedding = VectorizedEmbedding(dim_embedding + dim_character_embedding)
-        self.global_head_recognition = MultiheadAttentionGlobalHeadRecognition(dim_embedding + dim_character_embedding, out_dim=1, nhead=4, dropout=0.0 if config.evaluate else 0.1)
+        self.global_head_recognition = MultiheadAttentionGlobalHeadRecognition(dim_embedding + dim_character_embedding,\
+             out_dim=dim_embedding + dim_character_embedding, nhead=4, dropout=0.0 if config.evaluate else 0.1)
+        # self.global_head_recognition = MultiheadAttentionGlobalHead(dim_embedding + dim_character_embedding, nhead=4, dropout=0.0 if config.evaluate else 0.1)
+        self.recog_feature_mapper = FeatureMapper(config, model_id, dim_embedding + dim_character_embedding, 1)
         self.tanh = nn.Tanh()
         # self.dim_feature = dim_embedding+dim_character_embedding + dim_character_embedding
         # self.actor = torch.load('****.pth')
@@ -235,7 +238,8 @@ class RecognitionNetNew(rllib.template.Model):
 
         obs_svos, attns = self.global_head_recognition(all_embs, type_embedding, invalid_polys_recog, num_agents)
         # self.attention = attns.detach().clone().cpu()
-        obs_svos = self.tanh(obs_svos)
+        obs_svos = self.tanh(self.recog_feature_mapper(obs_svos))
+        # breakpoint()
         # obs_svos = (1 + self.tanh(obs_svos))/2
         #(num_agents, batch, 1) -> (batch, num_agents, 1)
         obs_svos = obs_svos.transpose(0, 1)
@@ -443,29 +447,30 @@ class PointNetWithCharactersAgentHistoryRecog(rllib.template.Model):
 
 
     def forward(self, state: rllib.basic.Data, obs_character : torch.Tensor ,**kwargs):
-        batch_size = state.ego.shape[0]
-        num_agents = state.obs.shape[1]
-        num_lanes = state.lane.shape[1]
-        num_bounds = state.bound.shape[1]
+        _state = cut_state(state)
+        batch_size = _state.ego.shape[0]
+        num_agents = _state.obs.shape[1]
+        num_lanes = _state.lane.shape[1]
+        num_bounds = _state.bound.shape[1]
 
         ### data generation
-        ego = state.ego[:,-1]
-        ego_mask = state.ego_mask.to(torch.bool)[:,[-1]]
-        obs = state.obs[:,:,-1]
-        obs_mask = state.obs_mask[:,:,-1].to(torch.bool)
+        ego = _state.ego[:,-1]
+        ego_mask = _state.ego_mask.to(torch.bool)[:,[-1]]
+        obs = _state.obs[:,:,-1]
+        obs_mask = _state.obs_mask[:,:,-1].to(torch.bool)
         # obs_character = state.obs_character[:,:,-1]
-        route = state.route
-        route_mask = state.route_mask.to(torch.bool)
-        lane = state.lane
-        lane_mask = state.lane_mask.to(torch.bool)
-        bound = state.bound
-        bound_mask = state.bound_mask.to(torch.bool)
+        route = _state.route
+        route_mask = _state.route_mask.to(torch.bool)
+        lane = _state.lane
+        lane_mask = _state.lane_mask.to(torch.bool)
+        bound = _state.bound
+        bound_mask = _state.bound_mask.to(torch.bool)
 
         ### embedding
         ego_embedding = torch.cat([
-            self.ego_embedding(state.ego, state.ego_mask.to(torch.bool)),
+            self.ego_embedding(_state.ego, _state.ego_mask.to(torch.bool)),
             self.ego_embedding_v1(ego),
-            self.character_embedding(state.character.unsqueeze(1)),
+            self.character_embedding(_state.character.unsqueeze(1)),
         ], dim=1)
 
 
@@ -474,7 +479,7 @@ class PointNetWithCharactersAgentHistoryRecog(rllib.template.Model):
         obs_character = torch.where(obs_character == np.inf, torch.tensor(-1, dtype=torch.float32, device=obs.device), obs_character)
 
         obs_embedding = torch.cat([
-            self.agent_embedding(state.obs.flatten(end_dim=1), state.obs_mask.to(torch.bool).flatten(end_dim=1)).view(batch_size,num_agents, self.dim_embedding //2),
+            self.agent_embedding(_state.obs.flatten(end_dim=1), _state.obs_mask.to(torch.bool).flatten(end_dim=1)).view(batch_size,num_agents, self.dim_embedding //2),
             self.agent_embedding_v1(obs),
             self.character_embedding(obs_character),
         ], dim=2)
@@ -497,11 +502,11 @@ class PointNetWithCharactersAgentHistoryRecog(rllib.template.Model):
             bound_mask.any(dim=2),
         ], dim=1)
         all_embs = torch.cat([ego_embedding.unsqueeze(1), obs_embedding, route_embedding.unsqueeze(1), lane_embedding, bound_embedding], dim=1)
-        type_embedding = self.type_embedding(state)
+        type_embedding = self.type_embedding(_state)
         outputs, attns = self.global_head(all_embs, type_embedding, invalid_polys)
         self.attention = attns.detach().clone().cpu()
 
-        outputs = torch.cat([outputs, self.character_embedding(state.character.unsqueeze(1))], dim=1)
+        outputs = torch.cat([outputs, self.character_embedding(_state.character.unsqueeze(1))], dim=1)
         return outputs
 
 ###### recog as action #########################################################################################
@@ -665,7 +670,8 @@ class RecogNetMultiSVO(rllib.template.Model):
 
         self.type_embedding = VectorizedEmbedding(dim_embedding)
 
-        self.global_head_recognition = MultiheadAttentionGlobalHeadRecognition(dim_embedding, dim_embedding,nhead=4, dropout=0.0 if config.evaluate else 0.1)
+        self.global_head_recognition = MultiheadAttentionGlobalHeadRecognition(dim_embedding, \
+            dim_embedding,nhead=4, dropout=0.0 if config.evaluate else 0.1)
         self.dim_feature = dim_embedding+dim_character_embedding
 
     def forward(self, state: rllib.basic.Data, **kwargs):
