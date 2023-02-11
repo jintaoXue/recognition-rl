@@ -34,6 +34,7 @@ class ReplayBufferMultiWorker(object):
 
 class ReplayBuffer(rllib.buffer.ReplayBuffer):
     def push_new(self, experience, **kwargs):
+        breakpoint()
         rate = 0.2
         index = self.size % self.capacity
         if self.size >= self.capacity:

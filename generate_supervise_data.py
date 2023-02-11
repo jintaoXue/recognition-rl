@@ -156,14 +156,16 @@ def run_one_episode_multi_agent(env, method):
         dir_path = f'./results/data_offline/{env.config.scenario_name}'
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
-        file_path = os.path.join(dir_path, str(ray.get(method._get_buffer_len.remote())-1) + '.txt')
+
+        num = ray.get(method._get_buffer_len.remote())
+        file_path = os.path.join(dir_path, str(num-1) + '.txt')
         # print('file path: ', file_path, env.scenario.scenario_randomization.num_vehicles)
         with open(file_path, 'wb') as f:
             pickle.dump(experience, f)
-        print('buffer length: {}, safe txt'.format(ray.get(method._get_buffer_len.remote())))
+        print('buffer length: {}, safe txt'.format(num))
 
         state = [s.to_tensor().unsqueeze(0) for s in env.state]
-        if done:
+        if done or num > 8e5:
             break
     
     # env.writer.add_scalar('time_analysis/reset', t2-t1, env.step_reset)
