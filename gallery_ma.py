@@ -117,6 +117,8 @@ def ray_isac_robust_character__bottleneck(config, mode='train', scale=5):
 
 
 def ray_isac_adaptive_character__bottleneck(config, mode='train', scale=1):
+    from universe import EnvInteractiveMultiAgent as Env
+    from core.method_isac_v0 import IndependentSAC_v0 as Method
     ### env param
     from config.bottleneck import config_env__with_character, config_env__with_character_share
     config.set('envs', [config_env__with_character, config_env__with_character_share] *scale)
@@ -125,7 +127,7 @@ def ray_isac_adaptive_character__bottleneck(config, mode='train', scale=1):
     from config.method import config_isac__adaptive_character as config_method
     config.set('methods', [config_method])
 
-    return init(config, mode)
+    return init(config, mode, Env, Method)
 
 def ray_RILMthM__bottleneck(config, mode='train', scale=1):
     from universe import EnvInteractiveMultiAgent as Env
