@@ -91,18 +91,18 @@ def evaluate_ray_isac_adaptive_character__intersection(config, mode='evaluate', 
 
 
 
-def evaluate_ray_isac_adaptive_character__merge(config, mode='evaluate', scale=5):
-    from universe import EnvInteractiveMultiAgent as Env
+# def evaluate_ray_isac_adaptive_character__merge(config, mode='evaluate', scale=5):
+#     from universe import EnvInteractiveMultiAgent as Env
 
-    ### env param
-    from config.merge_evaluate import config_env__with_character
-    config.set('envs', [config_env__with_character] *scale)
+#     ### env param
+#     from config.merge_evaluate import config_env__with_character
+#     config.set('envs', [config_env__with_character] *scale)
 
-    ### method param
-    from config.method import config_isac__adaptive_character as config_method
-    config.set('methods', [config_method])
+#     ### method param
+#     from config.method import config_isac__adaptive_character as config_method
+#     config.set('methods', [config_method])
 
-    return init(config, mode, Env)
+#     return init(config, mode, Env)
 
 
 
@@ -926,7 +926,6 @@ def evalute_ray_supervise_offline_multiagent__bottleneck(config, mode='train', s
 #################################################################################
 ##############evaluate recog merge###############################################
 #################################################################################
-
 
 def evaluate_ray_isac_adaptive_character__merge(config, mode='evaluate', scale=5):
     from universe import EnvInteractiveMultiAgent as Env

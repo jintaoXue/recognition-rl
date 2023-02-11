@@ -21,8 +21,6 @@ from config import merge
 ### multi agent ####################################################################
 ####################################################################################
 
-
-
 config_env__with_character = copy.copy(merge.config_env__with_character)
 config_env__with_character.update(config_env_evaluate)
 config_env__with_character.scenario_cls = scenarios_merge.ScenarioMergeEvaluate
