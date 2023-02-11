@@ -93,19 +93,19 @@ def ray_supervise_offline_multiagent__bottleneck(config, mode='train', scale=1):
     from universe import EnvInteractiveMultiAgent as Env
     #todo
     from core.method_supervise_offline import IndependentSACsupervise as Method
-
+    
+    from config.method import config_supervise_multi as config_method
+    ### method param
+    config_method.set('action_policy_model_dir', \
+        '~/github/zdk/recognition-rl/models/IndependentSAC_v0-EnvInteractiveMultiAgent/2022-09-11-15:19:29----ray_isac_adaptive_character__multi_scenario--buffer-rate-0.2/saved_models_method')
+    config_method.set('action_policy_model_num', 865800) 
+    
     ### env param
     from config.bottleneck import config_env as config_bottleneck
-    
-    from gallery_ma import get_sac__new_bottleneck__adaptive_character_config
-    config_bottleneck.set('config_neural_policy', get_sac__new_bottleneck__adaptive_character_config(config))
     config.set('training_data_path', f'./results/data_offline/bottleneck/')
     config.set('envs', [
         config_bottleneck
     ])
-
-    ### method param
-    from config.method import config_supervise_multi as config_method
     config.set('methods', [config_method])
 
     return init(config, mode, Env, Method)
