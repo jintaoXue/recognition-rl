@@ -279,7 +279,7 @@ class RecognitionNetNew(rllib.template.Model):
             bound_mask.any(dim=2),
         ], dim=1)
         all_embs = torch.cat([ego_embedding.unsqueeze(1), obs_embedding, route_embedding.unsqueeze(1), lane_embedding, bound_embedding], dim=1)
-        type_embedding = self.type_embedding(state_)
+        # type_embedding = self.type_embedding(state_)
         outputs, attns = self.global_head(all_embs, type_embedding, invalid_polys)
         self.attention = attns.detach().clone().cpu()
 

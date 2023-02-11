@@ -72,8 +72,16 @@ class IndependentSACsupervise(MethodSingleAgent):
         #todo
         self.actor_target = copy.deepcopy(self.actor)
         self.models_to_save = [self.actor]
+        
+        for name, p in self.actor.named_parameters():
+            if name.startswith('fe.global_head_recognition') or \
+                name.startswith('fe.ego_embedding_recog') or \
+                name.startswith('fe.recog_feature_mapper') or \
+                name.startswith('fe.agent_embedding_recog'):
+                p.requires_grad = True
+            else : p.requires_grad = False
 
-        self.recog_optimizer= Adam(self.actor.recog.parameters(), lr=self.lr_actor)
+        self.actor_optimizer = Adam(filter(lambda x: x.requires_grad is not False ,self.actor.parameters()), lr=self.lr_actor)
         
         self.recog_loss = nn.MSELoss()#l1 loss
         # for name,param in self.actor.state_dict(keep_vars=True).items():
@@ -112,10 +120,10 @@ class IndependentSACsupervise(MethodSingleAgent):
         # recog_character = torch.where(recog_character == np.inf, torch.tensor(-1, dtype=torch.float32, device=state.obs.device), recog_character)
         character_loss = self.recog_loss(recog_character, real_character)
         RMSE_loss = torch.sqrt(character_loss)
-        self.recog_optimizer.zero_grad()
+        self.actor_optimizer.zero_grad()
         # character_loss.backward()
         RMSE_loss.backward()    
-        self.recog_optimizer.step()
+        self.actor_optimizer.step()
         # for name,p in self.actor.fe.named_parameters():
         #     print(name, p)  
         # time.sleep(10)
@@ -196,7 +204,7 @@ class IndependentSACsuperviseRoll(IndependentSACsupervise):
 
             '''character MSE'''
             t1 = time.time()
-            recog_character = self.actor.recog(state)  
+            _,_,recog_character = self.actor(state)  
             t2 = time.time()
             real_character = state.obs_character[:,:,-1]
             recog_character = recog_character[~torch.isinf(real_character)]
@@ -245,36 +253,23 @@ class Actor(rllib.template.Model):
         self.fe = config.get('net_actor_fe', FeatureExtractor)(config, 0)
         self.mean = config.get('net_actor_fm', FeatureMapper)(config, 0, self.fe.dim_feature, config.dim_action)
         self.std = copy.deepcopy(self.mean)
-
-        self.recog = config.get('net_recog', RecognitionNet)(config).to(self.device)
-
+        # self.recog = config.get('net_recog', RecognitionNet)(config).to(self.device)
         self.apply(init_weights)
 
         #evaluate
         # self.recog_loss = nn.MSELoss()
 
     def forward(self, state):        
-        #add character into state
-        obs_character = self.recog(state)
-        # print(obs_character)
-        # #evaluate
-        # real_character = state.obs_character[:,:,-1]
-        # recog_character = obs_character[~torch.isinf(real_character)]
-        # real_character = real_character[~torch.isinf(real_character)]
-        
-        # real_character = torch.where(real_character == np.inf, torch.tensor(-1, dtype=torch.float32, device=state.obs.device), real_character)
-        # recog_character = torch.where(recog_character == np.inf, torch.tensor(-1, dtype=torch.float32, device=state.obs.device), recog_character)
-        # character_loss = self.recog_loss(recog_character, real_character)
-        # print("****************loss{}".format( torch.sqrt(character_loss)))
-        #####
-        x = self.fe(state, obs_character)
+        x = self.fe(state)
+
         mean = self.mean_no(self.mean(x))
         logstd = self.std_no(self.std(x))
         logstd = (self.logstd_max-self.logstd_min) * logstd + (self.logstd_max+self.logstd_min)
-        return mean, logstd *0.5
+        return mean, logstd *0.5, self.fe.get_recog_obs_svos()
+
 
     def sample(self, state):
-        mean, logstd = self(state)
+        mean, logstd, _ = self(state)
 
         cov = torch.diag_embed( torch.exp(logstd) )
         dist = MultivariateNormal(mean, cov)

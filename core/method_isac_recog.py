@@ -75,6 +75,7 @@ class IndependentSAC_recog(MethodSingleAgent):
         for name, p in self.actor.named_parameters():
             if name.startswith('fe.global_head_recognition') or \
                 name.startswith('fe.ego_embedding_recog') or \
+                name.startswith('fe.recog_feature_mapper') or \
                 name.startswith('fe.agent_embedding_recog'):
                 p.requires_grad = True
             else : p.requires_grad = False
