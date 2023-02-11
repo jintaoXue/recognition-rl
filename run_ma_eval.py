@@ -221,7 +221,7 @@ def main():
         if mode != 'evaluate':
             raise NotImplementedError
 
-        scale = 5
+        scale = 1
         # scale = 1
         models_ma.isac_robust_character__bottleneck().update(config)
         env_master = gallery.evaluate_ray_isac_robust_character__bottleneck(config, mode, scale)
@@ -230,7 +230,7 @@ def main():
         if mode != 'evaluate':
             raise NotImplementedError
 
-        scale = 5
+        scale = 1
         # scale = 1
         models_ma.isac_robust_character__merge().update(config)
         env_master = gallery.evaluate_ray_isac_robust_character__merge(config, mode, scale)
@@ -250,7 +250,7 @@ def main():
         if mode != 'evaluate':
             raise NotImplementedError
 
-        scale = 5
+        scale = 1
         # scale = 1
         models_ma.isac_no_character__multi_scenario().update(config)
         env_master = gallery.evaluate_ray_isac_no_character__merge(config, mode, scale)
