@@ -109,7 +109,7 @@ class IndependentSACsupervise(MethodSingleAgent):
 
         '''character MSE'''
         t1 = time.time()
-        recog_character = self.actor.recog(state)  
+        _,_,recog_character = self.actor(state)   
         t2 = time.time()
         real_character = state.obs_character[:,:,-1]
         recog_character = recog_character[~torch.isinf(real_character)]
