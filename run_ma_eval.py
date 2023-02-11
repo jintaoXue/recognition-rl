@@ -105,7 +105,7 @@ def main():
         raise NotImplementedError
     
     ################################################################################################
-    ##### evaluate, recognition ####################################################################
+    ##### evaluate, recognition, bottleneck ########################################################
     ################################################################################################
 
     elif version == 'vtrue-0':
@@ -164,235 +164,283 @@ def main():
         env_master = gallery.evalute_ray_supervise_offline_multiagent__bottleneck(config, mode, scale)
 
     ################################################################################################
-    ##### evaluate, training setting ###############################################################
+    ##### evaluate, recognition, merge #############################################################
     ################################################################################################
-
-
-    elif version == 'v0-1':
-        if mode != 'evaluate':
-            raise NotImplementedError
-
-        scale = 5
-        # scale = 1
-        models_ma.isac_adaptive_character__bottleneck().update(config)
-        env_master = gallery.evaluate_ray_isac_adaptive_character__bottleneck(config, mode, scale)
-
-
-    elif version == 'v0-2':
-        if mode != 'evaluate':
-            raise NotImplementedError
-
-        scale = 5
-        # scale = 1
-        models_ma.isac_adaptive_character__intersection().update(config)
-        env_master = gallery.evaluate_ray_isac_adaptive_character__intersection(config, mode, scale)
     
-
-
-    elif version == 'v0-3':
+    elif version == 'vtrue-2':
         if mode != 'evaluate':
             raise NotImplementedError
 
-        scale = 5
-        # scale = 1
+        scale = 1
         models_ma.isac_adaptive_character__merge().update(config)
         env_master = gallery.evaluate_ray_isac_adaptive_character__merge(config, mode, scale)
     
+    elif version == 'vtrue-3': 
+        if mode != 'evaluate':
+            raise NotImplementedError
+        import numpy as np
+        for svo in np.linspace(0, 1, num=11):
+            svo = round(svo,1)
+            config.description = 'evaluate' + '--fix_{}__merge'.format(svo)
+            models_ma.isac_adaptive_character__merge().update(config)
+            env_master = gallery.evaluate_ray_isac_adaptive_character__merge_fix_svo(config,svo,mode)
+            env_master.create_tasks(func=run_one_episode)
+            ray.get([t.run.remote(n_iters=config.num_episodes) for t in env_master.tasks])
+            del env_master
+            ray.shutdown()
+            ray.init(num_cpus=psutil.cpu_count(), num_gpus=torch.cuda.device_count(), include_dashboard=False)
+        ray.shutdown()
+        return
 
 
-    elif version == 'v0-4':
+    elif version == 'v2-4-0':
         if mode != 'evaluate':
             raise NotImplementedError
 
-        scale = 5
-        # scale = 1
-        models_ma.isac_adaptive_character__roundabout().update(config)
-        env_master = gallery.evaluate_ray_isac_adaptive_character__roundabout(config, mode, scale)
+        scale = 1
+        models_ma.RILMthM__merge().update(config)
+        env_master = gallery.evaluate_ray_RILMthM__merge(config, mode, scale)
+    
+    elif version == 'v2-4-1':
+        if mode != 'evaluate':
+            raise NotImplementedError
+
+        scale = 1
+        models_ma.RILEnvM__merge().update(config)
+        env_master = gallery.evaluate_ray_RILEnvM__merge(config, mode, scale)
+    
+    elif version == 'v2-4-2':
+        if mode != 'evaluate':
+            raise NotImplementedError
+
+        scale = 1
+        models_ma.ILEnvM__merge().update(config)
+        env_master = gallery.evalute_ray_supervise_offline_multiagent__merge(config, mode, scale)
+
+    # ################################################################################################
+    # ##### evaluate, training setting ###############################################################
+    # ################################################################################################
+
+
+    # elif version == 'v0-1':
+    #     if mode != 'evaluate':
+    #         raise NotImplementedError
+
+    #     scale = 5
+    #     # scale = 1
+    #     models_ma.isac_adaptive_character__bottleneck().update(config)
+    #     env_master = gallery.evaluate_ray_isac_adaptive_character__bottleneck(config, mode, scale)
+
+
+    # elif version == 'v0-2':
+    #     if mode != 'evaluate':
+    #         raise NotImplementedError
+
+    #     scale = 5
+    #     # scale = 1
+    #     models_ma.isac_adaptive_character__intersection().update(config)
+    #     env_master = gallery.evaluate_ray_isac_adaptive_character__intersection(config, mode, scale)
     
 
 
-    ################################################################################################
-    ##### evaluate, training setting robust ########################################################
-    ################################################################################################
+    # elif version == 'v0-3':
+    #     if mode != 'evaluate':
+    #         raise NotImplementedError
 
+    #     scale = 5
+    #     # scale = 1
+    #     models_ma.isac_adaptive_character__merge().update(config)
+    #     env_master = gallery.evaluate_ray_isac_adaptive_character__merge(config, mode, scale)
+    
 
-    elif version == 'v1-1':
-        if mode != 'evaluate':
-            raise NotImplementedError
 
-        scale = 5
-        # scale = 1
-        models_ma.isac_robust_character__bottleneck().update(config)
-        env_master = gallery.evaluate_ray_isac_robust_character__bottleneck(config, mode, scale)
+    # elif version == 'v0-4':
+    #     if mode != 'evaluate':
+    #         raise NotImplementedError
 
-    elif version == 'v1-2':
-        if mode != 'evaluate':
-            raise NotImplementedError
+    #     scale = 5
+    #     # scale = 1
+    #     models_ma.isac_adaptive_character__roundabout().update(config)
+    #     env_master = gallery.evaluate_ray_isac_adaptive_character__roundabout(config, mode, scale)
+    
 
-        scale = 5
-        # scale = 1
-        models_ma.isac_robust_character__intersection().update(config)
-        env_master = gallery.evaluate_ray_isac_robust_character__intersection(config, mode, scale)
 
-    elif version == 'v1-3':
-        if mode != 'evaluate':
-            raise NotImplementedError
+    # ################################################################################################
+    # ##### evaluate, training setting robust ########################################################
+    # ################################################################################################
 
-        scale = 5
-        # scale = 1
-        models_ma.isac_robust_character__merge().update(config)
-        env_master = gallery.evaluate_ray_isac_robust_character__merge(config, mode, scale)
 
-    elif version == 'v1-4':
-        if mode != 'evaluate':
-            raise NotImplementedError
+    # elif version == 'v1-1':
+    #     if mode != 'evaluate':
+    #         raise NotImplementedError
 
-        scale = 5
-        # scale = 1
-        models_ma.isac_robust_character__roundabout().update(config)
-        env_master = gallery.evaluate_ray_isac_robust_character__roundabout(config, mode, scale)
+    #     scale = 5
+    #     # scale = 1
+    #     models_ma.isac_robust_character__bottleneck().update(config)
+    #     env_master = gallery.evaluate_ray_isac_robust_character__bottleneck(config, mode, scale)
 
+    # elif version == 'v1-2':
+    #     if mode != 'evaluate':
+    #         raise NotImplementedError
 
+    #     scale = 5
+    #     # scale = 1
+    #     models_ma.isac_robust_character__intersection().update(config)
+    #     env_master = gallery.evaluate_ray_isac_robust_character__intersection(config, mode, scale)
 
+    # elif version == 'v1-3':
+    #     if mode != 'evaluate':
+    #         raise NotImplementedError
 
-    ################################################################################################
-    ##### evaluate, training setting copo ##########################################################
-    ################################################################################################
+    #     scale = 5
+    #     # scale = 1
+    #     models_ma.isac_robust_character__merge().update(config)
+    #     env_master = gallery.evaluate_ray_isac_robust_character__merge(config, mode, scale)
 
+    # elif version == 'v1-4':
+    #     if mode != 'evaluate':
+    #         raise NotImplementedError
 
-    elif version == 'v2-1':
-        if mode != 'evaluate':
-            raise NotImplementedError
+    #     scale = 5
+    #     # scale = 1
+    #     models_ma.isac_robust_character__roundabout().update(config)
+    #     env_master = gallery.evaluate_ray_isac_robust_character__roundabout(config, mode, scale)
 
-        scale = 5
-        # scale = 1
-        models_ma.isac_robust_character_copo__multi_scenario().update(config)
-        env_master = gallery.evaluate_ray_isac_robust_character_copo__bottleneck(config, mode, scale)
 
-    elif version == 'v2-2':
-        if mode != 'evaluate':
-            raise NotImplementedError
 
-        scale = 5
-        # scale = 1
-        models_ma.isac_robust_character_copo__multi_scenario().update(config)
-        env_master = gallery.evaluate_ray_isac_robust_character_copo__intersection(config, mode, scale)
 
-    elif version == 'v2-3':
-        if mode != 'evaluate':
-            raise NotImplementedError
+    # ################################################################################################
+    # ##### evaluate, training setting copo ##########################################################
+    # ################################################################################################
 
-        scale = 5
-        # scale = 1
-        models_ma.isac_robust_character_copo__multi_scenario().update(config)
-        env_master = gallery.evaluate_ray_isac_robust_character_copo__merge(config, mode, scale)
 
-    elif version == 'v2-4':
-        if mode != 'evaluate':
-            raise NotImplementedError
+    # elif version == 'v2-1':
+    #     if mode != 'evaluate':
+    #         raise NotImplementedError
 
-        scale = 5
-        # scale = 1
-        models_ma.isac_robust_character_copo__multi_scenario().update(config)
-        env_master = gallery.evaluate_ray_isac_robust_character_copo__roundabout(config, mode, scale)
+    #     scale = 5
+    #     # scale = 1
+    #     models_ma.isac_robust_character_copo__multi_scenario().update(config)
+    #     env_master = gallery.evaluate_ray_isac_robust_character_copo__bottleneck(config, mode, scale)
 
+    # elif version == 'v2-2':
+    #     if mode != 'evaluate':
+    #         raise NotImplementedError
 
+    #     scale = 5
+    #     # scale = 1
+    #     models_ma.isac_robust_character_copo__multi_scenario().update(config)
+    #     env_master = gallery.evaluate_ray_isac_robust_character_copo__intersection(config, mode, scale)
 
+    # elif version == 'v2-3':
+    #     if mode != 'evaluate':
+    #         raise NotImplementedError
 
+    #     scale = 5
+    #     # scale = 1
+    #     models_ma.isac_robust_character_copo__multi_scenario().update(config)
+    #     env_master = gallery.evaluate_ray_isac_robust_character_copo__merge(config, mode, scale)
 
-    ################################################################################################
-    ##### evaluate, training setting no ############################################################
-    ################################################################################################
+    # elif version == 'v2-4':
+    #     if mode != 'evaluate':
+    #         raise NotImplementedError
 
+    #     scale = 5
+    #     # scale = 1
+    #     models_ma.isac_robust_character_copo__multi_scenario().update(config)
+    #     env_master = gallery.evaluate_ray_isac_robust_character_copo__roundabout(config, mode, scale)
 
-    elif version == 'v3-1':
-        if mode != 'evaluate':
-            raise NotImplementedError
 
-        scale = 5
-        # scale = 1
-        # models_ma.isac_no_character__multi_scenario().update(config)
-        models_ma.isac_no_character__bottleneck().update(config)
-        env_master = gallery.evaluate_ray_isac_no_character__bottleneck(config, mode, scale)
 
-    elif version == 'v3-2':
-        if mode != 'evaluate':
-            raise NotImplementedError
 
-        scale = 5
-        # scale = 1
-        models_ma.isac_no_character__multi_scenario().update(config)
-        env_master = gallery.evaluate_ray_isac_no_character__intersection(config, mode, scale)
 
-    elif version == 'v3-3':
-        if mode != 'evaluate':
-            raise NotImplementedError
+    # ################################################################################################
+    # ##### evaluate, training setting no ############################################################
+    # ################################################################################################
 
-        scale = 5
-        # scale = 1
-        models_ma.isac_no_character__multi_scenario().update(config)
-        env_master = gallery.evaluate_ray_isac_no_character__merge(config, mode, scale)
 
-    elif version == 'v3-4':
-        if mode != 'evaluate':
-            raise NotImplementedError
+    # elif version == 'v3-1':
+    #     if mode != 'evaluate':
+    #         raise NotImplementedError
 
-        scale = 5
-        # scale = 1
-        models_ma.isac_no_character__multi_scenario().update(config)
-        env_master = gallery.evaluate_ray_isac_no_character__roundabout(config, mode, scale)
+    #     scale = 5
+    #     # scale = 1
+    #     # models_ma.isac_no_character__multi_scenario().update(config)
+    #     models_ma.isac_no_character__bottleneck().update(config)
+    #     env_master = gallery.evaluate_ray_isac_no_character__bottleneck(config, mode, scale)
 
+    # elif version == 'v3-2':
+    #     if mode != 'evaluate':
+    #         raise NotImplementedError
 
+    #     scale = 5
+    #     # scale = 1
+    #     models_ma.isac_no_character__multi_scenario().update(config)
+    #     env_master = gallery.evaluate_ray_isac_no_character__intersection(config, mode, scale)
 
+    # elif version == 'v3-3':
+    #     if mode != 'evaluate':
+    #         raise NotImplementedError
 
+    #     scale = 5
+    #     # scale = 1
+    #     models_ma.isac_no_character__multi_scenario().update(config)
+    #     env_master = gallery.evaluate_ray_isac_no_character__merge(config, mode, scale)
 
+    # elif version == 'v3-4':
+    #     if mode != 'evaluate':
+    #         raise NotImplementedError
 
-    ################################################################################################
-    ##### evaluate, training setting copo adv ######################################################
-    ################################################################################################
+    #     scale = 5
+    #     # scale = 1
+    #     models_ma.isac_no_character__multi_scenario().update(config)
+    #     env_master = gallery.evaluate_ray_isac_no_character__roundabout(config, mode, scale)
 
 
-    elif version == 'v4-1':
-        if mode != 'evaluate':
-            raise NotImplementedError
 
-        scale = 5
-        # scale = 1
-        models_ma.isac_robust_character_copo__multi_scenario().update(config)  ### pseudo
-        env_master = gallery.evaluate_ray_isac_robust_character_copo_adv__bottleneck(config, mode, scale)
 
-    elif version == 'v4-2':
-        if mode != 'evaluate':
-            raise NotImplementedError
 
-        scale = 5
-        # scale = 1
-        models_ma.isac_robust_character_copo__multi_scenario().update(config)  ### pseudo
-        env_master = gallery.evaluate_ray_isac_robust_character_copo_adv__intersection(config, mode, scale)
 
-    elif version == 'v4-3':
-        if mode != 'evaluate':
-            raise NotImplementedError
+    # ################################################################################################
+    # ##### evaluate, training setting copo adv ######################################################
+    # ################################################################################################
 
-        scale = 5
-        # scale = 1
-        models_ma.isac_robust_character_copo__multi_scenario().update(config)  ### pseudo
-        env_master = gallery.evaluate_ray_isac_robust_character_copo_adv__merge(config, mode, scale)
 
-    elif version == 'v4-4':
-        if mode != 'evaluate':
-            raise NotImplementedError
+    # elif version == 'v4-1':
+    #     if mode != 'evaluate':
+    #         raise NotImplementedError
 
-        scale = 5
-        # scale = 1
-        models_ma.isac_robust_character_copo__multi_scenario().update(config)  ### pseudo
-        env_master = gallery.evaluate_ray_isac_robust_character_copo_adv__roundabout(config, mode, scale)
+    #     scale = 5
+    #     # scale = 1
+    #     models_ma.isac_robust_character_copo__multi_scenario().update(config)  ### pseudo
+    #     env_master = gallery.evaluate_ray_isac_robust_character_copo_adv__bottleneck(config, mode, scale)
 
+    # elif version == 'v4-2':
+    #     if mode != 'evaluate':
+    #         raise NotImplementedError
 
+    #     scale = 5
+    #     # scale = 1
+    #     models_ma.isac_robust_character_copo__multi_scenario().update(config)  ### pseudo
+    #     env_master = gallery.evaluate_ray_isac_robust_character_copo_adv__intersection(config, mode, scale)
 
+    # elif version == 'v4-3':
+    #     if mode != 'evaluate':
+    #         raise NotImplementedError
 
+    #     scale = 5
+    #     # scale = 1
+    #     models_ma.isac_robust_character_copo__multi_scenario().update(config)  ### pseudo
+    #     env_master = gallery.evaluate_ray_isac_robust_character_copo_adv__merge(config, mode, scale)
 
+    # elif version == 'v4-4':
+    #     if mode != 'evaluate':
+    #         raise NotImplementedError
 
+    #     scale = 5
+    #     # scale = 1
+    #     models_ma.isac_robust_character_copo__multi_scenario().update(config)  ### pseudo
+    #     env_master = gallery.evaluate_ray_isac_robust_character_copo_adv__roundabout(config, mode, scale)
 
 
 
@@ -401,194 +449,200 @@ def main():
 
 
 
-    ################################################################################################
-    ##### evaluate, assign character, adaptive #####################################################
-    ################################################################################################
 
-    elif version == 'v-1-1':
-        if mode != 'evaluate':
-            raise NotImplementedError
 
-        scale = 11
-        models_ma.isac_adaptive_character__bottleneck().update(config)
-        env_master = gallery.evaluate_ray_isac_adaptive_character_assign__bottleneck(config, mode, scale)
 
-    elif version == 'v-1-2':
-        if mode != 'evaluate':
-            raise NotImplementedError
 
-        scale = 11
-        models_ma.isac_adaptive_character__intersection().update(config)
-        env_master = gallery.evaluate_ray_isac_adaptive_character_assign__intersection(config, mode, scale)
 
-    elif version == 'v-1-3':
-        if mode != 'evaluate':
-            raise NotImplementedError
 
-        scale = 11
-        # models_ma.isac_adaptive_character__multi_scenario().update(config)
-        models_ma.isac_adaptive_character__merge().update(config)
-        env_master = gallery.evaluate_ray_isac_adaptive_character_assign__merge(config, mode, scale)
+    # ################################################################################################
+    # ##### evaluate, assign character, adaptive #####################################################
+    # ################################################################################################
 
-    elif version == 'v-1-4':
-        if mode != 'evaluate':
-            raise NotImplementedError
+    # elif version == 'v-1-1':
+    #     if mode != 'evaluate':
+    #         raise NotImplementedError
 
-        scale = 11
-        # models_ma.isac_adaptive_character__multi_scenario().update(config)
-        models_ma.isac_adaptive_character__roundabout().update(config)
-        env_master = gallery.evaluate_ray_isac_adaptive_character_assign__roundabout(config, mode, scale)
+    #     scale = 11
+    #     models_ma.isac_adaptive_character__bottleneck().update(config)
+    #     env_master = gallery.evaluate_ray_isac_adaptive_character_assign__bottleneck(config, mode, scale)
 
+    # elif version == 'v-1-2':
+    #     if mode != 'evaluate':
+    #         raise NotImplementedError
 
+    #     scale = 11
+    #     models_ma.isac_adaptive_character__intersection().update(config)
+    #     env_master = gallery.evaluate_ray_isac_adaptive_character_assign__intersection(config, mode, scale)
 
+    # elif version == 'v-1-3':
+    #     if mode != 'evaluate':
+    #         raise NotImplementedError
 
-    ################################################################################################
-    ##### evaluate, assign character, robust #######################################################
-    ################################################################################################
+    #     scale = 11
+    #     # models_ma.isac_adaptive_character__multi_scenario().update(config)
+    #     models_ma.isac_adaptive_character__merge().update(config)
+    #     env_master = gallery.evaluate_ray_isac_adaptive_character_assign__merge(config, mode, scale)
 
-    elif version == 'v-1-5':
-        if mode != 'evaluate':
-            raise NotImplementedError
+    # elif version == 'v-1-4':
+    #     if mode != 'evaluate':
+    #         raise NotImplementedError
 
-        scale = 11
-        models_ma.isac_robust_character__bottleneck().update(config)
-        env_master = gallery.evaluate_ray_isac_robust_character_assign__bottleneck(config, mode, scale)
+    #     scale = 11
+    #     # models_ma.isac_adaptive_character__multi_scenario().update(config)
+    #     models_ma.isac_adaptive_character__roundabout().update(config)
+    #     env_master = gallery.evaluate_ray_isac_adaptive_character_assign__roundabout(config, mode, scale)
 
-    elif version == 'v-1-6':
-        if mode != 'evaluate':
-            raise NotImplementedError
 
-        scale = 11
-        models_ma.isac_robust_character__intersection().update(config)
-        env_master = gallery.evaluate_ray_isac_robust_character_assign__intersection(config, mode, scale)
 
-    elif version == 'v-1-7':
-        if mode != 'evaluate':
-            raise NotImplementedError
 
-        scale = 11
-        models_ma.isac_robust_character__merge().update(config)
-        env_master = gallery.evaluate_ray_isac_robust_character_assign__merge(config, mode, scale)
+    # ################################################################################################
+    # ##### evaluate, assign character, robust #######################################################
+    # ################################################################################################
 
-    elif version == 'v-1-8':
-        if mode != 'evaluate':
-            raise NotImplementedError
+    # elif version == 'v-1-5':
+    #     if mode != 'evaluate':
+    #         raise NotImplementedError
 
-        scale = 11
-        models_ma.isac_robust_character__roundabout().update(config)
-        env_master = gallery.evaluate_ray_isac_robust_character_assign__roundabout(config, mode, scale)
+    #     scale = 11
+    #     models_ma.isac_robust_character__bottleneck().update(config)
+    #     env_master = gallery.evaluate_ray_isac_robust_character_assign__bottleneck(config, mode, scale)
 
+    # elif version == 'v-1-6':
+    #     if mode != 'evaluate':
+    #         raise NotImplementedError
 
+    #     scale = 11
+    #     models_ma.isac_robust_character__intersection().update(config)
+    #     env_master = gallery.evaluate_ray_isac_robust_character_assign__intersection(config, mode, scale)
 
+    # elif version == 'v-1-7':
+    #     if mode != 'evaluate':
+    #         raise NotImplementedError
 
+    #     scale = 11
+    #     models_ma.isac_robust_character__merge().update(config)
+    #     env_master = gallery.evaluate_ray_isac_robust_character_assign__merge(config, mode, scale)
 
+    # elif version == 'v-1-8':
+    #     if mode != 'evaluate':
+    #         raise NotImplementedError
 
+    #     scale = 11
+    #     models_ma.isac_robust_character__roundabout().update(config)
+    #     env_master = gallery.evaluate_ray_isac_robust_character_assign__roundabout(config, mode, scale)
 
 
-    ################################################################################################
-    ##### evaluate, diversity ######################################################################
-    ################################################################################################
 
 
 
-    elif version == 'v-2-1':
-        if mode != 'evaluate':
-            raise NotImplementedError
 
-        scale = 1
-        models_ma.isac_adaptive_character__bottleneck__qualitive().update(config)
-        env_master = gallery.evaluate_ray_isac_adaptive_character_diversity__bottleneck(config, mode, scale)
 
 
+    # ################################################################################################
+    # ##### evaluate, diversity ######################################################################
+    # ################################################################################################
 
 
 
-    ################################################################################################
-    ##### evaluate, social behavior ################################################################
-    ################################################################################################
+    # elif version == 'v-2-1':
+    #     if mode != 'evaluate':
+    #         raise NotImplementedError
 
-    elif version == 'v-3-1':
-        if mode != 'evaluate':
-            raise NotImplementedError
+    #     scale = 1
+    #     models_ma.isac_adaptive_character__bottleneck__qualitive().update(config)
+    #     env_master = gallery.evaluate_ray_isac_adaptive_character_diversity__bottleneck(config, mode, scale)
 
-        scale = 1
-        models_ma.isac_adaptive_character__bottleneck__qualitive().update(config)
-        # models_ma.isac_adaptive_character__bottleneck().update(config)
-        env_master = gallery.evaluate_ray_isac_adaptive_character__social_behavior__bottleneck(config, mode, scale)
 
 
-    elif version == 'v-3-2':
-        if mode != 'evaluate':
-            raise NotImplementedError
 
-        scale = 1
-        # models_ma.isac_adaptive_character__intersection__qualitive().update(config)
-        models_ma.isac_adaptive_character__intersection().update(config)
-        env_master = gallery.evaluate_ray_isac_adaptive_character__social_behavior__intersection(config, mode, scale)
 
-    elif version == 'v-3-3':
-        if mode != 'evaluate':
-            raise NotImplementedError
+    # ################################################################################################
+    # ##### evaluate, social behavior ################################################################
+    # ################################################################################################
 
-        scale = 1
-        # models_ma.isac_adaptive_character__multi_scenario().update(config)
-        models_ma.isac_adaptive_character__merge().update(config)
-        env_master = gallery.evaluate_ray_isac_adaptive_character__social_behavior__merge(config, mode, scale)
+    # elif version == 'v-3-1':
+    #     if mode != 'evaluate':
+    #         raise NotImplementedError
 
-    elif version == 'v-3-4':
-        if mode != 'evaluate':
-            raise NotImplementedError
+    #     scale = 1
+    #     models_ma.isac_adaptive_character__bottleneck__qualitive().update(config)
+    #     # models_ma.isac_adaptive_character__bottleneck().update(config)
+    #     env_master = gallery.evaluate_ray_isac_adaptive_character__social_behavior__bottleneck(config, mode, scale)
 
-        scale = 1
-        models_ma.isac_adaptive_character__roundabout().update(config)
-        env_master = gallery.evaluate_ray_isac_adaptive_character__social_behavior__roundabout(config, mode, scale)
 
+    # elif version == 'v-3-2':
+    #     if mode != 'evaluate':
+    #         raise NotImplementedError
 
+    #     scale = 1
+    #     # models_ma.isac_adaptive_character__intersection__qualitive().update(config)
+    #     models_ma.isac_adaptive_character__intersection().update(config)
+    #     env_master = gallery.evaluate_ray_isac_adaptive_character__social_behavior__intersection(config, mode, scale)
 
+    # elif version == 'v-3-3':
+    #     if mode != 'evaluate':
+    #         raise NotImplementedError
 
+    #     scale = 1
+    #     # models_ma.isac_adaptive_character__multi_scenario().update(config)
+    #     models_ma.isac_adaptive_character__merge().update(config)
+    #     env_master = gallery.evaluate_ray_isac_adaptive_character__social_behavior__merge(config, mode, scale)
 
+    # elif version == 'v-3-4':
+    #     if mode != 'evaluate':
+    #         raise NotImplementedError
 
+    #     scale = 1
+    #     models_ma.isac_adaptive_character__roundabout().update(config)
+    #     env_master = gallery.evaluate_ray_isac_adaptive_character__social_behavior__roundabout(config, mode, scale)
 
 
 
-    ################################################################################################
-    ##### debug ####################################################################################
-    ################################################################################################
 
 
-    elif version == 'v10-1':
-        if mode != 'evaluate':
-            raise NotImplementedError
 
-        scale = 1
-        models_ma.isac_adaptive_character__bottleneck().update(config)
-        # models_ma.isac_adaptive_character__multi_scenario().update(config)
-        env_master = gallery.evaluate_ray_isac_adaptive_character_assign__bottleneck(config, mode, scale)
 
-    elif version == 'v10-2':
-        if mode != 'evaluate':
-            raise NotImplementedError
 
-        scale = 1
-        models_ma.isac_adaptive_character__intersection().update(config)
-        env_master = gallery.evaluate_ray_isac_adaptive_character_assign__intersection(config, mode, scale)
 
-    elif version == 'v10-3':
-        if mode != 'evaluate':
-            raise NotImplementedError
+    # ################################################################################################
+    # ##### debug ####################################################################################
+    # ################################################################################################
 
-        scale = 1
-        models_ma.isac_adaptive_character__multi_scenario().update(config)
-        env_master = gallery.evaluate_ray_isac_adaptive_character_assign__merge(config, mode, scale)
 
-    elif version == 'v10-4':
-        if mode != 'evaluate':
-            raise NotImplementedError
+    # elif version == 'v10-1':
+    #     if mode != 'evaluate':
+    #         raise NotImplementedError
 
-        scale = 1
-        # models_ma.isac_adaptive_character__multi_scenario().update(config)
-        models_ma.isac_adaptive_character__roundabout().update(config)
-        env_master = gallery.evaluate_ray_isac_adaptive_character_assign__roundabout(config, mode, scale)
+    #     scale = 1
+    #     models_ma.isac_adaptive_character__bottleneck().update(config)
+    #     # models_ma.isac_adaptive_character__multi_scenario().update(config)
+    #     env_master = gallery.evaluate_ray_isac_adaptive_character_assign__bottleneck(config, mode, scale)
+
+    # elif version == 'v10-2':
+    #     if mode != 'evaluate':
+    #         raise NotImplementedError
+
+    #     scale = 1
+    #     models_ma.isac_adaptive_character__intersection().update(config)
+    #     env_master = gallery.evaluate_ray_isac_adaptive_character_assign__intersection(config, mode, scale)
+
+    # elif version == 'v10-3':
+    #     if mode != 'evaluate':
+    #         raise NotImplementedError
+
+    #     scale = 1
+    #     models_ma.isac_adaptive_character__multi_scenario().update(config)
+    #     env_master = gallery.evaluate_ray_isac_adaptive_character_assign__merge(config, mode, scale)
+
+    # elif version == 'v10-4':
+    #     if mode != 'evaluate':
+    #         raise NotImplementedError
+
+    #     scale = 1
+    #     # models_ma.isac_adaptive_character__multi_scenario().update(config)
+    #     models_ma.isac_adaptive_character__roundabout().update(config)
+    #     env_master = gallery.evaluate_ray_isac_adaptive_character_assign__roundabout(config, mode, scale)
 
 
 

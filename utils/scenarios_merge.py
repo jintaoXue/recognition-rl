@@ -5,9 +5,9 @@ from universe.common import Vector
 import numpy as np
 import os
 from typing import Dict
+import random
 
-
-from .scenarios_template import ScenarioRandomization
+from .scenarios_template import ScenarioRandomization, ScenarioRandomization_fix_svo
 
 
 
@@ -87,11 +87,6 @@ class ScenarioMergeEvaluate_assign(ScenarioMergeEvaluate):
         return
 
 
-
-
-
-
-
 class ScenarioMergeEvaluate_without_mismatch(ScenarioMergeEvaluate):  ### only for single-agent
     def generate_scenario_randomization(self):
         scenario_randomization_cls = self.config.get('scenario_randomization_cls', ScenarioRandomization)
@@ -102,4 +97,25 @@ class ScenarioMergeEvaluate_without_mismatch(ScenarioMergeEvaluate):  ### only f
         print(rllib.basic.prefix(self) + f'characters {self.step_reset}: ', self.scenario_randomization.characters)
         return
 
+class ScenarioBottleneckEvaluate_fix_our_others(ScenarioMergeEvaluate):
+    def reset(self, ego_svo, other_svo, step_reset, sa=True):
+        self.step_reset = step_reset
+        self.num_vehicles = random.randint(self.num_vehicles_min, self.num_vehicles_max)
+        if sa:
+            self.num_agents = 1
+        else:
+            self.num_agents = self.num_vehicles
+        self.generate_scenario_randomization(ego_svo, other_svo)
+        if self.num_vehicles < self.scenario_randomization.num_vehicles:
+            self.scenario_randomization.num_vehicles = self.num_vehicles
+        return
+    def generate_scenario_randomization(self, ego_svo, other_svo):
+        scenario_randomization_cls = self.config.get('scenario_randomization_cls', ScenarioRandomization_fix_svo)
+        dir_path = os.path.join(self.config.dataset_dir.map, f'../scenario_offline/{self.config.scenario_name}')
+        file_path = os.path.join(dir_path, f'{self.step_reset}.txt')
+        self.scenario_randomization = scenario_randomization_cls.load(file_path)
+        self.scenario_randomization.characters[0] = ego_svo
+        self.scenario_randomization.characters[1:] = other_svo
+        print(rllib.basic.prefix(self) + f'characters {self.step_reset}: ', self.scenario_randomization.characters)
+        return
 
