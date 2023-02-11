@@ -242,11 +242,15 @@ if __name__ == "__main__":
         models_sa.isac__bottleneck__adaptive().update(config)
         writer, env_master, method= generate__supervise_data__bottleneck(config, mode)
 
-    if version == 'v1-4':  ### muiltiagent supervise learning 
+    if version == 'v1-4-0':  ### muiltiagent supervise learning 
         config.description += '--supervise__generate_data__bottleneck-hr10act1'
         models_ma.isac__bottleneck__adaptive().update(config)
         writer, env_master, method= ray_RILMthM__bottleneck(config, mode)
 
+    if version == 'v1-4-1':  ### muiltiagent supervise learning 
+        config.description += '--supervise__generate_data__bottleneck-hr10act10'
+        models_ma.isac__bottleneck__adaptive().update(config)
+        writer, env_master, method= ray_RILMthM__bottleneck(config, mode)
     try:
         env_master.create_tasks(method, func=run_one_episode_multi_agent)
 
