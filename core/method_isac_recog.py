@@ -58,9 +58,10 @@ class IndependentSAC_recog(MethodSingleAgent):
         self.actor.method_name = 'INDEPENDENTSAC_V0'
         # self.actor.model_dir = '~/github/zdk/recognition-rl/models/IndependentSAC_v0-EnvInteractiveMultiAgent/2022-09-11-15:19:29----ray_isac_adaptive_character__multi_scenario--buffer-rate-0.2/saved_models_method'
         # self.actor.model_num = 865800
-        self.actor.model_dir = '~/github/zdk/recognition-rl/models/origin_no_history_bottleneck/'
-        self.actor.model_num = 445600
-
+        # self.actor.model_dir = '~/github/zdk/recognition-rl/models/origin_no_history_bottleneck/'
+        # self.actor.model_num = 445600
+        self.actor.model_dir = config.action_policy_model_dir
+        self.actor.model_num = config.action_policy_model_num
         # self.critic.method_name = 'INDEPENDENTSAC_V0'
         # self.critic.model_dir = '~/github/zdk/recognition-rl/models/origin_no_history_bottleneck/'
         # self.critic.model_num = 445600

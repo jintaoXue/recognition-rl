@@ -663,8 +663,8 @@ class isac__bottleneck__adaptive(ModelPath):
     model_dir = '~/github/zdk/recognition-rl/models/IndependentSAC_v0-EnvInteractiveMultiAgent/2022-09-11-15:19:29----ray_isac_adaptive_character__multi_scenario--buffer-rate-0.2/saved_models_method'
     model_num = 865800
     #2022/12/21
-    model_dir = '~/github/zdk/recognition-rl/models/origin_no_history_bottleneck'
-    model_num = 445600
+    # model_dir = '~/github/zdk/recognition-rl/models/origin_no_history_bottleneck'
+    # model_num = 445600
 
 class RILMthM__bottleneck(ModelPath):
 

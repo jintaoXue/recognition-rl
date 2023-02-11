@@ -40,8 +40,14 @@ config_isac__robust_character = rllib.basic.YamlConfig(
     **config_meta.to_dict(),
 )
 
-
 config_isac__adaptive_character = rllib.basic.YamlConfig(
+    net_actor_fe=PointNetWithCharactersAgentHistory,
+    net_critic_fe=PointNetWithCharactersAgentHistory,
+    buffer=ReplayBufferMultiAgent,
+    **config_meta.to_dict(),
+)
+
+config_isac__adaptive_character_cut_state = rllib.basic.YamlConfig(
     net_actor_fe=PointNetWithCharactersAgentHistoryCutstate,
     net_critic_fe=PointNetWithCharactersAgentHistoryCutstate,
     buffer=ReplayBufferMultiAgent,
