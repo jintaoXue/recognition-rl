@@ -19,11 +19,11 @@ class IndependentSAC_v0(rllib.template.MethodSingleAgent):
 
     lr_critic = 5e-4
     lr_actor = 1e-4
-    lr_tune = 1e-4
+    lr_tune = 0.5e-4
 
     tau = 0.005
 
-    buffer_size = 1000000
+    buffer_size = 800000
     batch_size = 128
 
     start_timesteps = 30000
