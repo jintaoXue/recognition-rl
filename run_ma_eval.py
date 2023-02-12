@@ -113,6 +113,7 @@ def main():
             raise NotImplementedError
 
         scale = 1
+        config.description = 'adaptive_bottleneck'
         models_ma.isac__bottleneck__adaptive().update(config)
         env_master = gallery.evaluate_ray_isac_adaptive_character__bottleneck(config, mode, scale)
     
@@ -122,7 +123,7 @@ def main():
         import numpy as np
         for svo in np.linspace(0, 1, num=11):
             svo = round(svo,1)
-            config.description = 'evaluate' + '--fix_{}__bottleneck'.format(svo)
+            config.description = 'evaluate' + '--fix_{}__adaptive_bottleneck'.format(svo)
             models_ma.isac__bottleneck__adaptive().update(config)
             env_master = gallery.evaluate_ray_isac_adaptive_character__bottleneck_fix_svo(config,svo,mode)
             env_master.create_tasks(func=run_one_episode)
@@ -144,6 +145,7 @@ def main():
             raise NotImplementedError
 
         scale = 1
+        config.description = 'RILMthM__bottleneck'
         models_ma.RILMthM__bottleneck().update(config)
         env_master = gallery.evaluate_ray_RILMthM__bottleneck(config, mode, scale)
     
@@ -152,6 +154,7 @@ def main():
             raise NotImplementedError
 
         scale = 1
+        config.description = 'RILEnvM__bottleneck'
         models_ma.RILEnvM__bottleneck().update(config)
         env_master = gallery.evaluate_ray_RILEnvM__bottleneck(config, mode, scale)
     
@@ -160,6 +163,7 @@ def main():
             raise NotImplementedError
 
         scale = 1
+        config.description = 'ILEnvM__bottleneck'
         models_ma.ILEnvM__bottleneck().update(config)
         env_master = gallery.evalute_ray_supervise_offline_multiagent__bottleneck(config, mode, scale)
 
@@ -172,6 +176,7 @@ def main():
             raise NotImplementedError
 
         scale = 1
+        config.description = 'adaptive_merge'
         models_ma.isac_adaptive_character__merge().update(config)
         env_master = gallery.evaluate_ray_isac_adaptive_character__merge(config, mode, scale)
     
@@ -181,7 +186,7 @@ def main():
         import numpy as np
         for svo in np.linspace(0, 1, num=11):
             svo = round(svo,1)
-            config.description = 'evaluate' + '--fix_{}__merge'.format(svo)
+            config.description = 'evaluate' + '--fix_{}_adaptive_merge'.format(svo)
             models_ma.isac_adaptive_character__merge().update(config)
             env_master = gallery.evaluate_ray_isac_adaptive_character__merge_fix_svo(config,svo,mode)
             env_master.create_tasks(func=run_one_episode)
@@ -198,6 +203,7 @@ def main():
             raise NotImplementedError
 
         scale = 1
+        config.description = 'RILMthM__merge'
         models_ma.RILMthM__merge().update(config)
         env_master = gallery.evaluate_ray_RILMthM__merge(config, mode, scale)
     
@@ -206,6 +212,8 @@ def main():
             raise NotImplementedError
 
         scale = 1
+        config.description = 'RILEnvM__merge'
+
         models_ma.RILEnvM__merge().update(config)
         env_master = gallery.evaluate_ray_RILEnvM__merge(config, mode, scale)
     
@@ -214,6 +222,8 @@ def main():
             raise NotImplementedError
 
         scale = 1
+        config.description = 'ILEnvM__merge'
+
         models_ma.ILEnvM__merge().update(config)
         env_master = gallery.evalute_ray_supervise_offline_multiagent__merge(config, mode, scale)
 
@@ -223,6 +233,8 @@ def main():
 
         scale = 1
         # scale = 1
+        config.description = 'isac_robust_character__bottleneck'
+
         models_ma.isac_robust_character__bottleneck().update(config)
         env_master = gallery.evaluate_ray_isac_robust_character__bottleneck(config, mode, scale)
 
@@ -232,6 +244,8 @@ def main():
 
         scale = 1
         # scale = 1
+        config.description = 'isac_robust_character__merge'
+
         models_ma.isac_robust_character__merge().update(config)
         env_master = gallery.evaluate_ray_isac_robust_character__merge(config, mode, scale)
 
@@ -242,6 +256,8 @@ def main():
 
         scale = 1
         # scale = 1
+        config.description = 'isac_no_character__bottleneck'
+
         # models_ma.isac_no_character__multi_scenario().update(config)
         models_ma.isac_no_character__bottleneck().update(config)
         env_master = gallery.evaluate_ray_isac_no_character__bottleneck(config, mode, scale)
@@ -252,6 +268,8 @@ def main():
 
         scale = 1
         # scale = 1
+        config.description = 'isac_no_character__multi_scenario'
+
         models_ma.isac_no_character__multi_scenario().update(config)
         env_master = gallery.evaluate_ray_isac_no_character__merge(config, mode, scale)
 
