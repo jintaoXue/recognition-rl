@@ -72,6 +72,7 @@ def main():
         writer, env_master, method = gallery.ray_isac_robust_character__bottleneck(config, mode)
 
     elif version == 'v1-3':
+        config.description += '--adaptive_bottleneck'
         writer, env_master, method = gallery.ray_isac_adaptive_character__bottleneck(config, mode)
     
     elif version == 'v1-4-0':
