@@ -100,11 +100,11 @@ class EndToEndVehicleBackgroundDiverse(EndToEndVehicleWithCharacterBackground):
 
 class AgentListMaster(universe.AgentsMaster):
     # change in 2022/12/2
-    def __init__(self, config: rllib.basic.YamlConfig, topology_map: TopologyMap, **kwargs):
-        super().__init__(config, topology_map, **kwargs)
-        self.horizon = 10
-        perception_cls = config.get('perception_cls', Perception)
-        self.perception = perception_cls(config, topology_map, self.dim_vehicle_state, self.horizon)
+    # def __init__(self, config: rllib.basic.YamlConfig, topology_map: TopologyMap, **kwargs):
+    #     super().__init__(config, topology_map, **kwargs)
+    #     self.horizon = 10
+    #     perception_cls = config.get('perception_cls', Perception)
+    #     self.perception = perception_cls(config, topology_map, self.dim_vehicle_state, self.horizon)
     class GetVehicleState(object):
         dim_state = 5
         def run_step(self, vehicle: Vehicle):
