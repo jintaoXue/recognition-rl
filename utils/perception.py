@@ -17,8 +17,6 @@ from universe.common.topology_map import transform_poses, transform_points
 from universe.common.geo import Transform
 from universe.common.global_path import calc_curvature_with_yaw_diff
 
-
-
 class PerceptionPointNet(object):
     invalid_value = np.inf
 
@@ -39,7 +37,7 @@ class PerceptionPointNet(object):
         self.historical_timestamps = -np.array([range(self.horizon)], dtype=np.float32).T[::-1] /self.decision_frequency
         # sampling_resolution = 4.0
         '''route resolution before sampling: 2.059351921081543, after sampling: 2.0951883792877197'''
-        sampling_resolution = 4.2
+        sampling_resolution = 2.0
         '''route resolution before sampling: 2.059351921081543, after sampling: 4.252692222595215'''
 
         self.perp_route = PerceptionVectorizedRoute(config, sampling_resolution=sampling_resolution)

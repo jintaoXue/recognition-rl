@@ -29,6 +29,7 @@ def init(config, mode, Env) -> universe.EnvMaster_v1:
 def init_recog(config, mode, Env, Method) -> universe.EnvMaster_v1:
     # repos = ['~/github/zdk/rl-lib', '~/github/ali/universe', '~/github/zdk/recognition-rl']
     # config.set('github_repos', repos)
+    
     model_name = Method.__name__ + '-' + Env.__name__
     writer_cls = rllib.basic.PseudoWriter
     writer = rllib.basic.create_dir(config, model_name, mode=mode, writer_cls=writer_cls)

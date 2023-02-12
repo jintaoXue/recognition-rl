@@ -85,7 +85,6 @@ config_env__actsvo_multiagent = copy.copy(config_env)
 config_env__actsvo_multiagent.agents_master_cls = agents_master.AgentListMasterActSvoMultiAgent
 
 
-
 ####################################################################################
 ### single agent ###################################################################
 ####################################################################################
