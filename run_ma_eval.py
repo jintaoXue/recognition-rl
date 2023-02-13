@@ -95,7 +95,7 @@ def main():
     mode = 'train'
     if config.evaluate == True:
         mode = 'evaluate'
-        config.seed += 1
+        config.seed += 5
     rllib.basic.setup_seed(config.seed)
     
     import gallery_ma_eval as gallery
@@ -112,7 +112,7 @@ def main():
         if mode != 'evaluate':
             raise NotImplementedError
 
-        scale = 1
+        scale = 5
         config.description = 'adaptive_bottleneck'
         models_ma.isac__bottleneck__adaptive().update(config)
         env_master = gallery.evaluate_ray_isac_adaptive_character__bottleneck(config, mode, scale)
@@ -144,7 +144,7 @@ def main():
         if mode != 'evaluate':
             raise NotImplementedError
 
-        scale = 1
+        scale = 5
         config.description = 'RILMthM__bottleneck'
         models_ma.RILMthM__bottleneck().update(config)
         env_master = gallery.evaluate_ray_RILMthM__bottleneck(config, mode, scale)
@@ -153,7 +153,7 @@ def main():
         if mode != 'evaluate':
             raise NotImplementedError
 
-        scale = 1
+        scale = 5
         config.description = 'RILEnvM__bottleneck'
         models_ma.RILEnvM__bottleneck().update(config)
         env_master = gallery.evaluate_ray_RILEnvM__bottleneck(config, mode, scale)
@@ -162,7 +162,7 @@ def main():
         if mode != 'evaluate':
             raise NotImplementedError
 
-        scale = 1
+        scale = 5
         config.description = 'ILEnvM__bottleneck'
         models_ma.ILEnvM__bottleneck().update(config)
         env_master = gallery.evalute_ray_supervise_offline_multiagent__bottleneck(config, mode, scale)
@@ -175,7 +175,7 @@ def main():
         if mode != 'evaluate':
             raise NotImplementedError
 
-        scale = 1
+        scale = 5
         config.description = 'adaptive_merge'
         models_ma.isac_adaptive_character__merge().update(config)
         env_master = gallery.evaluate_ray_isac_adaptive_character__merge(config, mode, scale)
@@ -202,7 +202,7 @@ def main():
         if mode != 'evaluate':
             raise NotImplementedError
 
-        scale = 1
+        scale = 5
         config.description = 'RILMthM__merge'
         models_ma.RILMthM__merge().update(config)
         env_master = gallery.evaluate_ray_RILMthM__merge(config, mode, scale)
@@ -211,7 +211,7 @@ def main():
         if mode != 'evaluate':
             raise NotImplementedError
 
-        scale = 1
+        scale = 5
         config.description = 'RILEnvM__merge'
 
         models_ma.RILEnvM__merge().update(config)
@@ -221,7 +221,7 @@ def main():
         if mode != 'evaluate':
             raise NotImplementedError
 
-        scale = 1
+        scale = 5
         config.description = 'ILEnvM__merge'
 
         models_ma.ILEnvM__merge().update(config)
@@ -231,7 +231,7 @@ def main():
         if mode != 'evaluate':
             raise NotImplementedError
 
-        scale = 1
+        scale = 5
         # scale = 1
         config.description = 'isac_robust_character__bottleneck'
 
@@ -242,7 +242,7 @@ def main():
         if mode != 'evaluate':
             raise NotImplementedError
 
-        scale = 1
+        scale = 5
         # scale = 1
         config.description = 'isac_robust_character__merge'
 
@@ -254,7 +254,7 @@ def main():
         if mode != 'evaluate':
             raise NotImplementedError
 
-        scale = 1
+        scale = 5
         # scale = 1
         config.description = 'isac_no_character__bottleneck'
 
@@ -266,7 +266,7 @@ def main():
         if mode != 'evaluate':
             raise NotImplementedError
 
-        scale = 1
+        scale = 5
         # scale = 1
         config.description = 'isac_no_character__multi_scenario'
 

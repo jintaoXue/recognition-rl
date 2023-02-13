@@ -35,7 +35,7 @@ if __name__ == "__main__":
     mode = 'train'
     if config.evaluate == True:
         mode = 'evaluate'
-        config.seed += 1
+        config.seed += 2
     rllib.basic.setup_seed(config.seed)
 
     version = config.version

@@ -9,7 +9,7 @@ import universe
 from universe.carla.dataset import DatasetInteractive as dataset_cls
 from utils import scenarios_template
 from utils import scenarios_bottleneck
-from utils import perception_downsample
+# from utils import perception_downsample
 from utils import agents_master
 from config import bottleneck
 

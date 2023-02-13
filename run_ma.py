@@ -66,9 +66,11 @@ def main():
     ################################################################################################
 
     elif version == 'v1-1':
+        config.description += '--flow_bottleneck'
         writer, env_master, method = gallery.ray_isac_no_character__bottleneck(config, mode)
     
     elif version == 'v1-2':
+        config.description += '--copo_bottleneck'
         writer, env_master, method = gallery.ray_isac_robust_character__bottleneck(config, mode)
 
     elif version == 'v1-3':

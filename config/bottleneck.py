@@ -10,9 +10,9 @@ from universe.carla.dataset import DatasetInteractive as dataset_cls
 from utils import scenarios_template
 from utils import scenarios_bottleneck
 from utils import agents_master
-from utils import perception, perception_downsample
+from utils import perception
 from utils import reward
-from utils import topology_map
+# from utils import topology_map
 
 config_vehicle = rllib.basic.YamlConfig(
     min_velocity=0.0,
@@ -107,8 +107,8 @@ config_env__neural_background_discrete_svo = copy.copy(config_env__neural_backgr
 config_env__neural_background_discrete_svo.scenario_randomization_cls = scenarios_template.ScenarioRandomizationWithoutMismatchDisSvo
 
 
-config_env__neural_background_sampling = copy.copy(config_env__neural_background)
-config_env__neural_background_sampling.perception_cls = perception_downsample.PerceptionPointNetDownSample
+# config_env__neural_background_sampling = copy.copy(config_env__neural_background)
+# config_env__neural_background_sampling.perception_cls = perception_downsample.PerceptionPointNetDownSample
 # config_env__neural_background_sampling.topology_map_cls = topology_map.TopologyMapSampled
 
 config_env__neural_background_same_other_svo = copy.copy(config_env__neural_background)
