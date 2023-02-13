@@ -67,9 +67,9 @@ config_env__idm_background_fix = copy.copy(bottleneck.config_env)
 config_env__idm_background_fix.update(config_env_evaluate)
 config_env__idm_background_fix.scenario_cls = scenarios_bottleneck.ScenarioBottleneckEvaluate_fix_our_others
 
-config_env__neural_background_sampling = copy.copy(bottleneck.config_env__neural_background_sampling)
-config_env__neural_background_sampling.update(config_env_evaluate)
-config_env__neural_background_sampling.scenario_cls = scenarios_bottleneck.ScenarioBottleneckEvaluate_without_mismatch
+# config_env__neural_background_sampling = copy.copy(bottleneck.config_env__neural_background_sampling)
+# config_env__neural_background_sampling.update(config_env_evaluate)
+# config_env__neural_background_sampling.scenario_cls = scenarios_bottleneck.ScenarioBottleneckEvaluate_without_mismatch
 
 
 
