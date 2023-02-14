@@ -1,3 +1,4 @@
+from pyexpat import model
 from charset_normalizer import models
 from ray import method
 import rllib
@@ -65,8 +66,6 @@ class isac_no_character__bottleneck(ModelPath):
 ############################################################################
 #### robust character ######################################################
 ############################################################################
-
-
 
 
 class isac_robust_character__bottleneck(ModelPath):
@@ -685,10 +684,12 @@ class IL__bottleneck(ModelPath):
 
     model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveMultiAgent/2023-02-09-20:29:40----Nothing--IL-close-loop/saved_models_method'
     model_num = 700000
+    model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveMultiAgent/2023-02-13-20:01:32----Nothing--IL-close-loop/saved_models_method'
+    model_dir = 790000
 
 class IL_offline__bottleneck(ModelPath):
 
     method = 'IndependentSACsupervise'
-    
+
     model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveMultiAgent/2023-02-06-10:09:14----Nothing--supervise-MultiAgent/saved_models_method'
     model_num = 78000

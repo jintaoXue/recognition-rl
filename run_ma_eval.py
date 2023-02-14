@@ -143,7 +143,7 @@ def main():
         if mode != 'evaluate':
             raise NotImplementedError
 
-        scale = 5
+        scale = 1
         config.description = 'RILMthM__bottleneck'
         models_ma.RILMthM__bottleneck().update(config)
         env_master = gallery.evaluate_ray_RILMthM__bottleneck(config, mode, scale)
