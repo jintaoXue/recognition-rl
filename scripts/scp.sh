@@ -1,1 +1,1 @@
-scp -r $0 caichicken@10.13.71.246:~/github/train_res
+scp -r $1 caichicken@10.13.71.246:~/github/train_res

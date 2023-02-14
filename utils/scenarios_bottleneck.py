@@ -87,6 +87,7 @@ class ScenarioBottleneckEvaluate(ScenarioBottleneck):
         dir_path = os.path.join(self.config.dataset_dir.map, f'../scenario_offline/{self.config.scenario_name}')
         file_path = os.path.join(dir_path, f'{self.step_reset}.txt')
         self.scenario_randomization = scenario_randomization_cls.load(file_path)
+        # self.scenario_randomization.characters[0] = 0.0
         print(rllib.basic.prefix(self) + f'characters {self.step_reset}: ', self.scenario_randomization.characters)
         return
 

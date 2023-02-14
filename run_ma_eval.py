@@ -1,6 +1,5 @@
 from distutils.log import debug
 import rllib
-from sympy import true
 import universe
 import ray
 
@@ -37,6 +36,8 @@ class Debug(object):
             action, mean_dev, std_dev = method.select_actions(state)
             action = action.cpu().numpy()
             print('mean: {}, std: {}'.format(mean_dev,std_dev))
+            env.writer.add_scalar('recog_accuracy/episode_{}_mean'.format(self.episode), mean_dev, env.step_reset)
+            env.writer.add_scalar('recog_accuracy/episode_{}_std'.format(self.episode), std_dev, env.step_reset)
             tt2 = time.time()
             experience, done, info = env.step(action)
             tt3 = time.time()
@@ -52,8 +53,6 @@ class Debug(object):
         env.writer.add_scalar('time_analysis/reset', t2-t1, env.step_reset)
         env.writer.add_scalar('time_analysis/select_action', time_select_action, env.step_reset)
         env.writer.add_scalar('time_analysis/step', time_env_step, env.step_reset)
-        env.writer.add_scalar('recog_accuracy/mean', mean_dev, env.step_reset)
-        env.writer.add_scalar('recog_accuracy/std', std_dev, env.step_reset)
         return
 
 
@@ -94,9 +93,9 @@ def main():
     from config.args import generate_args
     args = generate_args()
     config.update(args)
-
+    debug_recog = False
     ray.init(num_cpus=psutil.cpu_count(), num_gpus=torch.cuda.device_count(), include_dashboard=False)
-
+    
     mode = 'train'
     if config.evaluate == True:
         mode = 'evaluate'
@@ -106,9 +105,9 @@ def main():
     import gallery_ma_eval as gallery
     import models_ma
     version = config.version
+
     if version == 'pseudo':
         raise NotImplementedError
-    
     ################################################################################################
     ##### evaluate, recognition, bottleneck ########################################################
     ################################################################################################
@@ -167,7 +166,7 @@ def main():
             raise NotImplementedError
 
         scale = 1
-        debug_recog = True
+        debug_recog = False
         config.description += '--IL-close-loop'
         models_ma.IL__bottleneck().update(config)
         env_master = gallery.evalute_ray_supervise_offline_multiagent__bottleneck(config, mode, scale)
@@ -244,7 +243,7 @@ def main():
         if mode != 'evaluate':
             raise NotImplementedError
 
-        scale = 5
+        scale = 1
         # scale = 1
         config.description = 'isac_copo__bottleneck'
 
