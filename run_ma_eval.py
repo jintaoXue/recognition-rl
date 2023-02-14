@@ -243,7 +243,7 @@ def main():
         config.description = 'isac_copo__bottleneck'
 
         models_ma.isac_robust_character__bottleneck().update(config)
-        env_master = gallery.evaluate_ray_isac_robust_character_copo__bottleneck(config, mode, scale)
+        env_master = gallery.evaluate_ray_isac_robust_character__bottleneck(config, mode, scale)
 
     elif version == 'v3-2':
         if mode != 'evaluate':
