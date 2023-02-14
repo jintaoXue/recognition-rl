@@ -1,5 +1,6 @@
 from distutils.log import debug
 import rllib
+from sympy import true
 import universe
 import ray
 
@@ -10,7 +11,7 @@ import torch
 
 class Debug(object): 
     episode = -1
-    debug_episode = 0
+    debug_episode = -1
     time_step = -1 
     debug_time_step = 200
     def __init__(self) -> None:
@@ -33,7 +34,9 @@ class Debug(object):
                 # import pdb; pdb.set_trace()
 
             tt1 = time.time()
-            action = method.select_actions(state).cpu().numpy()
+            action, mean_dev, std_dev = method.select_actions(state)
+            action = action.cpu().numpy()
+            print('mean: {}, std: {}'.format(mean_dev,std_dev))
             tt2 = time.time()
             experience, done, info = env.step(action)
             tt3 = time.time()
@@ -49,6 +52,8 @@ class Debug(object):
         env.writer.add_scalar('time_analysis/reset', t2-t1, env.step_reset)
         env.writer.add_scalar('time_analysis/select_action', time_select_action, env.step_reset)
         env.writer.add_scalar('time_analysis/step', time_env_step, env.step_reset)
+        env.writer.add_scalar('recog_accuracy/mean', mean_dev, env.step_reset)
+        env.writer.add_scalar('recog_accuracy/std', std_dev, env.step_reset)
         return
 
 
@@ -95,7 +100,7 @@ def main():
     mode = 'train'
     if config.evaluate == True:
         mode = 'evaluate'
-        config.seed += 5
+        config.seed += 1
     rllib.basic.setup_seed(config.seed)
     
     import gallery_ma_eval as gallery
@@ -142,7 +147,7 @@ def main():
     elif version == 'v1-4-0':
         if mode != 'evaluate':
             raise NotImplementedError
-
+        debug_recog = True
         scale = 1
         config.description = 'RILMthM__bottleneck'
         models_ma.RILMthM__bottleneck().update(config)
@@ -161,7 +166,8 @@ def main():
         if mode != 'evaluate':
             raise NotImplementedError
 
-        scale = 5
+        scale = 1
+        debug_recog = True
         config.description += '--IL-close-loop'
         models_ma.IL__bottleneck().update(config)
         env_master = gallery.evalute_ray_supervise_offline_multiagent__bottleneck(config, mode, scale)
@@ -280,6 +286,30 @@ def main():
         models_ma.isac_no_character__multi_scenario().update(config)
         env_master = gallery.evaluate_ray_isac_no_character__merge(config, mode, scale)
 
+    else:
+        raise NotImplementedError
+
+
+    try:
+        if debug_recog :
+            debug = Debug()
+            env_master.create_tasks(debug.run_one_episode)
+        else:
+            env_master.create_tasks(run_one_episode)
+        ray.get([t.run.remote(n_iters=config.num_episodes) for t in env_master.tasks])
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+    finally:
+        ray.shutdown()
+
+
+
+
+
+if __name__ == '__main__':
+    main()
     # ################################################################################################
     # ##### evaluate, training setting ###############################################################
     # ################################################################################################
@@ -715,25 +745,5 @@ def main():
 
 
 
-    else:
-        raise NotImplementedError
 
-
-    try:
-        debug = Debug()
-        env_master.create_tasks(run_one_episode)
-        ray.get([t.run.remote(n_iters=config.num_episodes) for t in env_master.tasks])
-
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-    finally:
-        ray.shutdown()
-
-
-
-
-
-if __name__ == '__main__':
-    main()
     

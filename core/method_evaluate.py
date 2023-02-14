@@ -325,6 +325,7 @@ class EvaluateSACAdvDecouple(EvaluateSACAdv):
 
 
 class EvaluateSACRecog(rllib.EvaluateSingleAgent):
+    character_loss = torch.nn.MSELoss()
     def select_method(self):
         config, method_name = self.config, self.method_name
         from core.method_isac_recog import Actor
@@ -366,8 +367,19 @@ class EvaluateSACRecog(rllib.EvaluateSingleAgent):
         states = states.to(self.device)
 
         actions, logprob, mean = self.actor.sample(states)
-        breakpoint()
-        return actions.cpu()
+
+        #计算
+        recog_charater = self.actor.fe.get_recog_obs_svos()
+        real_character = states.obs_character[:,:,-1]
+        recog_charater = torch.where(real_character == np.inf, torch.tensor(np.inf, dtype=torch.float32, device=states.obs.device),recog_charater)
+        real_character = real_character[~torch.isinf(real_character)]
+        recog_charater = recog_charater[~torch.isinf(recog_charater)]
+        # character_loss = self.character_loss(recog_charater, real_character)
+        dev = torch.abs(recog_charater-real_character)
+        mean_dev = torch.mean(dev)
+        std_dev = torch.std(dev)
+        # RMSE_loss = torch.sqrt(character_loss)
+        return actions.cpu(), mean_dev, std_dev
 
     def store(self, experience, **kwargs):
         return
@@ -495,7 +507,18 @@ class EvaluateSupervise(rllib.EvaluateSingleAgent):
 
         actions, logprob, mean = self.actor.sample(states)
 
-        return actions.cpu()
+        #计算
+        recog_charater = self.actor.fe.get_recog_obs_svos()
+        real_character = states.obs_character[:,:,-1]
+        recog_charater = torch.where(real_character == np.inf, torch.tensor(np.inf, dtype=torch.float32, device=states.obs.device),recog_charater)
+        real_character = real_character[~torch.isinf(real_character)]
+        recog_charater = recog_charater[~torch.isinf(recog_charater)]
+        # character_loss = self.character_loss(recog_charater, real_character)
+        dev = recog_charater-real_character
+        mean_dev = torch.mean(torch.abs(dev))
+        std_dev = torch.std(dev)
+        # RMSE_loss = torch.sqrt(character_loss)
+        return actions.cpu(), mean_dev, std_dev
 
 
     def store(self, experience, **kwargs):
