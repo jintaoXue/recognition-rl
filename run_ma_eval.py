@@ -139,7 +139,6 @@ def main():
         # env_master = gallery.evaluate_ray_isac_adaptive_character__bottleneck_fix_svo(config,svo,mode)
 
 
-
     elif version == 'v1-4-0':
         if mode != 'evaluate':
             raise NotImplementedError
@@ -163,10 +162,18 @@ def main():
             raise NotImplementedError
 
         scale = 5
-        config.description = 'ILEnvM__bottleneck'
-        models_ma.ILEnvM__bottleneck().update(config)
+        config.description += '--IL-close-loop'
+        models_ma.IL__bottleneck().update(config)
         env_master = gallery.evalute_ray_supervise_offline_multiagent__bottleneck(config, mode, scale)
 
+    elif version == 'v1-4-3':
+        if mode != 'evaluate':
+            raise NotImplementedError
+
+        scale = 5
+        config.description += '--IL-open-loop'
+        models_ma.IL_offline__bottleneck().update(config)
+        env_master = gallery.evalute_ray_supervise_offline_multiagent__bottleneck(config, mode, scale)
     ################################################################################################
     ##### evaluate, recognition, merge #############################################################
     ################################################################################################
@@ -233,10 +240,10 @@ def main():
 
         scale = 5
         # scale = 1
-        config.description = 'isac_robust_character__bottleneck'
+        config.description = 'isac_copo__bottleneck'
 
         models_ma.isac_robust_character__bottleneck().update(config)
-        env_master = gallery.evaluate_ray_isac_robust_character__bottleneck(config, mode, scale)
+        env_master = gallery.evaluate_ray_isac_robust_character_copo__bottleneck(config, mode, scale)
 
     elif version == 'v3-2':
         if mode != 'evaluate':
@@ -244,10 +251,10 @@ def main():
 
         scale = 5
         # scale = 1
-        config.description = 'isac_robust_character__merge'
+        config.description = 'isac_copo__merge'
 
         models_ma.isac_robust_character__merge().update(config)
-        env_master = gallery.evaluate_ray_isac_robust_character__merge(config, mode, scale)
+        env_master = gallery.evaluate_ray_isac_robust_character_copo__merge(config, mode, scale)
 
 
     elif version == 'v4-1':

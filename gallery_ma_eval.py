@@ -142,7 +142,6 @@ def evaluate_ray_isac_robust_character__bottleneck(config, mode='evaluate', scal
     return init(config, mode, Env)
 
 
-
 def evaluate_ray_isac_robust_character__intersection(config, mode='evaluate', scale=5):
     from universe import EnvInteractiveMultiAgent as Env
 
@@ -868,7 +867,7 @@ def evaluate_ray_isac_adaptive_character__bottleneck_fix_svo(config, svo, mode='
 
     return init_fix_svo(config, mode, Env, Method, svo)
 
-def evaluate_ray_RILMthM__bottleneck(config, mode='train', scale=1):
+def evaluate_ray_RILMthM__bottleneck(config, mode='train', scale=5):
     from universe import EnvInteractiveMultiAgent as Env
     from core.method_evaluate import EvaluateSACRecog as Method
     
@@ -886,7 +885,7 @@ def evaluate_ray_RILMthM__bottleneck(config, mode='train', scale=1):
 
     return init_recog(config, mode, Env, Method)
 
-def evaluate_ray_RILEnvM__bottleneck(config, mode='train', scale=1):
+def evaluate_ray_RILEnvM__bottleneck(config, mode='train', scale=5):
     from utils.env import EnvInteractiveMultiAgentActSvo as Env
     #todo
     from core.method_evaluate import EvaluateRecogV2 as Method
@@ -906,7 +905,8 @@ def evaluate_ray_RILEnvM__bottleneck(config, mode='train', scale=1):
 
     return init_recog(config, mode, Env, Method)
 
-def evalute_ray_supervise_offline_multiagent__bottleneck(config, mode='train', scale=1):
+
+def evalute_IL__multiagent__bottleneck(config, mode='train', scale=5):
     from universe import EnvInteractiveMultiAgent as Env
     #todo
     from core.method_evaluate import EvaluateSupervise as Method
@@ -916,7 +916,25 @@ def evalute_ray_supervise_offline_multiagent__bottleneck(config, mode='train', s
     
     config.set('envs', [
         config_bottleneck
-    ])
+    ] * scale)
+
+    ### method param
+    from config.method import config_supervise_multi as config_method
+    config.set('methods', [config_method])
+
+    return init_recog(config, mode, Env, Method)
+
+def evalute_ray_supervise_offline_multiagent__bottleneck(config, mode='train', scale=5):
+    from universe import EnvInteractiveMultiAgent as Env
+    #todo
+    from core.method_evaluate import EvaluateSupervise as Method
+
+    ### env param
+    from config.bottleneck_evaluate import config_env__with_character as config_bottleneck
+    
+    config.set('envs', [
+        config_bottleneck
+    ]*scale)
 
     ### method param
     from config.method import config_supervise_multi as config_method

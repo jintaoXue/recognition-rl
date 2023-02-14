@@ -678,10 +678,17 @@ class RILEnvM__bottleneck(ModelPath):
     method = 'RecogV2'
     model_dir = ''
 
-class ILEnvM__bottleneck(ModelPath):
+class IL__bottleneck(ModelPath):
     method = 'IndependentSACsupervise'
     model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveMultiAgent/2023-02-06-10:09:14----Nothing--supervise-MultiAgent/saved_models_method'
     model_num = 78000
 
     model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveMultiAgent/2023-02-09-20:29:40----Nothing--IL-close-loop/saved_models_method'
     model_num = 700000
+
+class IL_offline__bottleneck(ModelPath):
+
+    method = 'IndependentSACsupervise'
+    
+    model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveMultiAgent/2023-02-06-10:09:14----Nothing--supervise-MultiAgent/saved_models_method'
+    model_num = 78000
