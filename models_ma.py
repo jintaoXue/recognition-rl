@@ -673,6 +673,8 @@ class RILMthM__bottleneck(ModelPath):
     model_num = 140000
     model_dir = '~/github/zdk/recognition-rl/results/IndependentSAC_recog-EnvInteractiveMultiAgent/2023-02-13-10:57:15----Nothing--RILMthM/saved_models_method'
     model_num = 200000
+    model_num = 203000
+    model_num = 204000
 class RILEnvM__bottleneck(ModelPath):
     method = 'RecogV2'
     model_dir = ''
