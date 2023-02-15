@@ -35,7 +35,7 @@ class Debug(object):
             tt1 = time.time()
             action, mean_dev, std_dev = method.select_actions(state)
             action = action.cpu().numpy()
-            print('mean: {}, std: {}'.format(mean_dev, std_dev))
+            # print('mean: {}, std: {}'.format(mean_dev, std_dev))
             env.writer.add_scalar('recog_accuracy/episode_{}_mean'.format(self.episode), mean_dev, self.time_step)
             env.writer.add_scalar('recog_accuracy/episode_{}_std'.format(self.episode), std_dev, self.time_step)
             tt2 = time.time()
@@ -151,6 +151,49 @@ def main():
         config.description = 'RILMthM__bottleneck'
         models_ma.RILMthM__bottleneck().update(config)
         env_master = gallery.evaluate_ray_RILMthM__bottleneck(config, mode, scale)
+        ######################## '''random seed'''
+    
+    #caculate average recog error
+    elif version == 'v1-4-0-1': 
+        if mode != 'evaluate':
+            raise NotImplementedError
+        debug_recog = True
+        scale = 5
+        import numpy as np
+        for seed in range(1, 11):
+            config.seed = seed
+            config.description = 'evaluate' + '--case_20_seed_{}__RILMthM__bottleneck'.format(seed)
+            models_ma.RILMthM__bottleneck().update(config)
+            env_master = gallery.evaluate_ray_RILMthM__bottleneck_assign_case(config, mode, scale)
+            env_master.create_tasks(func=run_one_episode)
+            ### run one case ###
+            ray.get([t.run.remote(n_iters=1) for t in env_master.tasks])
+            del env_master
+            ray.shutdown()
+            ray.init(num_cpus=psutil.cpu_count(), num_gpus=torch.cuda.device_count(), include_dashboard=False)
+        ray.shutdown()
+        return
+    
+    #### find succes_rate
+    elif version == 'v1-4-0-2': 
+        if mode != 'evaluate':
+            raise NotImplementedError
+        debug_recog = True
+        scale = 5
+        import numpy as np
+        for seed in range(1, 11):
+            config.seed = seed
+            config.description = 'evaluate' + '--seed_{}__RILMthM__bottleneck'.format(seed)
+            models_ma.RILMthM__bottleneck().update(config)
+            env_master = gallery.evaluate_ray_RILMthM__bottleneck(config, mode, scale)
+            env_master.create_tasks(func=run_one_episode)
+            ray.get([t.run.remote(n_iters=config.num_episodes) for t in env_master.tasks])
+            del env_master
+            ray.shutdown()
+            ray.init(num_cpus=psutil.cpu_count(), num_gpus=torch.cuda.device_count(), include_dashboard=False)
+        ray.shutdown()
+        return
+
     
     elif version == 'v1-4-1':
         if mode != 'evaluate':
@@ -179,6 +222,8 @@ def main():
         config.description += '--IL-open-loop'
         models_ma.IL_offline__bottleneck().update(config)
         env_master = gallery.evalute_ray_supervise_offline_multiagent__bottleneck(config, mode, scale)
+
+
     ################################################################################################
     ##### evaluate, recognition, merge #############################################################
     ################################################################################################
@@ -284,6 +329,15 @@ def main():
 
         models_ma.isac_no_character__multi_scenario().update(config)
         env_master = gallery.evaluate_ray_isac_no_character__merge(config, mode, scale)
+
+
+    # ################################################################################################
+    # ##### evaluate,   ##############################################################################
+    # ################################################################################################
+
+
+
+
 
     else:
         raise NotImplementedError

@@ -47,7 +47,7 @@ class IndependentSAC_recog(MethodSingleAgent):
     # start_timesteps = 16  ## ! warning
     before_training_steps = 0
 
-    save_model_interval = 1000
+    save_model_interval = 500
     print_svo_mse_interval = 10
     def __init__(self, config: rllib.basic.YamlConfig, writer):
         super().__init__(config, writer)
