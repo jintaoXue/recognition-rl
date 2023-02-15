@@ -47,7 +47,6 @@ class Debug(object):
             self.time_step += 1
             if (self.time_step >= self.debug_time_step) :breakpoint()
             if done:
-                self.time_step = -1
                 break
         
         env.writer.add_scalar('time_analysis/reset', t2-t1, env.step_reset)
