@@ -152,7 +152,7 @@ def main():
         models_ma.RILMthM__bottleneck().update(config)
         env_master = gallery.evaluate_ray_RILMthM__bottleneck(config, mode, scale)
         ######################## '''random seed'''
-    
+   
     #caculate average recog error
     elif version == 'v1-4-0-1': 
         if mode != 'evaluate':
@@ -165,7 +165,8 @@ def main():
             config.description = 'evaluate' + '--case_20_seed_{}__RILMthM__bottleneck'.format(seed)
             models_ma.RILMthM__bottleneck().update(config)
             env_master = gallery.evaluate_ray_RILMthM__bottleneck_assign_case(config, mode, scale)
-            env_master.create_tasks(func=run_one_episode)
+            debug = Debug()
+            env_master.create_tasks(debug.run_one_episode)
             ### run one case ###
             ray.get([t.run.remote(n_iters=1) for t in env_master.tasks])
             del env_master
@@ -181,12 +182,13 @@ def main():
         debug_recog = True
         scale = 5
         import numpy as np
-        for seed in range(1, 11):
+        for seed in range(2, 11):
             config.seed = seed
             config.description = 'evaluate' + '--seed_{}__RILMthM__bottleneck'.format(seed)
             models_ma.RILMthM__bottleneck().update(config)
             env_master = gallery.evaluate_ray_RILMthM__bottleneck(config, mode, scale)
-            env_master.create_tasks(func=run_one_episode)
+            debug = Debug()
+            env_master.create_tasks(debug.run_one_episode)
             ray.get([t.run.remote(n_iters=config.num_episodes) for t in env_master.tasks])
             del env_master
             ray.shutdown()
