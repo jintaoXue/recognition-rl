@@ -423,7 +423,7 @@ class RecognitionNetNewWoattn(rllib.template.Model):
 
         outputs = self.out_proj(obs_embedding_recog)
         # breakpoint()
-
+    
         # obs_svos = (1 + self.tanh(obs_svos))/2
         obs_svos = self.tanh(self.recog_feature_mapper(outputs))
         #(num_agents, batch, 1) -> (batch, num_agents, 1)
