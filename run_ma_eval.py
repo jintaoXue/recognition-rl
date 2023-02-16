@@ -348,7 +348,6 @@ def main():
             raise NotImplementedError
 
         scale = 5
-        import numpy as np
         for seed in range(2, 12):
             config.seed = seed
             config.description = 'evaluate' + '--seed_{}__copo__bottleneck'.format(seed)
