@@ -147,6 +147,24 @@ def ray_RILMthM__bottleneck(config, mode='train', scale=1):
 
     return init(config, mode, Env, Method)
 
+def ray_RILMthM_woattn__bottleneck(config, mode='train', scale=1):
+    from universe import EnvInteractiveMultiAgent as Env
+    from core.method_isac_recog import IndependentSAC_recog as Method
+    from config.bottleneck import config_env as config_bottleneck
+    from config.method import config_recog_woattn_multi_agent as config_method
+    ### method param
+    config_method.set('action_policy_model_dir', \
+        '~/github/zdk/recognition-rl/models/IndependentSAC_v0-EnvInteractiveMultiAgent/2022-09-11-15:19:29----ray_isac_adaptive_character__multi_scenario--buffer-rate-0.2/saved_models_method')
+    config_method.set('action_policy_model_num', 865800) 
+    ### env param
+    # config_bottleneck.set('config_neural_policy', get_sac__new_bottleneck__adaptive_character_config(config))
+    config.set('envs', [
+        config_bottleneck,
+    ] *scale)
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env, Method)
+
 def ray_RILEnvM__bottleneck(config, mode='train', scale=1):
     from utils.env import EnvInteractiveMultiAgentActSvo as Env
     from core.method_recog_action_dynamic import RecogV2 as Method

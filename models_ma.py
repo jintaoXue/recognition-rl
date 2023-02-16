@@ -708,3 +708,5 @@ class IL_offline__bottleneck(ModelPath):
 
     model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveMultiAgent/2023-02-06-10:09:14----Nothing--supervise-MultiAgent/saved_models_method'
     model_num = 78000
+    model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveMultiAgent/2023-02-14-16:10:01----Nothing--IL-open-loop/saved_models_method'
+    model_num = 990000

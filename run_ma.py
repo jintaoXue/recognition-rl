@@ -81,6 +81,11 @@ def main():
         scale = 1
         config.description += '--RILMthM'
         writer, env_master, method = gallery.ray_RILMthM__bottleneck(config, mode, scale)
+    
+    elif version == 'v1-4-0-1':
+        scale = 1
+        config.description += '--RILMthM_woattn'
+        writer, env_master, method = gallery.ray_RILMthM__bottleneck(config, mode, scale)
 
     elif version == 'v1-4-1':
         scale = 2
@@ -92,7 +97,7 @@ def main():
         config.description += '--IL-close-loop'
         writer, env_master, method = gallery.ray_IL__bottleneck(config, mode, scale)
     
-    elif version == 'v1-4-3':
+    elif version == 'v1-4-3': 
         scale = 1
         config.description += '--IL-open-loop'
         writer, env_master, method = gallery.ray_IL_open_loop__bottleneck(config, mode, scale)

@@ -266,10 +266,10 @@ def main():
             raise NotImplementedError
 
         scale = 5
+        debug_recog = True
         config.description += '--IL-open-loop_bottleneck'
         models_ma.IL_offline__bottleneck().update(config)
         env_master = gallery.evalute_ray_supervise__multiagent__bottleneck(config, mode, scale)
-
 
     ################################################################################################
     ##### evaluate, recognition, merge #############################################################
