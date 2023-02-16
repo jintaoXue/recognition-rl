@@ -15,7 +15,7 @@ class ScenarioRandomization(universe.ScenarioRandomization):
 
     def get_characters(self):
         characters = np.random.uniform(0,1, size=self.num_vehicles)
-        # print(rllib.basic.prefix(self) + 'characters: ', characters)
+        print(rllib.basic.prefix(self) + 'characters: ', characters)
         return characters.astype(np.float32)
 
     def __getitem__(self, vi):

@@ -11,7 +11,7 @@ import torch
 class Debug(object): 
     episode = -1
     debug_episode = -1
-    time_step = -1 
+    time_step = 0 
     debug_time_step = 200
     def __init__(self) -> None:
         pass
@@ -36,8 +36,8 @@ class Debug(object):
             action, mean_dev, std_dev = method.select_actions(state)
             action = action.cpu().numpy()
             # print('mean: {}, std: {}'.format(mean_dev, std_dev))
-            env.writer.add_scalar('recog_accuracy/episode_{}_mean'.format(self.episode), mean_dev, self.time_step)
-            env.writer.add_scalar('recog_accuracy/episode_{}_std'.format(self.episode), std_dev, self.time_step)
+            # env.writer.add_scalar('recog_accuracy/episode_{}_mean'.format(self.episode), mean_dev, self.time_step)
+            # env.writer.add_scalar('recog_accuracy/episode_{}_std'.format(self.episode), std_dev, self.time_step)
             tt2 = time.time()
             experience, done, info = env.step(action)
             tt3 = time.time()
@@ -47,7 +47,7 @@ class Debug(object):
             self.time_step += 1
             if (self.time_step >= self.debug_time_step) :breakpoint()
             if done:
-                # time_step = -1
+                self.time_step = 0 
                 break
         
         env.writer.add_scalar('time_analysis/reset', t2-t1, env.step_reset)
@@ -147,7 +147,7 @@ def main():
         if mode != 'evaluate':
             raise NotImplementedError
         debug_recog = True
-        scale = 0
+        scale = 5
         config.description = 'RILMthM__bottleneck'
         models_ma.RILMthM__bottleneck().update(config)
         env_master = gallery.evaluate_ray_RILMthM__bottleneck(config, mode, scale)
@@ -341,7 +341,28 @@ def main():
 
         models_ma.isac_robust_character__bottleneck().update(config)
         env_master = gallery.evaluate_ray_isac_robust_character__bottleneck(config, mode, scale)
+    
+    #### find succes_rate
+    elif version == 'v3-1-1': 
+        if mode != 'evaluate':
+            raise NotImplementedError
 
+        scale = 5
+        import numpy as np
+        for seed in range(2, 12):
+            config.seed = seed
+            config.description = 'evaluate' + '--seed_{}__copo__bottleneck'.format(seed)
+            models_ma.isac_robust_character__bottleneck().update(config)
+            env_master = gallery.evaluate_ray_isac_robust_character__bottleneck(config, mode, scale)
+
+            env_master.create_tasks(run_one_episode)
+            ray.get([t.run.remote(n_iters=config.num_episodes) for t in env_master.tasks])
+            del env_master
+            ray.shutdown()
+            ray.init(num_cpus=psutil.cpu_count(), num_gpus=torch.cuda.device_count(), include_dashboard=False)
+        ray.shutdown()
+        return
+    
     elif version == 'v3-2':
         if mode != 'evaluate':
             raise NotImplementedError
