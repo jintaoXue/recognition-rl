@@ -128,6 +128,11 @@ def main():
     elif version == 'v3-1':
         writer, env_master, method = gallery.ray_isac_adaptive_character__merge(config, mode)
     
+    elif version == 'v3-4-0':
+        scale = 9
+        config.description += '--RILMthM'
+        writer, env_master, method = gallery.ray_RILMthM__merge(config, mode, scale)
+    
 
 
     ################################################################################################
