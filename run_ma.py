@@ -85,7 +85,7 @@ def main():
     elif version == 'v1-4-0-1':
         scale = 1
         config.description += '--RILMthM_woattn'
-        writer, env_master, method = gallery.ray_RILMthM__bottleneck(config, mode, scale)
+        writer, env_master, method = gallery.ray_RILMthM_woattn__bottleneck(config, mode, scale)
 
     elif version == 'v1-4-1':
         scale = 2

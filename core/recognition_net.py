@@ -370,10 +370,10 @@ class RecognitionNetNewWoattn(rllib.template.Model):
         self.type_embedding = VectorizedEmbedding(dim_embedding + dim_character_embedding)
 
         # self.global_head_recognition = MultiheadAttentionGlobalHeadRecognition(dim_embedding, out_dim=1, nhead=4, dropout=0.0 if config.evaluate else 0.1)
-        self.out_proj = NonDynamicallyQuantizableLinear(dim_embedding, out_features = dim_embedding, bias=True)
+        self.out_proj = NonDynamicallyQuantizableLinear(dim_embedding + dim_character_embedding, out_features = dim_embedding+dim_character_embedding, bias=True)
 
         # self.global_head_recognition = MultiheadAttentionGlobalHead(dim_embedding + dim_character_embedding, nhead=4, dropout=0.0 if config.evaluate else 0.1)
-        self.recog_feature_mapper = FeatureMapper(config, model_id, dim_embedding, 1)
+        self.recog_feature_mapper = FeatureMapper(config, model_id, dim_embedding + dim_character_embedding, 1)
         self.tanh = nn.Tanh()
         # self.dim_feature = dim_embedding + dim_character_embedding + dim_character_embedding
         # self.actor = torch.load('****.pth')
@@ -422,16 +422,14 @@ class RecognitionNetNewWoattn(rllib.template.Model):
         ### recognition
 
         outputs = self.out_proj(obs_embedding_recog)
-        # breakpoint()
+
     
         # obs_svos = (1 + self.tanh(obs_svos))/2
         obs_svos = self.tanh(self.recog_feature_mapper(outputs))
         #(num_agents, batch, 1) -> (batch, num_agents, 1)
-        obs_svos = obs_svos.transpose(0, 1)
         self.obs_svos = obs_svos
         # state_ = cut_state(state)
 
-        breakpoint()
         #####step two : action####
         ### embedding
         ego_embedding = torch.cat([
