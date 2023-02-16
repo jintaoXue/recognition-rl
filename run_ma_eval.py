@@ -162,7 +162,7 @@ def main():
         import numpy as np
         for seed in range(1, 11):
             config.seed = seed
-            config.description = 'evaluate' + '--case_20_seed_{}__RILMthM__bottleneck'.format(seed)
+            config.description = 'evaluate' + '--case_15_seed_{}__RILMthM__bottleneck'.format(seed)
             models_ma.RILMthM__bottleneck().update(config)
             env_master = gallery.evaluate_ray_RILMthM__bottleneck_assign_case(config, mode, scale)
             debug = Debug()
