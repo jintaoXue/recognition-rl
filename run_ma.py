@@ -97,6 +97,11 @@ def main():
         config.description += '--IL-close-loop'
         writer, env_master, method = gallery.ray_IL__bottleneck(config, mode, scale)
     
+    elif version == 'v1-4-2-1':
+        scale = 1
+        config.description += '--IL-close-loop_woattn'
+        writer, env_master, method = gallery.ray_IL_woattn__bottleneck(config, mode, scale)
+    
     elif version == 'v1-4-3': 
         scale = 1
         config.description += '--IL-open-loop'

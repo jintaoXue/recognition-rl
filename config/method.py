@@ -218,3 +218,9 @@ config_supervise_multi = rllib.basic.YamlConfig(
     buffer=ReplayBufferMultiAgent,
     **config_meta.to_dict(),
 )
+
+config_supervise_multi_woattn = rllib.basic.YamlConfig(
+    net_actor_fe=RecognitionNetNewWoattn,
+    buffer=ReplayBufferMultiAgent,
+    **config_meta.to_dict(),
+)
