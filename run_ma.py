@@ -130,7 +130,7 @@ def main():
     
     elif version == 'v3-4-0':
         scale = 9
-        config.description += '--RILMthM'
+        config.description += '--RILMthM_merge'
         writer, env_master, method = gallery.ray_RILMthM__merge(config, mode, scale)
     
 
