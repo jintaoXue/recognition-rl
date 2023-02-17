@@ -45,7 +45,7 @@ class IndependentSACsupervise(MethodSingleAgent):
     buffer_size = 760000
     batch_size = 128
 
-    start_timesteps = 760000
+    start_timesteps = buffer_size
     # start_timesteps = 1  ## ! warning
     before_training_steps = 0
 
