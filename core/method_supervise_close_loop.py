@@ -22,6 +22,7 @@ from rllib.template.model import FeatureExtractor, FeatureMapper
 
 from utils.buffer import ReplayBufferMultiWorker
 import tqdm
+import numpy as np
 class IndependentSACsupervise(MethodSingleAgent):
     dim_reward = 2
     
@@ -124,8 +125,11 @@ class IndependentSACsupervise(MethodSingleAgent):
         return
 
     def update_parameters_(self, index, n_iters=1000):
+        if self.buffer_count < 0 : 
+            print('stop update') 
+            return
 
-        num_case = len(self.buffer) 
+        num_case = self.buffer.__len__()
         self.buffer_count -= num_case
         n_iters = int(num_case / self.batch_size) * self.sample_reuse 
         self.updated_iters += n_iters
@@ -139,8 +143,7 @@ class IndependentSACsupervise(MethodSingleAgent):
             self.update_parameters()
         self.buffer.clear()
 
-        if self.buffer_count < 0 : print('stop update')
-
+       
         return
 
     @torch.no_grad()
