@@ -2,7 +2,7 @@ import rllib
 
 import numpy as np
 
-
+from rllib.basic import Data as Experience
 
 class ReplayBufferMultiWorker(object):
     def __init__(self, config, capacity, batch_size, device):
@@ -51,8 +51,8 @@ class ReplayBuffer(rllib.buffer.ReplayBuffer):
 
     def clear(self):
         del self.memory
-        self.memory = []
-        self.size += 0
+        self.memory = np.empty(self.capacity, dtype=Experience)
+        self.size = 0
 
 
 if __name__ == '__main__':
