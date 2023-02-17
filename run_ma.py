@@ -115,8 +115,8 @@ def main():
                 buffer_len = ray.get(method.get_buffer_len.remote())
                 start_training_step = ray.get(method.get_start_timesteps.remote()) 
                 if buffer_len >= start_training_step:
-                    batch_size = method.get_batch_size.remote()
-                    sample_reuse = method.get_sample_reuse.remote()
+                    batch_size = ray.get(method.get_batch_size.remote())
+                    sample_reuse = ray.get(method.get_sample_reuse.remote())
                     n_iters = int(start_training_step / batch_size )*sample_reuse
                     print('open loop:update parameter start, buffer_len:{}, update_iters:{}'.format(buffer_len, n_iters))
                     ray.get(method.update_parameters_.remote(i_episode, n_iters))
