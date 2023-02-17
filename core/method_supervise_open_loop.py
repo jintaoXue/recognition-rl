@@ -51,7 +51,7 @@ class IndependentSACsupervise(MethodSingleAgent):
 
     save_model_interval = 5000
     sample_reuse = 4
-
+    buffer_count = buffer_size
     def __init__(self, config: rllib.basic.YamlConfig, writer):
         super().__init__(config, writer)
 
@@ -147,7 +147,7 @@ class IndependentSACsupervise(MethodSingleAgent):
         return
     def get_buffer_len(self):
         return self.buffer.__len__()
-        
+
     def get_start_timesteps(self):
         return self.start_timesteps
 
