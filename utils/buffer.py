@@ -31,18 +31,27 @@ class ReplayBufferMultiWorker(object):
 
     def _batch_stack(self, batch):
         raise NotImplementedError
+    
+    def clear(self):
+        [buffer.clear() for buffer in self.buffers.values()]
+
+
 
 class ReplayBuffer(rllib.buffer.ReplayBuffer):
-    def push_new(self, experience, **kwargs):
-        breakpoint()
-        rate = 0.2
-        index = self.size % self.capacity
-        if self.size >= self.capacity:
-            index = (index % int((1-rate)*self.capacity)) + rate*self.capacity
-            index = int(index)
+    # def push_new(self, experience, **kwargs):
+    #     breakpoint()
+    #     rate = 0.2
+    #     index = self.size % self.capacity
+    #     if self.size >= self.capacity:
+    #         index = (index % int((1-rate)*self.capacity)) + rate*self.capacity
+    #         index = int(index)
 
-        self.memory[index] = experience
-        self.size += 1
+    #     self.memory[index] = experience
+    #     self.size += 1
+
+    def clear(self):
+        del self.memory
+        self.memory = []
 
 
 if __name__ == '__main__':

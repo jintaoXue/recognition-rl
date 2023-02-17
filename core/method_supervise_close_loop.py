@@ -2,14 +2,11 @@
 
 from builtins import breakpoint
 import copy
-from turtle import update
-from importlib_metadata import re
-
-import numpy as np
 import time
 
 import os, glob
 from os.path import join
+
 import torch
 import torch.nn as nn
 from torch.optim import Adam
@@ -23,8 +20,7 @@ from rllib.basic import prefix
 from rllib.template import MethodSingleAgent, Model
 from rllib.template.model import FeatureExtractor, FeatureMapper
 
-from core.recognition_net import RecognitionNet
-from .model_vectornet import RolloutBufferSingleAgentMultiWorker
+from ..utils.buffer import ReplayBufferMultiWorker
 
 class IndependentSACsupervise(MethodSingleAgent):
     dim_reward = 2
@@ -41,15 +37,16 @@ class IndependentSACsupervise(MethodSingleAgent):
 
     tau = 0.005
 
-    buffer_size = 800000
+    buffer_size = 760000
     batch_size = 128
 
-    start_timesteps = 30000
+    # start_timesteps = 30000
     # start_timesteps = 1  ## ! warning
     before_training_steps = 0
 
-    save_model_interval = 10000
-
+    save_model_interval = 5000
+    
+    sample_reuse = 4
 
     def __init__(self, config: rllib.basic.YamlConfig, writer):
         super().__init__(config, writer)
@@ -90,59 +87,45 @@ class IndependentSACsupervise(MethodSingleAgent):
         ### automatic entropy tuning
 
         # to adpat the child class method : IndependentSACsuperviseRoll which have initialized RolloutBuffer*
-        if config.get('buffer') is RolloutBufferSingleAgentMultiWorker: 
-            return
-        self.buffer: rllib.buffer.ReplayBuffer = config.get('buffer', rllib.buffer.ReplayBuffer)(config, self.buffer_size, self.batch_size, self.device)
+
+        self.buffer: ReplayBufferMultiWorker = config.get('buffer', rllib.buffer.ReplayBuffer)(config, self.buffer_size, self.batch_size, self.device)
 
     def update_parameters(self):
         if len(self.buffer) < self.start_timesteps + self.before_training_steps:
             return
-        self.update_parameters_start()
-        self.writer.add_scalar(f'{self.tag_name}/buffer_size', len(self.buffer), self.step_update)
 
-        '''load data batch'''
-        experience = self.buffer.sample()
-        state = experience.state
-        # action = experience.action
-        # next_state = experience.next_state
-        # reward = experience.reward
-        # done = experience.done
-
-        '''character MSE'''
-        t1 = time.time()
-        _,_,recog_character = self.actor(state)   
-        t2 = time.time()
-        real_character = state.obs_character[:,:,-1]
-        recog_character = recog_character[~torch.isinf(real_character)]
-        real_character = real_character[~torch.isinf(real_character)]
+        num_case = len(self.buffer) 
+        n_iters = int(num_case / self.batch_size) * self.sample_reuse 
         
-        # breakpoint()
-        # real_character = torch.where(real_character == np.inf, torch.tensor(-1, dtype=torch.float32, device=state.obs.device), real_character)
-        # recog_character = torch.where(recog_character == np.inf, torch.tensor(-1, dtype=torch.float32, device=state.obs.device), recog_character)
-        character_loss = self.recog_loss(recog_character, real_character)
-        RMSE_loss = torch.sqrt(character_loss)
-        self.actor_optimizer.zero_grad()
-        # character_loss.backward()
-        RMSE_loss.backward()    
-        self.actor_optimizer.step()
-        # for name,p in self.actor.fe.named_parameters():
-        #     print(name, p)  
-        # time.sleep(10)
-        file = open(self.output_dir + '/' + 'character.txt', 'w')
-        write_character(file, recog_character)
-        write_character(file, real_character)
-        write_character(file, recog_character - real_character)
-        file.write('*******************************\n')
-        file.close()
+        for _ in range(n_iters):
+            self.update_parameters_start()
+            self.writer.add_scalar(f'{self.tag_name}/buffer_size', len(self.buffer), self.step_update)
 
-        self.writer.add_scalar(f'{self.tag_name}/loss_character',  RMSE_loss.detach().item(), self.step_update)   
-        self.writer.add_scalar(f'{self.tag_name}/recog_time', t2-t1, self.step_update)
-        # self.writer.add_scalar(f'{self.tag_name}/alpha', self.alpha.detach().item(), self.step_update)
+            '''load data batch'''
+            experience = self.buffer.sample()
+            state = experience.state
 
-        # self._update_model()
-        if self.step_update % self.save_model_interval == 0:
-            self._save_model()
+            '''character MSE'''
+            t1 = time.time()
+            _,_,recog_character = self.actor(state)   
+            t2 = time.time()
+            real_character = state.obs_character[:,:,-1]
+            recog_character = recog_character[~torch.isinf(real_character)]
+            real_character = real_character[~torch.isinf(real_character)]
+            
+            character_loss = self.recog_loss(recog_character, real_character)
+            RMSE_loss = torch.sqrt(character_loss)
+            self.actor_optimizer.zero_grad()
+            RMSE_loss.backward()    
+            self.actor_optimizer.step()
 
+            self.writer.add_scalar(f'{self.tag_name}/loss_character',  RMSE_loss.detach().item(), self.step_update)   
+            self.writer.add_scalar(f'{self.tag_name}/recog_time', t2-t1, self.step_update)
+
+            if self.step_update % self.save_model_interval == 0:
+                self._save_model()
+
+        self.buffer.clear()
         return
 
 
@@ -176,10 +159,6 @@ class IndependentSACsupervise(MethodSingleAgent):
         rllib.utils.soft_update(self.actor_target, self.actor, self.tau)
 
 
-
-
-
-
 class IndependentSACsuperviseRoll(IndependentSACsupervise):
     def __init__(self, config: rllib.basic.YamlConfig, writer):
         super().__init__(config, writer)
@@ -190,6 +169,17 @@ class IndependentSACsuperviseRoll(IndependentSACsupervise):
         self.num_iters = int(self.buffer_size / self.batch_size) * self.sample_reuse
         self.buffer: rllib.buffer.RolloutBuffer = config.get('buffer', rllib.buffer.RolloutBuffer)(config, self.device, self.batch_size)
         self.save_model_interval = 500
+    
+    def update_parameters(self):
+        if len(self.buffer) < self.buffer_size:
+            return
+        self.update_parameters_start()
+        print(prefix(self) + 'update step: ', self.step_update)
+
+        for _ in range(self.num_iters):
+            self.step_train += 1
+            '''load data batch'''   
+            experience = self.buffer.sample(self.gamma)
     
     def update_parameters(self):
         if len(self.buffer) < self.buffer_size:
@@ -212,18 +202,48 @@ class IndependentSACsuperviseRoll(IndependentSACsupervise):
             real_character = real_character[~torch.isinf(real_character)]
             
             # breakpoint()
-            # real_character = torch.where(real_character == np.inf, torch.tensor(-1, dtype=torch.float32, device=state.obs.device), real_character)
-            # recog_character = torch.where(recog_character == np.inf, torch.tensor(-1, dtype=torch.float32, device=state.obs.device), recog_character)
-            character_loss = self.recog_loss(recog_character, real_character)
-            RMSE_loss = torch.sqrt(character_loss)
-            self.recog_optimizer.zero_grad()
-            # character_loss.backward()
-            RMSE_loss.backward()    
-            self.recog_optimizer.step()
-            for name,p in self.actor.recog.named_parameters():
-                print(name, p)  
-            time.sleep(10)
-            file = open(self.output_dir + '/' + 'character.txt', 'w')
+        if len(self.buffer) < self.buffer_size:
+            return
+        self.update_parameters_start()
+        print(prefix(self) + 'update step: ', self.step_update)
+
+        for _ in range(self.num_iters):
+            self.step_train += 1
+            '''load data batch'''   
+            experience = self.buffer.sample(self.gamma)
+            state = experience.state
+
+            '''character MSE'''
+            t1 = time.time()
+            _,_,recog_character = self.actor(state)  
+            t2 = time.time()
+            real_character = state.obs_character[:,:,-1]
+            recog_character = recog_character[~torch.isinf(real_character)]
+            real_character = real_character[~torch.isinf(real_character)]
+            
+            # breakpoint()
+    
+    def update_parameters(self):
+        if len(self.buffer) < self.buffer_size:
+            return
+        self.update_parameters_start()
+        print(prefix(self) + 'update step: ', self.step_update)
+
+        for _ in range(self.num_iters):
+            self.step_train += 1
+            '''load data batch'''   
+            experience = self.buffer.sample(self.gamma)
+            state = experience.state
+
+            '''character MSE'''
+            t1 = time.time()
+            _,_,recog_character = self.actor(state)  
+            t2 = time.time()
+            real_character = state.obs_character[:,:,-1]
+            recog_character = recog_character[~torch.isinf(real_character)]
+            real_character = real_character[~torch.isinf(real_character)]
+            
+            # breakpoint(), 'w')
             write_character(file, recog_character)
             write_character(file, real_character)
             write_character(file, recog_character - real_character)
@@ -236,6 +256,72 @@ class IndependentSACsuperviseRoll(IndependentSACsupervise):
         # self._update_model()
         if self.step_update % self.save_model_interval == 0:
             self._save_model()
+    
+    def update_parameters(self):
+        if len(self.buffer) < self.buffer_size:
+            return
+        self.update_parameters_start()
+        print(prefix(self) + 'update step: ', self.step_update)
+
+        for _ in range(self.num_iters):
+            self.step_train += 1
+            '''load data batch'''   
+            experience = self.buffer.sample(self.gamma)
+            state = experience.state
+
+            '''character MSE'''
+            t1 = time.time()
+            _,_,recog_character = self.actor(state)  
+            t2 = time.time()
+            real_character = state.obs_character[:,:,-1]
+            recog_character = recog_character[~torch.isinf(real_character)]
+            real_character = real_character[~torch.isinf(real_character)]
+            
+            # breakpoint()
+    
+    def update_parameters(self):
+        if len(self.buffer) < self.buffer_size:
+            return
+        self.update_parameters_start()
+        print(prefix(self) + 'update step: ', self.step_update)
+
+        for _ in range(self.num_iters):
+            self.step_train += 1
+            '''load data batch'''   
+            experience = self.buffer.sample(self.gamma)
+            state = experience.state
+
+            '''character MSE'''
+            t1 = time.time()
+            _,_,recog_character = self.actor(state)  
+            t2 = time.time()
+            real_character = state.obs_character[:,:,-1]
+            recog_character = recog_character[~torch.isinf(real_character)]
+            real_character = real_character[~torch.isinf(real_character)]
+            
+            # breakpoint()
+    
+    def update_parameters(self):
+        if len(self.buffer) < self.buffer_size:
+            return
+        self.update_parameters_start()
+        print(prefix(self) + 'update step: ', self.step_update)
+
+        for _ in range(self.num_iters):
+            self.step_train += 1
+            '''load data batch'''   
+            experience = self.buffer.sample(self.gamma)
+            state = experience.state
+
+            '''character MSE'''
+            t1 = time.time()
+            _,_,recog_character = self.actor(state)  
+            t2 = time.time()
+            real_character = state.obs_character[:,:,-1]
+            recog_character = recog_character[~torch.isinf(real_character)]
+            real_character = real_character[~torch.isinf(real_character)]
+            
+            # breakpoint()
 
         self._save_model()
 
