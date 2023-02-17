@@ -2,6 +2,7 @@
 
 from builtins import breakpoint
 import copy
+from random import sample
 from turtle import update
 from importlib_metadata import re
 
@@ -49,7 +50,7 @@ class IndependentSACsupervise(MethodSingleAgent):
     before_training_steps = 0
 
     save_model_interval = 5000
-
+    sample_reuse = 4
 
     def __init__(self, config: rllib.basic.YamlConfig, writer):
         super().__init__(config, writer)
@@ -144,6 +145,17 @@ class IndependentSACsupervise(MethodSingleAgent):
             self._save_model()
 
         return
+    def get_buffer_len(self):
+        return self.buffer.__len__()
+        
+    def get_start_timesteps(self):
+        return self.start_timesteps
+
+    def get_batch_size(self):
+        return self.batch_size
+
+    def get_sample_reuse(self): 
+        return self.sample_reuse
 
     @torch.no_grad()
     def select_actions(self, state):

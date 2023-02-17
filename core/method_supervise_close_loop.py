@@ -20,7 +20,7 @@ from rllib.basic import prefix
 from rllib.template import MethodSingleAgent, Model
 from rllib.template.model import FeatureExtractor, FeatureMapper
 
-from ..utils.buffer import ReplayBufferMultiWorker
+from utils.buffer import ReplayBufferMultiWorker
 
 class IndependentSACsupervise(MethodSingleAgent):
     dim_reward = 2
@@ -40,7 +40,7 @@ class IndependentSACsupervise(MethodSingleAgent):
     buffer_size = 760000
     batch_size = 128
 
-    # start_timesteps = 30000
+    start_timesteps = 0
     # start_timesteps = 1  ## ! warning
     before_training_steps = 0
 

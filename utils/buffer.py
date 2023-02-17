@@ -52,6 +52,7 @@ class ReplayBuffer(rllib.buffer.ReplayBuffer):
     def clear(self):
         del self.memory
         self.memory = []
+        self.size += 0
 
 
 if __name__ == '__main__':

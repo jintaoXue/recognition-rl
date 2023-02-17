@@ -93,7 +93,7 @@ def main():
         writer, env_master, method = gallery.ray_RILEnvM__bottleneck(config, mode, scale)
     
     elif version == 'v1-4-2':
-        scale = 1
+        scale = 10
         config.description += '--IL-close-loop'
         writer, env_master, method = gallery.ray_IL__bottleneck(config, mode, scale)
     
@@ -103,7 +103,7 @@ def main():
         writer, env_master, method = gallery.ray_IL_woattn__bottleneck(config, mode, scale)
     
     elif version == 'v1-4-3': 
-        scale = 1
+        scale = 10
         config.description += '--IL-open-loop'
         writer, env_master, method = gallery.ray_IL_open_loop__bottleneck(config, mode, scale)
         try:
@@ -112,11 +112,12 @@ def main():
             for i_episode in range(10000):
                 total_steps = ray.get([t.run.remote() for t in env_master.tasks])
                 print('update episode i_episode: ', i_episode)
-                buffer_len = ray.get(method._get_buffer_len.remote())
-                start_training_step = ray.get(method.start_timesteps.remote()) 
+
+                buffer_len = ray.get(method.get_buffer_len.remote())
+                start_training_step = ray.get(method.get_start_timesteps.remote()) 
                 if buffer_len > start_training_step:
-                    batch_size = method.batch_size.remote()
-                    sample_reuse = method.sample_reuse.remote()
+                    batch_size = method.get_batch_size.remote()
+                    sample_reuse = method.get_sample_reuse.remote()
                     n_iters = (start_training_step / batch_size )/sample_reuse
                     ray.get(method.update_parameters_.remote(i_episode, n_iters))
         except Exception as e:
