@@ -188,7 +188,7 @@ def ray_RILEnvM__bottleneck(config, mode='train', scale=1):
 
 def ray_IL__bottleneck(config, mode='train', scale=1):
     from utils.env import EnvInteractiveMultiAgent as Env
-    from core.method_supervise import IndependentSACsupervise as Method
+    from core.method_supervise_close_loop import IndependentSACsupervise as Method
     ### method param
     from config.method import config_supervise_multi as config_method
     config_method.set('action_policy_model_dir', \
@@ -207,7 +207,7 @@ def ray_IL__bottleneck(config, mode='train', scale=1):
 
 def ray_IL_woattn__bottleneck(config, mode='train', scale=1):
     from utils.env import EnvInteractiveMultiAgent as Env
-    from core.method_supervise import IndependentSACsupervise as Method
+    from core.method_supervise_open_loop import IndependentSACsupervise as Method
     ### method param
     from config.method import config_supervise_multi_woattn as config_method
     config_method.set('action_policy_model_dir', \
@@ -325,7 +325,7 @@ def ray_RILMthM__merge(config, mode='train', scale=1):
 
 def ray_IL__merge(config, mode='train', scale=1):
     from utils.env import EnvInteractiveMultiAgent as Env
-    from core.method_supervise import IndependentSACsupervise as Method
+    from core.method_supervise_open_loop import IndependentSACsupervise as Method
     ### method param
     from config.method import config_supervise_multi as config_method
     ### method param
@@ -345,7 +345,7 @@ def ray_IL__merge(config, mode='train', scale=1):
 
 def ray_IL_open_loop__merge(config, mode='train', scale=1):
     from utils.env import EnvInteractiveMultiAgent as Env
-    from core.method_supervise_open_loop import IndependentSACsupervise as Method
+    from core.method_supervise_close_loop import IndependentSACsupervise as Method
     ### method param
     from config.method import config_supervise_multi as config_method
     ### method param
