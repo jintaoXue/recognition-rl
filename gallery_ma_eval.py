@@ -889,7 +889,7 @@ def evaluate_ray_RILMthM__bottleneck(config, mode='train', scale=5):
 def evaluate_ray_RILMthM__bottleneck_assign_case(config, mode='train', scale=5):
     from universe import EnvInteractiveMultiAgent as Env
     from core.method_evaluate import EvaluateSACRecog as Method
-    config.set('num_episodes', 1)
+    # config.set('num_episodes', 1)
     ### env param
     from config.bottleneck_evaluate import config_env__fix_svo as config_bottleneck
     # config_bottleneck.set('config_neural_policy', get_sac__new_bottleneck__adaptive_character_config(config))
@@ -967,8 +967,8 @@ def evalute_ray_supervise__multiagent__bottleneck_assign_case(config, mode='trai
     from core.method_evaluate import EvaluateSupervise as Method
 
     ### env param
-    from config.bottleneck_evaluate import config_env__with_character as config_bottleneck
-    config_bottleneck.set('randomization_index', 20)
+    from config.bottleneck_evaluate import config_env__fix_svo as config_bottleneck
+    config_bottleneck.set('randomization_index', 15)
     config.set('envs', [
         config_bottleneck
     ]*scale)

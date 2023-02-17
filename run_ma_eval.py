@@ -158,11 +158,11 @@ def main():
         if mode != 'evaluate':
             raise NotImplementedError
         debug_recog = True
-        scale = 3
+        scale = 6
         import numpy as np
-        for seed in range(1, 11):
+        for seed in range(1, 2):
             config.seed = seed
-            config.description = 'evaluate' + '--case_15_seed_{}__RILMthM__bottleneck'.format(seed)
+            config.description = 'evaluate' + '--case_15__RILMthM__bottleneck'.format(seed)
             models_ma.RILMthM__bottleneck().update(config)
             env_master = gallery.evaluate_ray_RILMthM__bottleneck_assign_case(config, mode, scale)
             debug = Debug()
@@ -270,6 +270,16 @@ def main():
         config.description += '--IL-open-loop_bottleneck'
         models_ma.IL_offline__bottleneck().update(config)
         env_master = gallery.evalute_ray_supervise__multiagent__bottleneck(config, mode, scale)
+
+    elif version == 'v1-4-3-1':
+        if mode != 'evaluate':
+            raise NotImplementedError
+
+        scale = 5
+        debug_recog = True
+        config.description += '--case20_IL-open-loop_bottleneck_'
+        models_ma.IL_offline__bottleneck().update(config)
+        env_master = gallery.evalute_ray_supervise__multiagent__bottleneck_assign_case(config, mode, scale)
 
     ################################################################################################
     ##### evaluate, recognition, merge #############################################################
