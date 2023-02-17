@@ -123,14 +123,21 @@ class IndependentSACsupervise(MethodSingleAgent):
         return
 
     def update_parameters_(self, index, n_iters=1000):
+
         num_case = len(self.buffer) 
+        self.buffer_count -= num_case
         n_iters = int(num_case / self.batch_size) * self.sample_reuse 
         self.updated_iters += n_iters
+
         print('buffer_len:{}, sample_reuse:{}, update iters:{}, updated iters:{}'.format(num_case, \
         self.sample_reuse, n_iters, self.updated_iters))
+
         for i in tqdm.tqdm(range(n_iters)):
             self.update_parameters()
         self.buffer.clear()
+
+        if self.buffer_count < 0 : print('stop update')
+
         return
 
     @torch.no_grad()
