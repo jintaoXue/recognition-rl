@@ -133,7 +133,9 @@ class IndependentSACsupervise(MethodSingleAgent):
         print('buffer_len:{}, sample_reuse:{}, update iters:{}, updated iters:{}'.format(num_case, \
         self.sample_reuse, n_iters, self.updated_iters))
 
-        for i in tqdm.tqdm(range(n_iters)):
+        # for i in tqdm.tqdm(range(n_iters)):
+        #     self.update_parameters()
+        for i in range(n_iters):
             self.update_parameters()
         self.buffer.clear()
 
