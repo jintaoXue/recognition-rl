@@ -111,8 +111,7 @@ def main():
 
             for i_episode in range(10000):
                 total_steps = ray.get([t.run.remote() for t in env_master.tasks])
-                print('update episode i_episode: ', i_episode)
-
+                print('totall step in {} episode: {}'.format(i_episode, total_steps))
                 buffer_len = ray.get(method.get_buffer_len.remote())
                 start_training_step = ray.get(method.get_start_timesteps.remote()) 
                 if buffer_len > start_training_step:
@@ -220,9 +219,7 @@ def main():
 
         for i_episode in range(10000):
             total_steps = ray.get([t.run.remote() for t in env_master.tasks])
-            print('update episode i_episode: ', i_episode)
-            print(' totall step: ', total_steps)
-            print(' buffer len:',method.get_buffer_len.remote())
+            print('totall step in {} episode: {}'.format(i_episode, total_steps))
             ray.get(method.update_parameters_.remote(i_episode, n_iters=sum(total_steps)))
 
 
