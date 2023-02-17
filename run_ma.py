@@ -114,7 +114,7 @@ def main():
                 print('totall step in {} episode: {}'.format(i_episode, total_steps))
                 buffer_len = ray.get(method.get_buffer_len.remote())
                 start_training_step = ray.get(method.get_start_timesteps.remote()) 
-                if buffer_len > start_training_step:
+                if buffer_len >= start_training_step:
                     batch_size = method.get_batch_size.remote()
                     sample_reuse = method.get_sample_reuse.remote()
                     n_iters = (start_training_step / batch_size )/sample_reuse
