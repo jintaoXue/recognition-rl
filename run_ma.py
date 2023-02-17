@@ -118,6 +118,7 @@ def main():
                     batch_size = method.get_batch_size.remote()
                     sample_reuse = method.get_sample_reuse.remote()
                     n_iters = (start_training_step / batch_size )/sample_reuse
+                    print('open loop:update parameter start, buffer_len:{}, update_iters:{}'.format(buffer_len, n_iters))
                     ray.get(method.update_parameters_.remote(i_episode, n_iters))
         except Exception as e:
             import traceback

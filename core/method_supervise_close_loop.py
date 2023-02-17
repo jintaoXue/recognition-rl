@@ -48,6 +48,7 @@ class IndependentSACsupervise(MethodSingleAgent):
     
     sample_reuse = 4
     updated_iters = 0
+    buffer_count = buffer_size
     def __init__(self, config: rllib.basic.YamlConfig, writer):
         super().__init__(config, writer)
 
