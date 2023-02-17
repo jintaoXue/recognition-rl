@@ -232,7 +232,7 @@ def main():
             debug = Debug()
             env_master.create_tasks(debug.run_one_episode)
             ### run one case ###
-            ray.get([t.run.remote(n_iters=1) for t in env_master.tasks])
+            ray.get([t.run.remote(n_iters=200) for t in env_master.tasks])
             del env_master
             ray.shutdown()
             ray.init(num_cpus=psutil.cpu_count(), num_gpus=torch.cuda.device_count(), include_dashboard=False)
