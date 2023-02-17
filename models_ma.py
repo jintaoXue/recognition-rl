@@ -703,6 +703,7 @@ class IL__bottleneck(ModelPath):
     model_num = 740000
     model_num = 730000
     model_num = 190000
+    model_num = 220000
 class IL_offline__bottleneck(ModelPath):
 
     method = 'IndependentSACsupervise'
@@ -713,4 +714,5 @@ class IL_offline__bottleneck(ModelPath):
     model_num = 990000
     model_num = 720000
     model_num = 220000
+    model_num = 240000
 

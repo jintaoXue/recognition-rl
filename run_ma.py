@@ -133,8 +133,15 @@ def main():
         config.description += '--RILMthM_merge'
         writer, env_master, method = gallery.ray_RILMthM__merge(config, mode, scale)
     
+    elif version == 'v3-4-1':
+        scale = 9
+        config.description += '--IL_close_loop_merge'
+        writer, env_master, method = gallery.ray_IL__merge(config, mode, scale)
 
-
+    elif version == 'v3-4-2':
+        scale = 9
+        config.description += '--IL_open_loop__merge'
+        writer, env_master, method = gallery.ray_IL_open_loop__merge(config, mode, scale)
     ################################################################################################
     ##### roundabout ###############################################################################
     ################################################################################################
