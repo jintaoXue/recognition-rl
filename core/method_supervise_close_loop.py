@@ -110,7 +110,9 @@ class IndependentSACsupervise(MethodSingleAgent):
         recog_character = recog_character[~torch.isinf(real_character)]
         real_character = real_character[~torch.isinf(real_character)]
         
-        mean = torch.abs(recog_character - real_character).mean()
+        error = torch.abs(recog_character - real_character)
+        mean = error.mean()
+        std = error.std()
         character_loss = self.recog_loss(recog_character, real_character)
         RMSE_loss = torch.sqrt(character_loss)
         self.actor_optimizer.zero_grad()
@@ -119,7 +121,7 @@ class IndependentSACsupervise(MethodSingleAgent):
 
         self.writer.add_scalar(f'{self.tag_name}/loss_character',  RMSE_loss.detach().item(), self.step_update)
         self.writer.add_scalar(f'{self.tag_name}/mean_error',  mean.detach().item(), self.step_update)
-        self.writer.add_scalar(f'{self.tag_name}/MSE_loss',  character_loss.detach().item(), self.step_update)
+        self.writer.add_scalar(f'{self.tag_name}/std',  std.detach().item(), self.step_update)
         self.writer.add_scalar(f'{self.tag_name}/recog_time', t2-t1, self.step_update)
 
         if self.step_update % self.save_model_interval == 0:

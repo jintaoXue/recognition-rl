@@ -136,7 +136,13 @@ class IndependentSACsupervise(MethodSingleAgent):
         # file.write('*******************************\n')
         # file.close()
 
-        self.writer.add_scalar(f'{self.tag_name}/loss_character',  RMSE_loss.detach().item(), self.step_update)   
+        error = torch.abs(recog_character - real_character)
+        mean = error.mean()
+        std = error.std()
+
+        self.writer.add_scalar(f'{self.tag_name}/loss_character',  RMSE_loss.detach().item(), self.step_update)
+        self.writer.add_scalar(f'{self.tag_name}/mean_error',  mean.detach().item(), self.step_update)
+        self.writer.add_scalar(f'{self.tag_name}/std',  std.detach().item(), self.step_update)
         self.writer.add_scalar(f'{self.tag_name}/recog_time', t2-t1, self.step_update)
         # self.writer.add_scalar(f'{self.tag_name}/alpha', self.alpha.detach().item(), self.step_update)
 
