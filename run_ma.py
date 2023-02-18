@@ -103,7 +103,7 @@ def main():
     elif version == 'v1-4-3': 
         scale = 10
         config.description += '--IL-open-loop'
-        writer, env_master, method = gallery.ray_IL_open_loop__woattn__bottleneck(config, mode, scale)
+        writer, env_master, method = gallery.ray_IL_open_loop__bottleneck(config, mode, scale)
 
         env_master.create_tasks(method, func=run_one_episode)
 
