@@ -565,6 +565,7 @@ class ReplayBufferSingleAgentMultiWorker(buffer.ReplayBufferMultiWorker):
 
 class ReplayBufferMultiAgentMultiWorker(buffer.ReplayBufferMultiWorker):
     def push(self, experience, **kwargs):
+        if self.__len__() >= self.capacity: return
         i = kwargs.get('index')
         for e in experience:
             self.buffers[i].push(e)

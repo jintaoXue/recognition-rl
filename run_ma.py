@@ -106,27 +106,31 @@ def main():
         scale = 10
         config.description += '--IL-open-loop'
         writer, env_master, method = gallery.ray_IL_open_loop__bottleneck(config, mode, scale)
-        try:
-            env_master.create_tasks(method, func=run_one_episode)
 
-            for i_episode in range(10000):
-                total_steps = ray.get([t.run.remote() for t in env_master.tasks])
-                print('totall step in {} episode: {}'.format(i_episode, total_steps))
-                buffer_len = ray.get(method.get_buffer_len.remote())
-                start_training_step = ray.get(method.get_start_timesteps.remote()) 
-                if buffer_len >= start_training_step:
-                    batch_size = ray.get(method.get_batch_size.remote())
-                    sample_reuse = ray.get(method.get_sample_reuse.remote())
-                    n_iters = int(start_training_step / batch_size )*sample_reuse
-                    print('open loop:update parameter start, buffer_len:{}, update_iters:{}'.format(buffer_len, n_iters))
-                    ray.get(method.update_parameters_.remote(i_episode, n_iters))
-                    break
-        except Exception as e:
-            import traceback
-            traceback.print_exc()
-        finally:
-            ray.get(method.close.remote())
-            ray.shutdown()
+        env_master.create_tasks(method, func=run_one_episode)
+
+        for i_episode in range(10000):
+            total_steps = ray.get([t.run.remote() for t in env_master.tasks])
+
+            print('totall step in {} episode: {}'.format(i_episode, total_steps))
+            buffer_len = ray.get(method.get_buffer_len.remote())
+            start_training_step = ray.get(method.get_start_timesteps.remote()) 
+
+            if buffer_len >= start_training_step:
+                batch_size = ray.get(method.get_batch_size.remote())
+                sample_reuse = ray.get(method.get_sample_reuse.remote())
+                n_iters = int(start_training_step / batch_size )*sample_reuse
+                print('open loop:update parameter start, buffer_len:{}, update_iters:{}'.format(buffer_len, n_iters))
+                from universe import EnvMaster_v0 as EnvMaster
+                from utils.env import EnvInteractiveMultiAgent as Env
+                env_master = EnvMaster(config, writer, env_cls=Env)
+                env_master.create_tasks(method, func=run_one_episode)
+                for i in range(n_iters/10):
+                    ray.get(method.update_parameters_.remote(i_episode, 10))
+                    total_steps = ray.get([t.run.remote() for t in env_master.tasks])
+
+        ray.get(method.close.remote())
+        ray.shutdown()
         return
         
     ################################################################################################
