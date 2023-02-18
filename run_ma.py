@@ -96,14 +96,14 @@ def main():
         writer, env_master, method = gallery.ray_IL__bottleneck(config, mode, scale)
     
     elif version == 'v1-4-2-1':
-        scale = 1
+        scale = 10
         config.description += '--IL-close-loop_woattn'
         writer, env_master, method = gallery.ray_IL_woattn__bottleneck(config, mode, scale)
     
     elif version == 'v1-4-3': 
         scale = 10
         config.description += '--IL-open-loop'
-        writer, env_master, method = gallery.ray_IL_open_loop__bottleneck(config, mode, scale)
+        writer, env_master, method = gallery.ray_IL_open_loop__woattn__bottleneck(config, mode, scale)
 
         env_master.create_tasks(method, func=run_one_episode)
 
@@ -119,19 +119,34 @@ def main():
                 sample_reuse = ray.get(method.get_sample_reuse.remote())
                 n_iters = int(start_training_step / batch_size )*sample_reuse
                 print('open loop:update parameter start, buffer_len:{}, update_iters:{}'.format(buffer_len, n_iters))
-                # from universe import EnvMaster_v0 as EnvMaster
-                # from utils.env import EnvInteractiveMultiAgent as Env
-                # env_master = EnvMaster(config, writer, env_cls=Env)
-                # env_master.create_tasks(method, func=run_one_episode)
-                # model_name = Method.__name__ + '-' + Env.__name__
-                # writer_cls = rllib.basic.PseudoWriter
-                # writer = rllib.basic.create_dir(config, model_name, mode=mode, writer_cls=writer_cls)
-
                 ray.get(method.update_parameters_.remote(i_episode, n_iters))
                 ray.get(method.close.remote())
                 ray.shutdown()
                 return
-        
+
+    elif version == 'v1-4-3-1': 
+        scale = 10
+        config.description += '--IL-open-loop_woattn'
+        writer, env_master, method = gallery.ray_IL_open_loop__woattn__bottleneck(config, mode, scale)
+
+        env_master.create_tasks(method, func=run_one_episode)
+
+        for i_episode in range(10000):
+            total_steps = ray.get([t.run.remote() for t in env_master.tasks])
+
+            print('totall step in {} episode: {}'.format(i_episode, total_steps))
+            buffer_len = ray.get(method.get_buffer_len.remote())
+            start_training_step = ray.get(method.get_start_timesteps.remote()) 
+
+            if buffer_len >= start_training_step:
+                batch_size = ray.get(method.get_batch_size.remote())
+                sample_reuse = ray.get(method.get_sample_reuse.remote())
+                n_iters = int(start_training_step / batch_size )*sample_reuse
+                print('open loop:update parameter start, buffer_len:{}, update_iters:{}'.format(buffer_len, n_iters))
+                ray.get(method.update_parameters_.remote(i_episode, n_iters))
+                ray.get(method.close.remote())
+                ray.shutdown()
+                return
     ################################################################################################
     ##### intersection #############################################################################
     ################################################################################################
