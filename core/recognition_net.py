@@ -239,9 +239,11 @@ class RecognitionNetNew(rllib.template.Model):
         obs_svos = self.tanh(self.recog_feature_mapper(obs_svos))
         #(num_agents, batch, 1) -> (batch, num_agents, 1)
         obs_svos = obs_svos.transpose(0, 1)
+        breakpoint()
+        obs_svos[:] = 0
         self.obs_svos = obs_svos
         # state_ = cut_state(state)
-
+        #debug 
 
         #####step two : action####
         ### embedding
