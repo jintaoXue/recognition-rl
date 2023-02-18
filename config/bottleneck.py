@@ -47,7 +47,7 @@ config_env = rllib.basic.YamlConfig(
     scenario_cls=scenarios_bottleneck.ScenarioBottleneck,
     boundary=rllib.basic.BaseData(x_min=-150, y_min=180, x_max=150, y_max=220),
     center=rllib.basic.BaseData(x=0, y=200),
-    num_vehicles_range=rllib.basic.BaseData(min=8, max=20),
+    num_vehicles_range=rllib.basic.BaseData(min=20, max=20),
     # num_vehicles_range=rllib.basic.BaseData(min=1, max=1),  ### ! warning
     # num_vehicles_range=rllib.basic.BaseData(min=2, max=2),  ### ! warning
 

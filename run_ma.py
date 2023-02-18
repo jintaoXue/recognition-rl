@@ -126,9 +126,8 @@ def main():
                 # model_name = Method.__name__ + '-' + Env.__name__
                 # writer_cls = rllib.basic.PseudoWriter
                 # writer = rllib.basic.create_dir(config, model_name, mode=mode, writer_cls=writer_cls)
-                for i in range(n_iters/10):
-                    ray.get(method.update_parameters_.remote(i_episode, 10))
-                    total_steps = ray.get([t.run.remote() for t in env_master.tasks])
+
+                ray.get(method.update_parameters_.remote(i_episode, 10))
 
         ray.get(method.close.remote())
         ray.shutdown()

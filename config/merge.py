@@ -32,7 +32,7 @@ config_env = rllib.basic.YamlConfig(
     scenario_cls=scenarios_merge.ScenarioMerge,
     boundary=rllib.basic.BaseData(x_min=120, y_min=-140, x_max=220, y_max=-20),
     center=rllib.basic.BaseData(x=170, y=-80),
-    num_vehicles_range=rllib.basic.BaseData(min=8, max=20),
+    num_vehicles_range=rllib.basic.BaseData(min=20, max=20),
     # num_vehicles_range=rllib.basic.BaseData(min=1, max=1),  ### ! warning
     # num_vehicles_range=rllib.basic.BaseData(min=2, max=2),  ### ! warning
 
