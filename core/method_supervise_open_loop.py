@@ -50,7 +50,7 @@ class IndependentSACsupervise(MethodSingleAgent):
     before_training_steps = 0
 
     save_model_interval = 5000
-    sample_reuse = 4
+    sample_reuse = 16
     buffer_count = buffer_size
     def __init__(self, config: rllib.basic.YamlConfig, writer):
         super().__init__(config, writer)
