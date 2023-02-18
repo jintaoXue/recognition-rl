@@ -38,7 +38,7 @@ class IndependentSACsupervise(MethodSingleAgent):
 
     tau = 0.005
 
-    buffer_size = 760000
+    buffer_size = 800000
     batch_size = 128
 
     start_timesteps = 0
@@ -110,13 +110,16 @@ class IndependentSACsupervise(MethodSingleAgent):
         recog_character = recog_character[~torch.isinf(real_character)]
         real_character = real_character[~torch.isinf(real_character)]
         
+        mean = torch.abs(recog_character - real_character).mean()
         character_loss = self.recog_loss(recog_character, real_character)
         RMSE_loss = torch.sqrt(character_loss)
         self.actor_optimizer.zero_grad()
         RMSE_loss.backward()    
         self.actor_optimizer.step()
 
-        self.writer.add_scalar(f'{self.tag_name}/loss_character',  RMSE_loss.detach().item(), self.step_update)   
+        self.writer.add_scalar(f'{self.tag_name}/loss_character',  RMSE_loss.detach().item(), self.step_update)
+        self.writer.add_scalar(f'{self.tag_name}/mean_error',  mean.detach().item(), self.step_update)
+        self.writer.add_scalar(f'{self.tag_name}/MSE_loss',  character_loss.detach().item(), self.step_update)
         self.writer.add_scalar(f'{self.tag_name}/recog_time', t2-t1, self.step_update)
 
         if self.step_update % self.save_model_interval == 0:
@@ -125,12 +128,12 @@ class IndependentSACsupervise(MethodSingleAgent):
         return
 
     def update_parameters_(self, index, n_iters=1000):
-        if self.buffer_count < 0 : 
-            print('stop update') 
-            return
 
         num_case = self.buffer.__len__()
         self.buffer_count -= num_case
+        if self.buffer_count < 0 : 
+            print('stop update') 
+            return
         n_iters = int(num_case / self.batch_size) * self.sample_reuse 
         self.updated_iters += n_iters
 
@@ -143,7 +146,6 @@ class IndependentSACsupervise(MethodSingleAgent):
             self.update_parameters()
         self.buffer.clear()
 
-       
         return
 
     @torch.no_grad()

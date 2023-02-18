@@ -42,7 +42,7 @@ class IndependentSACsupervise(MethodSingleAgent):
 
     tau = 0.005
 
-    buffer_size = 760000
+    buffer_size = 800000
     batch_size = 128
 
     start_timesteps = buffer_size
