@@ -47,7 +47,7 @@ class IndependentSACsupervise(MethodSingleAgent):
 
     save_model_interval = 5000
     
-    sample_reuse = 16
+    sample_reuse = 24
     updated_iters = 0
     buffer_count = buffer_size
     buffer_len_prev = 0
