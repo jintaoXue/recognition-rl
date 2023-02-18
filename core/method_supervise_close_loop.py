@@ -50,6 +50,7 @@ class IndependentSACsupervise(MethodSingleAgent):
     sample_reuse = 16
     updated_iters = 0
     buffer_count = buffer_size
+    buffer_len_prev = 0
     def __init__(self, config: rllib.basic.YamlConfig, writer):
         super().__init__(config, writer)
 
@@ -130,8 +131,9 @@ class IndependentSACsupervise(MethodSingleAgent):
         return
 
     def update_parameters_(self, index, n_iters=1000):
-
-        num_case = self.buffer.__len__()
+        #setting 1  do not clear buffer 
+        num_case = self.buffer.__len__() - self.buffer_len_prev
+        self.buffer_len_prev = self.buffer.__len__()
         self.buffer_count -= num_case
         if self.buffer_count < 0 : 
             print('stop update') 
@@ -139,14 +141,30 @@ class IndependentSACsupervise(MethodSingleAgent):
         n_iters = int(num_case / self.batch_size) * self.sample_reuse 
         self.updated_iters += n_iters
 
-        print('buffer_len:{}, sample_reuse:{}, update iters:{}, updated iters:{}'.format(num_case, \
+        print('nume_case:{}, sample_reuse:{}, update iters:{}, updated iters:{}'.format(num_case, \
         self.sample_reuse, n_iters, self.updated_iters))
 
         # for i in tqdm.tqdm(range(n_iters)):
         #     self.update_parameters()
         for i in range(n_iters):
             self.update_parameters()
-        self.buffer.clear()
+        #setting 2 clear buffer
+        # num_case = self.buffer.__len__() 
+        # self.buffer_count -= num_case
+        # if self.buffer_count < 0 : 
+        #     print('stop update') 
+        #     return
+        # n_iters = int(num_case / self.batch_size) * self.sample_reuse 
+        # self.updated_iters += n_iters
+
+        # print('buffer_len:{}, sample_reuse:{}, update iters:{}, updated iters:{}'.format(num_case, \
+        # self.sample_reuse, n_iters, self.updated_iters))
+
+        # # for i in tqdm.tqdm(range(n_iters)):
+        # #     self.update_parameters()
+        # for i in range(n_iters):
+        #     self.update_parameters()
+        # self.buffer.clear()
 
         return
 
