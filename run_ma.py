@@ -127,11 +127,10 @@ def main():
                 # writer_cls = rllib.basic.PseudoWriter
                 # writer = rllib.basic.create_dir(config, model_name, mode=mode, writer_cls=writer_cls)
 
-                ray.get(method.update_parameters_.remote(i_episode, 10))
-
-        ray.get(method.close.remote())
-        ray.shutdown()
-        return
+                ray.get(method.update_parameters_.remote(i_episode, n_iters))
+                ray.get(method.close.remote())
+                ray.shutdown()
+                return
         
     ################################################################################################
     ##### intersection #############################################################################
