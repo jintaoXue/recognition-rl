@@ -39,8 +39,6 @@ def run_one_episode(env, method):
     return
 
 
-
-
 def main():
     config = rllib.basic.YamlConfig()
     from config.args import generate_args
@@ -121,10 +119,13 @@ def main():
                 sample_reuse = ray.get(method.get_sample_reuse.remote())
                 n_iters = int(start_training_step / batch_size )*sample_reuse
                 print('open loop:update parameter start, buffer_len:{}, update_iters:{}'.format(buffer_len, n_iters))
-                from universe import EnvMaster_v0 as EnvMaster
-                from utils.env import EnvInteractiveMultiAgent as Env
-                env_master = EnvMaster(config, writer, env_cls=Env)
-                env_master.create_tasks(method, func=run_one_episode)
+                # from universe import EnvMaster_v0 as EnvMaster
+                # from utils.env import EnvInteractiveMultiAgent as Env
+                # env_master = EnvMaster(config, writer, env_cls=Env)
+                # env_master.create_tasks(method, func=run_one_episode)
+                # model_name = Method.__name__ + '-' + Env.__name__
+                # writer_cls = rllib.basic.PseudoWriter
+                # writer = rllib.basic.create_dir(config, model_name, mode=mode, writer_cls=writer_cls)
                 for i in range(n_iters/10):
                     ray.get(method.update_parameters_.remote(i_episode, 10))
                     total_steps = ray.get([t.run.remote() for t in env_master.tasks])
