@@ -968,18 +968,19 @@ def evalute_ray_supervise__multiagent__bottleneck_assign_case(config, mode='trai
 
     ### env param
     from config.bottleneck_evaluate import config_env__fix_svo as config_bottleneck
-    config_env_evaluate = rllib.basic.YamlConfig(
-    raw_horizon=30, horizon=5)
+
     config_bottleneck.set('randomization_index', 11)
-    config_bottleneck.update(config_env_evaluate)
+    # config_bottleneck.set('raw_horizon'. config.raw_horizon)
+    # config_bottleneck.set('horizon', config.horizon)
+
     config.set('envs', [
         config_bottleneck
     ]*scale)
 
     ### method param
     from config.method import config_supervise_multi as config_method
-    config_method.set('raw_horizon', 30)
-    config_method.set('horizon', 5)
+    config_method.set('raw_horizon', config.raw_horizon)
+    config_method.set('horizon', config.horizon)
     config.set('methods', [config_method])
     return init_recog(config, mode, Env, Method)
 

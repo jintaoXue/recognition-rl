@@ -71,7 +71,6 @@ class ReplayBuffer(rllib.buffer.ReplayBuffer):
 def sample_state(state: rllib.basic.Data, raw_horizon, horizon) :
     state_ = copy.deepcopy(state)
     #hrz30 -> 10
-    horizon = 15
     # raw_horizon = 30
     interval = int(raw_horizon / horizon)
     state_.ego = torch.cat((state_.ego[:,interval-1:-1:interval,:], state_.ego[:,-1:,:]), 1)  
