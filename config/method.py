@@ -11,7 +11,7 @@ from core.model_vectornet import PointNetWithAgentHistory  ### no_character
 from core.model_vectornet import PointNetWithCharacterAgentHistory  ### robust_character
 from core.model_vectornet import PointNetWithCharactersAgentHistory  ### adaptive_character
 from core.recognition_net import RecognitionNet, RecogNetSVO, RecogNetMultiSVO , RecogNetMultiSVOWoattn,RecogNetSvoWoattn,\
-    RecognitionNetNew,PointNetWithCharactersAgentHistoryRecog, RecognitionWoAttention
+    RecognitionNetNew,PointNetWithCharactersAgentHistoryRecog
 from core.ablation import  RecognitionNetNewWoMap, RecognitionNetNewWoattn
 config_meta = rllib.basic.YamlConfig(
     device='cuda',
@@ -118,14 +118,14 @@ config_isac_recog = rllib.basic.YamlConfig(
     **config_meta.to_dict(),
 )
 
-config_isac_recog_woattn = rllib.basic.YamlConfig(
-    net_actor_fe=PointNetWithCharactersAgentHistoryRecog,
-    net_critic_fe=PointNetWithCharactersAgentHistoryRecog,
-    net_actor_recog=RecognitionWoAttention,
-    net_critic_recog=RecognitionWoAttention,
-    buffer=ReplayBufferSingleAgent,
-    **config_meta.to_dict(),
-)
+# config_isac_recog_woattn = rllib.basic.YamlConfig(
+#     net_actor_fe=PointNetWithCharactersAgentHistoryRecog,
+#     net_critic_fe=PointNetWithCharactersAgentHistoryRecog,
+#     net_actor_recog=RecognitionWoAttention,
+#     net_critic_recog=RecognitionWoAttention,
+#     buffer=ReplayBufferSingleAgent,
+#     **config_meta.to_dict(),
+# )
 config_supervise = rllib.basic.YamlConfig(
     net_actor_fe=PointNetWithCharactersAgentHistoryRecog,
     net_recog=RecognitionNet,
@@ -147,12 +147,12 @@ config_supervise_roll = rllib.basic.YamlConfig(
     **config_meta.to_dict(),
 )
 
-config_woattn = rllib.basic.YamlConfig(
-    net_actor_fe=PointNetWithCharactersAgentHistoryRecog,
-    net_recog=RecognitionWoAttention,
-    buffer=ReplayBufferSingleAgent,
-    **config_meta.to_dict(),
-)
+# config_woattn = rllib.basic.YamlConfig(
+#     net_actor_fe=PointNetWithCharactersAgentHistoryRecog,
+#     net_recog=RecognitionWoAttention,
+#     buffer=ReplayBufferSingleAgent,
+#     **config_meta.to_dict(),
+# )
 
 
 ####### 2.Recog as the Actor 
@@ -197,14 +197,14 @@ config_recog_multi_agent = rllib.basic.YamlConfig(
     **config_meta.to_dict(),
 )
 
-config_recog_woattn_multi_agent = rllib.basic.YamlConfig(
-    net_actor_fe=RecognitionNetNewWoattn,
-    net_critic_fe=PointNetWithCharactersAgentHistory,
-    # net_actor_recog=RecognitionNet,
-    # net_critic_recog=RecognitionNet,
-    buffer=ReplayBufferMultiAgent,
-    **config_meta.to_dict(),
-)
+# config_recog_woattn_multi_agent = rllib.basic.YamlConfig(
+#     net_actor_fe=RecognitionNetNewWoattn,
+#     net_critic_fe=PointNetWithCharactersAgentHistory,
+#     # net_actor_recog=RecognitionNet,
+#     # net_critic_recog=RecognitionNet,
+#     buffer=ReplayBufferMultiAgent,
+#     **config_meta.to_dict(),
+# )
 
 config_action_svo_multiagent = rllib.basic.YamlConfig(
     net_actor_fe=RecogNetMultiSVO,
