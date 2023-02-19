@@ -49,7 +49,7 @@ class IndependentSACsupervise(MethodSingleAgent):
     # start_timesteps = 1  ## ! warning
     before_training_steps = 0
 
-    save_model_interval = 5000
+    save_model_interval = 1000
     sample_reuse = 24
     buffer_count = buffer_size
     def __init__(self, config: rllib.basic.YamlConfig, writer):
