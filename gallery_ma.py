@@ -247,6 +247,7 @@ def ray_IL_open_loop__woattn__bottleneck(config, mode='train', scale=1):
     config.set('methods', [config_method])
 
     return init(config, mode, Env, Method)
+    
 def ray_IL_open_loop__bottleneck(config, mode='train', scale=1):
     from utils.env import EnvInteractiveMultiAgent as Env
     from core.method_supervise_open_loop import IndependentSACsupervise as Method

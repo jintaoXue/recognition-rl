@@ -116,45 +116,6 @@ class RecognitionNetNewWoMap(RecognitionNetNew):
 
 class RecognitionNetNewWoattn(RecognitionNetNew):
     
-    def __init__(self, config, model_id=0):
-        ##########需要加载的参数
-        self.raw_horizon = config.raw_horizon
-        self.sampled_horizon = config.horizon 
-
-        dim_embedding = 128
-        dim_character_embedding = 32
-        self.dim_embedding = dim_embedding
-        self.dim_character_embedding = dim_character_embedding
-
-        self.character_embedding = nn.Linear(1, dim_character_embedding)
-
-        self.agent_embedding_recog = DeepSetModule(self.dim_state.agent, 160 //2)
-        self.agent_embedding_recog_v1 = nn.Sequential(
-            nn.Linear(self.dim_state.agent, 160), nn.ReLU(inplace=True),
-            nn.Linear(160, 160), nn.ReLU(inplace=True),
-            nn.Linear(160, 160 //2),
-        )
-        #action
-        self.ego_embedding = DeepSetModule(self.dim_state.agent, dim_embedding //2)
-        self.ego_embedding_v1 = nn.Linear(self.dim_state.agent, dim_embedding //2)
-
-        self.agent_embedding = DeepSetModule(self.dim_state.agent, dim_embedding //2)
-        self.agent_embedding_v1 = nn.Sequential(
-            nn.Linear(self.dim_state.agent, dim_embedding), nn.ReLU(inplace=True),
-            nn.Linear(dim_embedding, dim_embedding), nn.ReLU(inplace=True),
-            nn.Linear(dim_embedding, dim_embedding //2),
-        )
-
-        self.static_embedding = DeepSetModule(self.dim_state.static, dim_embedding +dim_character_embedding)
-        self.type_embedding = VectorizedEmbedding(dim_embedding + dim_character_embedding)
-        self.recog_feature_mapper = FeatureMapper(config, model_id, dim_embedding + dim_character_embedding, 1)
-        self.tanh = nn.Tanh()
-        #todo 
-        self.global_head = MultiheadAttentionGlobalHead(dim_embedding +dim_character_embedding, nhead=4, dropout=0.0 if config.evaluate else 0.1)
-        self.dim_feature = dim_embedding+dim_character_embedding + dim_character_embedding
-        self.obs_svos = torch.empty(1,1)
-
-
     def forward(self, state: rllib.basic.Data, **kwargs):
         # breakpoint()
         state_sampled = sample_state(state, self.raw_horizon, self.sampled_horizon)
