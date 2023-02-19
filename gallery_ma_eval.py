@@ -969,6 +969,8 @@ def evalute_ray_supervise__multiagent__bottleneck_assign_case(config, mode='trai
     ### env param
     from config.bottleneck_evaluate import config_env__fix_svo as config_bottleneck
     config_bottleneck.set('randomization_index', 11)
+    config_bottleneck.set('raw_horizon', 30)
+    config_bottleneck.set('horizon', 5)
     config.set('envs', [
         config_bottleneck
     ]*scale)
