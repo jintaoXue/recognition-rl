@@ -12,7 +12,7 @@ from core.model_vectornet import PointNetWithCharacterAgentHistory  ### robust_c
 from core.model_vectornet import PointNetWithCharactersAgentHistory  ### adaptive_character
 from core.recognition_net import RecognitionNet, RecogNetSVO, RecogNetMultiSVO , RecogNetMultiSVOWoattn,RecogNetSvoWoattn,\
     RecognitionNetNew,PointNetWithCharactersAgentHistoryRecog, RecognitionWoAttention
-from core.ablation import  RecognitionNetNewWoMap, RecognitionNetNewWoattn
+from core.ablation import  RecognitionNetNewWoMap #RecognitionNetNewWoattn
 config_meta = rllib.basic.YamlConfig(
     device='cuda',
     num_cpus=1.0,
