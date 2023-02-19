@@ -45,6 +45,8 @@ def main():
     args = generate_args()
     config.update(args)
 
+    open_loop = False
+
     ray.init(num_cpus=psutil.cpu_count(), num_gpus=torch.cuda.device_count(), include_dashboard=False)
 
     mode = 'train'
@@ -208,8 +210,30 @@ def main():
 
     elif version == 'v3-4-2':
         scale = 9
-        config.description += '--IL_open_loop__merge'
+        open_loop = True
+        config.set('raw_horizon', 30)
+        config.set('horizon', 1)
+        config.description += '--IL_open_loop_hr{}__merge'.format(config.horizon)
         writer, env_master, method = gallery.ray_IL_open_loop__merge(config, mode, scale)
+
+    elif version == 'v3-4-2-1':
+        scale = 9
+        open_loop = True
+
+        config.set('raw_horizon', 30)
+        config.set('horizon', 10)
+        config.description += '--IL_open_loop__merge_womap'
+        writer, env_master, method = gallery.ray_IL_open_loop__merge_womap(config, mode, scale)
+
+    elif version == 'v3-4-2-2':
+        scale = 9
+        open_loop = True
+
+        config.set('raw_horizon', 30)
+        config.set('horizon', 10)
+        config.description += '--IL_open_loop__merge_woattn'
+        writer, env_master, method = gallery.ray_IL_open_loop__merge_woattn(config, mode, scale)
+    
     ################################################################################################
     ##### roundabout ###############################################################################
     ################################################################################################
@@ -261,6 +285,26 @@ def main():
     else:
         raise NotImplementedError
 
+    if open_loop :
+
+        env_master.create_tasks(method, func=run_one_episode)
+
+        for i_episode in range(10000):
+            total_steps = ray.get([t.run.remote() for t in env_master.tasks])
+
+            print('totall step in {} episode: {}'.format(i_episode, total_steps))
+            buffer_len = ray.get(method.get_buffer_len.remote())
+            start_training_step = ray.get(method.get_start_timesteps.remote()) 
+
+            if buffer_len >= start_training_step:
+                batch_size = ray.get(method.get_batch_size.remote())
+                sample_reuse = ray.get(method.get_sample_reuse.remote())
+                n_iters = int(start_training_step / batch_size )*sample_reuse
+                print('open loop:update parameter start, buffer_len:{}, update_iters:{}'.format(buffer_len, n_iters))
+                ray.get(method.update_parameters_.remote(i_episode, n_iters))
+                ray.get(method.close.remote())
+                ray.shutdown()
+                return
 
     try:
         env_master.create_tasks(method, func=run_one_episode)

@@ -957,6 +957,8 @@ def evalute_ray_supervise__multiagent__bottleneck(config, mode='train', scale=5)
 
     ### method param
     from config.method import config_supervise_multi as config_method
+    config_method.set('raw_horizon', config.raw_horizon)
+    config_method.set('horizon', config.horizon)
     config.set('methods', [config_method])
 
     return init_recog(config, mode, Env, Method)
@@ -1054,7 +1056,7 @@ def evaluate_ray_RILEnvM__merge(config, mode='train', scale=1):
 
     return init_recog(config, mode, Env, Method)
 
-def evalute_ray_supervise_offline_multiagent__merge(config, mode='train', scale=1):
+def evalute_ray_supervise__multiagent__merge(config, mode='train', scale=1):
     from universe import EnvInteractiveMultiAgent as Env
     #todo
     from core.method_evaluate import EvaluateSupervise as Method
@@ -1068,8 +1070,30 @@ def evalute_ray_supervise_offline_multiagent__merge(config, mode='train', scale=
 
     ### method param
     from config.method import config_supervise_multi as config_method
+    config_method.set('raw_horizon', config.raw_horizon)
+    config_method.set('horizon', config.horizon)
     config.set('methods', [config_method])
 
     return init_recog(config, mode, Env, Method)
 
+def evalute_ray_supervise__multiagent__merge_assign_case(config, mode='train', scale=5):
+    from universe import EnvInteractiveMultiAgent as Env
+    #todo
+    from core.method_evaluate import EvaluateSupervise as Method
 
+    ### env param
+    from config.merge_evaluate import config_env__with_case_assign as config_merge
+    config_merge.set('randomization_index', 11)
+    # config_bottleneck.set('raw_horizon'. config.raw_horizon)
+    # config_bottleneck.set('horizon', config.horizon)
+
+    config.set('envs', [
+        config_merge
+    ]*scale)
+
+    ### method param
+    from config.method import config_supervise_multi as config_method
+    config_method.set('raw_horizon', config.raw_horizon)
+    config_method.set('horizon', config.horizon)
+    config.set('methods', [config_method])
+    return init_recog(config, mode, Env, Method)

@@ -717,16 +717,24 @@ class IL_offline__bottleneck(ModelPath):
     model_num = 240000
 
     #hr = 1 sampled  116
-    model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveMultiAgent/2023-02-19-14:13:49----Nothing--IL-open-loop/saved_models_method'
-    model_num = 145000
+    # model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveMultiAgent/2023-02-19-14:13:49----Nothing--IL-open-loop/saved_models_method'
+    # model_num = 145000
 
-    #hr = 5 sampled  115
-    model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveMultiAgent/2023-02-19-14:13:49----Nothing--IL-open-loop/saved_models_method'
-    model_num = 145000
+    # #hr = 5 sampled  115
+    # model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveMultiAgent/2023-02-19-14:13:49----Nothing--IL-open-loop/saved_models_method'
+    # model_num = 145000
     #hr = 10 sampled 115
     model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveMultiAgent/2023-02-19-11:13:06----Nothing--IL-open-loop/saved_models_method'
     model_num = 145000
 
-    #hr = 15 sampled 116
-    model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveMultiAgent/2023-02-19-11:40:50----Nothing--IL-open-loop/saved_models_method'
-    model_num = 145000
+    # #hr = 15 sampled 116
+    # model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveMultiAgent/2023-02-19-11:40:50----Nothing--IL-open-loop/saved_models_method'
+    # model_num = 145000
+
+class IL_offline__merge(ModelPath):
+
+    method = 'IndependentSACsupervise'
+
+    model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveMultiAgent/2023-02-06-10:09:14----Nothing--supervise-MultiAgent/saved_models_method'
+    model_num = 78000
+    model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveMultiAgent/2023-02-14-16:10:01----Nothing--IL-open-loop/saved_models_method'

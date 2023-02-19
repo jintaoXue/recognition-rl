@@ -279,9 +279,9 @@ def main():
 
         scale = 5
         config.set('raw_horizon', 30)
-        config.set('horizon', 5)
+        config.set('horizon', 10)
         debug_recog = True
-        config.description += '--case11_IL-open-loop_bottleneck_'
+        config.description += '--case11_IL-open-loop_bottleneck_hr{}'.format(config.horizon)
         models_ma.IL_offline__bottleneck().update(config)
         env_master = gallery.evalute_ray_supervise__multiagent__bottleneck_assign_case(config, mode, scale)
 
@@ -344,6 +344,31 @@ def main():
 
         models_ma.ILEnvM__merge().update(config)
         env_master = gallery.evalute_ray_supervise_offline_multiagent__merge(config, mode, scale)
+
+    elif version == 'v2-4-3':
+        if mode != 'evaluate':
+            raise NotImplementedError
+
+        scale = 5
+        debug_recog = True
+        config.set('raw_horizon', 30)
+        config.set('horizon', 10)
+        config.description += '--IL-open-loop_merge'
+        models_ma.IL_offline__merge().update(config)
+        env_master = gallery.evalute_ray_supervise__multiagent__merge(config, mode, scale)
+
+    elif version == 'v2-4-3-1':
+        if mode != 'evaluate':
+            raise NotImplementedError
+
+        scale = 5
+        debug_recog = True
+        config.set('raw_horizon', 30)
+        config.set('horizon', 10)
+        config.description += '--IL-open-loop_merge'
+        models_ma.IL_offline__merge().update(config)
+        env_master = gallery.evalute_ray_supervise__multiagent__merge_assign_case(config, mode, scale)
+
 
     elif version == 'v3-1':
         if mode != 'evaluate':

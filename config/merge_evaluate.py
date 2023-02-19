@@ -29,6 +29,9 @@ config_env__with_character.scenario_cls = scenarios_merge.ScenarioMergeEvaluate
 config_env__with_character_assign = copy.copy(config_env__with_character)
 config_env__with_character_assign.scenario_cls = scenarios_merge.ScenarioMergeEvaluate_assign
 
+config_env__with_case_assign = copy.copy(config_env__with_character)
+config_env__with_case_assign.scenario_cls = scenarios_merge.ScenarioMergeEvaluate_assign_case
+
 
 config_env__fix_svo = copy.copy(merge.config_env__with_character)
 config_env__fix_svo.update(config_env_evaluate)
