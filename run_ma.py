@@ -103,6 +103,8 @@ def main():
     elif version == 'v1-4-3': 
         scale = 10
         config.description += '--IL-open-loop'
+        config.set('raw_horizon', 30)
+        config.set('horizon', 5)
         writer, env_master, method = gallery.ray_IL_open_loop__bottleneck(config, mode, scale)
 
         env_master.create_tasks(method, func=run_one_episode)
@@ -126,6 +128,8 @@ def main():
     elif version == 'v1-4-3-1': 
         scale = 10
         config.description += '--IL-open-loop_woattn'
+        config.set('raw_horizon', 30)
+        config.set('horizon', 5)
         writer, env_master, method = gallery.ray_IL_open_loop__woattn__bottleneck(config, mode, scale)
 
         env_master.create_tasks(method, func=run_one_episode)

@@ -479,7 +479,7 @@ class EvaluateSupervise(rllib.EvaluateSingleAgent):
     def select_method(self):
         config, method_name = self.config, self.method_name
 
-        from core.method_supervise import Actor
+        from core.method_supervise_close_loop import Actor
         self.actor = config.get('net_actor', Actor)(config).to(self.device)
         self.models_to_load = [self.actor]
         return

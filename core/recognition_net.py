@@ -1,4 +1,5 @@
 from builtins import breakpoint
+from random import sample
 from turtle import forward
 from matplotlib.pyplot import axis
 from pyparsing import actions
@@ -138,6 +139,9 @@ class RecognitionNetNew(rllib.template.Model):
         # self.mean = rllib.template.model.FeatureMapper(config, model_id, self.fe.dim_feature, config.dim_action)
         # self.std = copy.deepcopy(self.mean)
         # self.load_state_dict(torch.load('~/github/zdk/recognition-rl/models/IndependentSAC_v0-EnvInteractiveMultiAgent/2022-09-11-15:19:29----ray_isac_adaptive_character__multi_scenario--buffer-rate-0.2/saved_models_method/INDEPENDENTSAC_V0_Actor_0_866200_.pth'))
+        self.raw_horizon = config.raw_horizon
+        self.sampled_horizon = config.horizon 
+
         dim_embedding = 128
         dim_character_embedding = 32
         self.dim_embedding = dim_embedding
@@ -184,7 +188,7 @@ class RecognitionNetNew(rllib.template.Model):
     def forward(self, state: rllib.basic.Data, **kwargs):
         # breakpoint()
         
-        # state = sample_state(state)
+        state_sampled = sample_state(state, self.raw_horizon, self.sampled_horizon)
 
         batch_size = state.ego.shape[0]
         num_agents = state.obs.shape[1]
@@ -192,10 +196,10 @@ class RecognitionNetNew(rllib.template.Model):
         num_bounds = state.bound.shape[1]
         
         ### data generation
-        ego = state.ego[:,-1]
-        ego_mask = state.ego_mask.to(torch.bool)[:,[-1]]
-        obs = state.obs[:,:,-1]
-        obs_mask = state.obs_mask[:,:,-1].to(torch.bool)
+        ego = state_sampled.ego[:,-1]
+        ego_mask = state_sampled.ego_mask.to(torch.bool)[:,[-1]]
+        obs = state_sampled.obs[:,:,-1]
+        obs_mask = state_sampled.obs_mask[:,:,-1].to(torch.bool)
         # obs_character = state.obs_character[:,:,-1]
         route = state.route
         route_mask = state.route_mask.to(torch.bool)
@@ -206,15 +210,15 @@ class RecognitionNetNew(rllib.template.Model):
 
         ### embedding
         ego_embedding_recog = torch.cat([
-            self.ego_embedding_recog(state.ego, state.ego_mask.to(torch.bool)),
+            self.ego_embedding_recog(state_sampled.ego, state_sampled.ego_mask.to(torch.bool)),
             self.ego_embedding_recog_v1(ego),
-            self.character_embedding(state.character.unsqueeze(1))
+            self.character_embedding(state_sampled.character.unsqueeze(1))
         ], dim=1)
 
         obs = torch.where(obs == np.inf, torch.tensor(0, dtype=torch.float32, device=obs.device), obs)
 
         obs_embedding_recog = torch.cat([
-            self.agent_embedding_recog(state.obs.flatten(end_dim=1), state.obs_mask.to(torch.bool).flatten(end_dim=1)).view(batch_size,num_agents, 160 //2),
+            self.agent_embedding_recog(state_sampled.obs.flatten(end_dim=1), state_sampled.obs_mask.to(torch.bool).flatten(end_dim=1)).view(batch_size,num_agents, 160 //2),
             self.agent_embedding_recog_v1(obs)
         ], dim=2)
 
@@ -245,7 +249,11 @@ class RecognitionNetNew(rllib.template.Model):
         self.obs_svos = obs_svos
         # state_ = cut_state(state)
         #debug 
-
+        state = cut_state(state, self.raw_horizon, 10)
+        ego = state.ego[:,-1]
+        ego_mask = state.ego_mask.to(torch.bool)[:,[-1]]
+        obs = state.obs[:,:,-1]
+        obs_mask = state.obs_mask[:,:,-1].to(torch.bool)
         ego_embedding = torch.cat([
             self.ego_embedding(state.ego, state.ego_mask.to(torch.bool)),
             self.ego_embedding_v1(ego),
@@ -1405,7 +1413,7 @@ def pad_data(data: torch.Tensor, pad_size: torch.Size, pad_value=np.inf):
         raise NotImplementedError
     return res
 
-def cut_state(state: rllib.basic.Data) :
+def cut_state(state: rllib.basic.Data, raw_horizon, horizon) :
     state_ = copy.deepcopy(state)
     horizon = 10
     raw_horizon = 30
@@ -1421,11 +1429,11 @@ def cut_state(state: rllib.basic.Data) :
     # state_.obs_character = state_.obs_character[:,:,-horizon:,-1]
     return state_
 
-def sample_state(state: rllib.basic.Data) :
+def sample_state(state: rllib.basic.Data, raw_horizon, horizon) :
     state_ = copy.deepcopy(state)
     #hrz30 -> 10
     horizon = 15
-    raw_horizon = 30
+    # raw_horizon = 30
     interval = int(raw_horizon / horizon)
     state_.ego = torch.cat((state_.ego[:,interval-1:-1:interval,:], state_.ego[:,-1:,:]), 1)  
     state_.ego_mask = torch.cat((state_.ego_mask[:,interval-1:-1:interval], state_.ego_mask[:,-1:]), 1) 
@@ -1434,5 +1442,4 @@ def sample_state(state: rllib.basic.Data) :
     state_.obs_mask = torch.cat((state_.obs_mask[:,:,interval-1:-1:interval], state_.obs_mask[:,:,-1:]), 2)  
     # state_.obs_character = state_.obs_character[:,:,-horizon:,-1]
     return state_
-
 

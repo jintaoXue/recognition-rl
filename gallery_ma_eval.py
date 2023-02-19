@@ -975,8 +975,9 @@ def evalute_ray_supervise__multiagent__bottleneck_assign_case(config, mode='trai
 
     ### method param
     from config.method import config_supervise_multi as config_method
+    config_method.set('raw_horizon', 30)
+    config_method.set('horizon', 5)
     config.set('methods', [config_method])
-
     return init_recog(config, mode, Env, Method)
 
 #################################################################################

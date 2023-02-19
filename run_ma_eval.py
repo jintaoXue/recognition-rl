@@ -36,8 +36,8 @@ class Debug(object):
             action, mean_dev, std_dev = method.select_actions(state)
             action = action.cpu().numpy()
             # print('mean: {}, std: {}'.format(mean_dev, std_dev))
-            # env.writer.add_scalar('recog_accuracy/episode_{}_mean'.format(self.episode), mean_dev, self.time_step)
-            # env.writer.add_scalar('recog_accuracy/episode_{}_std'.format(self.episode), std_dev, self.time_step)
+            env.writer.add_scalar('recog_accuracy/episode_{}_mean'.format(self.episode), mean_dev, self.time_step)
+            env.writer.add_scalar('recog_accuracy/episode_{}_std'.format(self.episode), std_dev, self.time_step)
             tt2 = time.time()
             experience, done, info = env.step(action)
             tt3 = time.time()
@@ -267,6 +267,8 @@ def main():
 
         scale = 5
         debug_recog = True
+        config.set('raw_horizon', 30)
+        config.set('horizon', 5)
         config.description += '--IL-open-loop_bottleneck'
         models_ma.IL_offline__bottleneck().update(config)
         env_master = gallery.evalute_ray_supervise__multiagent__bottleneck(config, mode, scale)
@@ -276,6 +278,8 @@ def main():
             raise NotImplementedError
 
         scale = 5
+        config.set('raw_horizon', 30)
+        config.set('horizon', 5)
         debug_recog = True
         config.description += '--case11_IL-open-loop_bottleneck_'
         models_ma.IL_offline__bottleneck().update(config)

@@ -51,10 +51,13 @@ class ReplayBuffer(rllib.buffer.ReplayBuffer):
 
     #     self.memory[index] = experience
     #     self.size += 1
-
+    def __init__(self, config, capacity, batch_size, device):
+        super().__init__(config, capacity, batch_size, device)
+        self.raw_horizon = config.raw_horizon
+        self.horizon = config.horizon
     def push(self, experience, **kwargs):
-        experience.state = sample_state(experience.state)
-        experience.next_state = sample_state(experience.next_state)
+        experience.state = sample_state(experience.state, self.raw_horizon, self.horizon)
+        experience.next_state = sample_state(experience.next_state, self.raw_horizon, self.horizon)
         self.memory[self.size % self.capacity] = experience
         self.size += 1
 
@@ -65,11 +68,11 @@ class ReplayBuffer(rllib.buffer.ReplayBuffer):
 
 
 
-def sample_state(state: rllib.basic.Data) :
+def sample_state(state: rllib.basic.Data, raw_horizon, horizon) :
     state_ = copy.deepcopy(state)
     #hrz30 -> 10
     horizon = 15
-    raw_horizon = 30
+    # raw_horizon = 30
     interval = int(raw_horizon / horizon)
     state_.ego = torch.cat((state_.ego[:,interval-1:-1:interval,:], state_.ego[:,-1:,:]), 1)  
     state_.ego_mask = torch.cat((state_.ego_mask[:,interval-1:-1:interval], state_.ego_mask[:,-1:]), 1) 
