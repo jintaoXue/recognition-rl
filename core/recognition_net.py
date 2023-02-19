@@ -184,7 +184,7 @@ class RecognitionNetNew(rllib.template.Model):
     def forward(self, state: rllib.basic.Data, **kwargs):
         # breakpoint()
         
-        state = sample_state(state)
+        # state = sample_state(state)
 
         batch_size = state.ego.shape[0]
         num_agents = state.obs.shape[1]

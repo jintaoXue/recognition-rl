@@ -1,7 +1,8 @@
 import rllib
 
 import numpy as np
-
+import torch
+import copy
 from rllib.basic import Data as Experience
 
 class ReplayBufferMultiWorker(object):
@@ -51,11 +52,33 @@ class ReplayBuffer(rllib.buffer.ReplayBuffer):
     #     self.memory[index] = experience
     #     self.size += 1
 
+    def push(self, experience, **kwargs):
+        experience.state = sample_state(experience.state)
+        experience.next_state = sample_state(experience.next_state)
+        self.memory[self.size % self.capacity] = experience
+        self.size += 1
+
     def clear(self):
         del self.memory
         self.memory = np.empty(self.capacity, dtype=Experience)
         self.size = 0
-        
+
+
+
+def sample_state(state: rllib.basic.Data) :
+    state_ = copy.deepcopy(state)
+    #hrz30 -> 10
+    horizon = 15
+    raw_horizon = 30
+    interval = int(raw_horizon / horizon)
+    state_.ego = torch.cat((state_.ego[:,interval-1:-1:interval,:], state_.ego[:,-1:,:]), 1)  
+    state_.ego_mask = torch.cat((state_.ego_mask[:,interval-1:-1:interval], state_.ego_mask[:,-1:]), 1) 
+
+    state_.obs = torch.cat((state_.obs[:,:,interval-1:-1:interval,:], state_.obs[:,:,-1:,:]), 2)  
+    state_.obs_mask = torch.cat((state_.obs_mask[:,:,interval-1:-1:interval], state_.obs_mask[:,:,-1:]), 2)  
+    # state_.obs_character = state_.obs_character[:,:,-horizon:,-1]
+    return state_
+
 
 if __name__ == '__main__':
     replay_buffer = ReplayBuffer(None, 101, 2, device='cpu')
