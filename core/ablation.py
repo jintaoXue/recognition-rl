@@ -1,3 +1,4 @@
+from random import sample
 import rllib
 
 import numpy as np
@@ -113,7 +114,120 @@ class RecognitionNetNewWoMap(RecognitionNetNew):
 
 
 
+class RecognitionNetNewWoattn(RecognitionNetNew):
+    
+    def __init__(self, config, model_id=0):
+        ##########需要加载的参数
+        self.raw_horizon = config.raw_horizon
+        self.sampled_horizon = config.horizon 
 
+        dim_embedding = 128
+        dim_character_embedding = 32
+        self.dim_embedding = dim_embedding
+        self.dim_character_embedding = dim_character_embedding
+
+        self.character_embedding = nn.Linear(1, dim_character_embedding)
+
+        self.agent_embedding_recog = DeepSetModule(self.dim_state.agent, 160 //2)
+        self.agent_embedding_recog_v1 = nn.Sequential(
+            nn.Linear(self.dim_state.agent, 160), nn.ReLU(inplace=True),
+            nn.Linear(160, 160), nn.ReLU(inplace=True),
+            nn.Linear(160, 160 //2),
+        )
+        #action
+        self.ego_embedding = DeepSetModule(self.dim_state.agent, dim_embedding //2)
+        self.ego_embedding_v1 = nn.Linear(self.dim_state.agent, dim_embedding //2)
+
+        self.agent_embedding = DeepSetModule(self.dim_state.agent, dim_embedding //2)
+        self.agent_embedding_v1 = nn.Sequential(
+            nn.Linear(self.dim_state.agent, dim_embedding), nn.ReLU(inplace=True),
+            nn.Linear(dim_embedding, dim_embedding), nn.ReLU(inplace=True),
+            nn.Linear(dim_embedding, dim_embedding //2),
+        )
+
+        self.static_embedding = DeepSetModule(self.dim_state.static, dim_embedding +dim_character_embedding)
+        self.type_embedding = VectorizedEmbedding(dim_embedding + dim_character_embedding)
+        self.recog_feature_mapper = FeatureMapper(config, model_id, dim_embedding + dim_character_embedding, 1)
+        self.tanh = nn.Tanh()
+        #todo 
+        self.global_head = MultiheadAttentionGlobalHead(dim_embedding +dim_character_embedding, nhead=4, dropout=0.0 if config.evaluate else 0.1)
+        self.dim_feature = dim_embedding+dim_character_embedding + dim_character_embedding
+        self.obs_svos = torch.empty(1,1)
+
+
+    def forward(self, state: rllib.basic.Data, **kwargs):
+        # breakpoint()
+        state_sampled = sample_state(state, self.raw_horizon, self.sampled_horizon)
+        batch_size = state.ego.shape[0]
+        num_agents = state.obs.shape[1]
+        num_lanes = state.lane.shape[1]
+        num_bounds = state.bound.shape[1]
+        
+        ### data generation
+
+        obs = state_sampled.obs[:,:,-1]
+        obs_mask = state_sampled.obs_mask[:,:,-1].to(torch.bool)
+        obs_character = state_sampled.obs_character[:,:,-1]
+        ### embedding
+
+        obs = torch.where(obs == np.inf, torch.tensor(0, dtype=torch.float32, device=obs.device), obs)
+        obs_embedding_recog = torch.cat([
+            self.agent_embedding(state_sampled.obs.flatten(end_dim=1), state_sampled.obs_mask.to(torch.bool).flatten(end_dim=1)).view(batch_size,num_agents, self.dim_embedding //2),
+            self.agent_embedding_v1(obs)
+        ], dim=2)
+
+        obs_svos = self.recog_feature_mapper(obs_embedding_recog)
+        obs_svos = self.tanh(obs_svos)
+
+        self.obs_svos = obs_svos
+
+        state = cut_state(state, self.raw_horizon, 10)
+        route = state.route
+        route_mask = state.route_mask.to(torch.bool)
+        lane = state.lane
+        lane_mask = state.lane_mask.to(torch.bool)
+        bound = state.bound
+        bound_mask = state.bound_mask.to(torch.bool)
+        ego = state.ego[:,-1]
+        ego_mask = state.ego_mask.to(torch.bool)[:,[-1]]
+        obs = state.obs[:,:,-1]
+        obs_mask = state.obs_mask[:,:,-1].to(torch.bool)
+
+        ego_embedding = torch.cat([
+            self.ego_embedding(state.ego, state.ego_mask.to(torch.bool)),
+            self.ego_embedding_v1(ego),
+            self.character_embedding(state.character.unsqueeze(1)),
+        ], dim=1)
+
+        obs = torch.where(obs == np.inf, torch.tensor(0, dtype=torch.float32, device=obs.device), obs)
+        obs_character = obs_svos
+        obs_embedding = torch.cat([
+            self.agent_embedding(state.obs.flatten(end_dim=1), state.obs_mask.to(torch.bool).flatten(end_dim=1)).view(batch_size,num_agents, self.dim_embedding //2),
+            self.agent_embedding_v1(obs),
+            self.character_embedding(obs_character),
+        ], dim=2)
+        route_embedding = self.static_embedding(route, route_mask)
+
+        lane_embedding = self.static_embedding(lane.flatten(end_dim=1), lane_mask.flatten(end_dim=1))
+        lane_embedding = lane_embedding.view(batch_size,num_lanes, self.dim_embedding + self.dim_character_embedding)
+
+        bound_embedding = self.static_embedding(bound.flatten(end_dim=1), bound_mask.flatten(end_dim=1))
+        bound_embedding = bound_embedding.view(batch_size,num_bounds, self.dim_embedding + self.dim_character_embedding)
+        type_embedding = self.type_embedding(state)
+        ### global head
+        invalid_polys = ~torch.cat([
+            ego_mask,
+            obs_mask,
+            route_mask.any(dim=1, keepdim=True),
+            lane_mask.any(dim=2),
+            bound_mask.any(dim=2),
+        ], dim=1)
+        all_embs = torch.cat([ego_embedding.unsqueeze(1), obs_embedding, route_embedding.unsqueeze(1), lane_embedding, bound_embedding], dim=1)
+        outputs, attns = self.global_head(all_embs, type_embedding, invalid_polys)
+        self.attention = attns.detach().clone().cpu()
+        outputs = torch.cat([outputs, self.character_embedding(state.character.unsqueeze(1))], dim=1)
+
+        return outputs
 
 
 
