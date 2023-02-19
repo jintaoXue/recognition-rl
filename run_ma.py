@@ -209,7 +209,7 @@ def main():
         writer, env_master, method = gallery.ray_IL__merge(config, mode, scale)
 
     elif version == 'v3-4-2':
-        scale = 9
+        scale = 10
         open_loop = True
         config.set('raw_horizon', 30)
         config.set('horizon', 1)
@@ -217,7 +217,7 @@ def main():
         writer, env_master, method = gallery.ray_IL_open_loop__merge(config, mode, scale)
 
     elif version == 'v3-4-2-1':
-        scale = 9
+        scale = 10
         open_loop = True
 
         config.set('raw_horizon', 30)
@@ -226,7 +226,7 @@ def main():
         writer, env_master, method = gallery.ray_IL_open_loop__merge_womap(config, mode, scale)
 
     elif version == 'v3-4-2-2':
-        scale = 9
+        scale = 10
         open_loop = True
 
         config.set('raw_horizon', 30)
