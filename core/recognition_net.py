@@ -183,6 +183,9 @@ class RecognitionNetNew(rllib.template.Model):
         return self.obs_svos
     def forward(self, state: rllib.basic.Data, **kwargs):
         # breakpoint()
+        
+        state = sample_state(state)
+
         batch_size = state.ego.shape[0]
         num_agents = state.obs.shape[1]
         num_lanes = state.lane.shape[1]
@@ -243,8 +246,6 @@ class RecognitionNetNew(rllib.template.Model):
         # state_ = cut_state(state)
         #debug 
 
-        #####step two : action####
-        ### embedding
         ego_embedding = torch.cat([
             self.ego_embedding(state.ego, state.ego_mask.to(torch.bool)),
             self.ego_embedding_v1(ego),
@@ -276,6 +277,7 @@ class RecognitionNetNew(rllib.template.Model):
 
     def forward_with_true_svo(self, state: rllib.basic.Data, **kwargs):
         # breakpoint()
+        state = cut_state(state)
         batch_size = state.ego.shape[0]
         num_agents = state.obs.shape[1]
         num_lanes = state.lane.shape[1]
@@ -1405,8 +1407,8 @@ def pad_data(data: torch.Tensor, pad_size: torch.Size, pad_value=np.inf):
 
 def cut_state(state: rllib.basic.Data) :
     state_ = copy.deepcopy(state)
-    horizon = 1
-    raw_horizon = 10
+    horizon = 10
+    raw_horizon = 30
     state_.ego = state_.ego[:,-horizon:,:]
     #change horizon stamp from raw_horizon to custom horizon
     state_.ego[...,-1] = state_.ego[...,-1]*raw_horizon/horizon
@@ -1423,7 +1425,7 @@ def sample_state(state: rllib.basic.Data) :
     state_ = copy.deepcopy(state)
     #hrz30 -> 10
     horizon = 10
-    raw_horizon = 10
+    raw_horizon = 30
     interval = int(raw_horizon / horizon)
     state_.ego = torch.cat((state_.ego[:,interval-1:-1:interval,:], state_.ego[:,-1:,:]), 1)  
     state_.ego_mask = torch.cat((state_.ego_mask[:,interval-1:-1:interval], state_.ego_mask[:,-1:]), 1) 

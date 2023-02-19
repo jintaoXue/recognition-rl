@@ -111,7 +111,7 @@ class IndependentSACsupervise(MethodSingleAgent):
 
         '''character MSE'''
         t1 = time.time()
-        _,_,recog_character = self.actor(state)   
+        recog_character = self.actor.forward_with_recog(state)   
         t2 = time.time()
         real_character = state.obs_character[:,:,-1]
         recog_character = recog_character[~torch.isinf(real_character)]
@@ -222,7 +222,7 @@ class IndependentSACsuperviseRoll(IndependentSACsupervise):
 
             '''character MSE'''
             t1 = time.time()
-            _,_,recog_character = self.actor(state)  
+            recog_character = self.actor.forward_with_recog(state)  
             t2 = time.time()
             real_character = state.obs_character[:,:,-1]
             recog_character = recog_character[~torch.isinf(real_character)]
@@ -237,15 +237,15 @@ class IndependentSACsuperviseRoll(IndependentSACsupervise):
             # character_loss.backward()
             RMSE_loss.backward()    
             self.recog_optimizer.step()
-            for name,p in self.actor.recog.named_parameters():
-                print(name, p)  
-            time.sleep(10)
-            file = open(self.output_dir + '/' + 'character.txt', 'w')
-            write_character(file, recog_character)
-            write_character(file, real_character)
-            write_character(file, recog_character - real_character)
-            file.write('*******************************\n')
-            file.close()
+            # for name,p in self.actor.recog.named_parameters():
+            #     print(name, p)  
+            # time.sleep(10)
+            # file = open(self.output_dir + '/' + 'character.txt', 'w')
+            # write_character(file, recog_character)
+            # write_character(file, real_character)
+            # write_character(file, recog_character - real_character)
+            # file.write('*******************************\n')
+            # file.close()
 
             self.writer.add_scalar(f'{self.tag_name}/loss_character',  RMSE_loss.detach().item(), self.step_train)   
             self.writer.add_scalar(f'{self.tag_name}/recog_time', t2-t1, self.step_train)
@@ -278,13 +278,20 @@ class Actor(rllib.template.Model):
         # self.recog_loss = nn.MSELoss()
 
     def forward(self, state):        
-        x = self.fe(state)
-
+        # x = self.fe(state)
+        x = self.fe.forward_with_true_svo(state)
         mean = self.mean_no(self.mean(x))
         logstd = self.std_no(self.std(x))
         logstd = (self.logstd_max-self.logstd_min) * logstd + (self.logstd_max+self.logstd_min)
         return mean, logstd *0.5, self.fe.get_recog_obs_svos()
 
+    def forward_with_recog(self, state):        
+        # x = self.fe(state)
+        x = self.fe(state)
+        # mean = self.mean_no(self.mean(x))
+        # logstd = self.std_no(self.std(x))
+        # logstd = (self.logstd_max-self.logstd_min) * logstd + (self.logstd_max+self.logstd_min)
+        return self.fe.get_recog_obs_svos()
 
     def sample(self, state):
         mean, logstd, _ = self(state)
