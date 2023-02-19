@@ -109,9 +109,8 @@ def main():
 
         for i_episode in range(10000):
             total_steps = ray.get([t.run.remote() for t in env_master.tasks])
-
-            print('totall step in {} episode: {}'.format(i_episode, total_steps))
             buffer_len = ray.get(method.get_buffer_len.remote())
+            print('totall step in {} episode: {}, data_size = {}'.format(i_episode, sum(total_steps), buffer_len))
             start_training_step = ray.get(method.get_start_timesteps.remote()) 
 
             if buffer_len >= start_training_step:
