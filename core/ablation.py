@@ -10,7 +10,7 @@ import ray
 from typing import Dict
 from torch.nn.modules.linear import NonDynamicallyQuantizableLinear
 from rllib.template.model import FeatureMapper
-from recognition_net import DeepSetModule, MultiheadAttentionGlobalHeadRecognition, RecognitionNetNew, \
+from core.recognition_net import DeepSetModule, MultiheadAttentionGlobalHeadRecognition, RecognitionNetNew, \
                             MultiheadAttentionGlobalHead, VectorizedEmbedding
 
 class RecognitionNetNewWoMap(RecognitionNetNew):
