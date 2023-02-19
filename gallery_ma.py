@@ -205,6 +205,28 @@ def ray_IL__bottleneck(config, mode='train', scale=1):
 
     return init(config, mode, Env, Method)
 
+def ray_IL_open_loop__womap__bottleneck(config, mode='train', scale=1):
+    from utils.env import EnvInteractiveMultiAgent as Env
+    from core.method_supervise_open_loop import IndependentSACsupervise as Method
+    ### method param
+    from config.method import config_supervise_multi_womap as config_method
+    config_method.set('action_policy_model_dir', \
+        '~/github/zdk/recognition-rl/models/IndependentSAC_v0-EnvInteractiveMultiAgent/2022-09-11-15:19:29----ray_isac_adaptive_character__multi_scenario--buffer-rate-0.2/saved_models_method')
+    config_method.set('action_policy_model_num', 865800) 
+
+    ### env param
+    from config.bottleneck import config_env as config_bottleneck
+    # config_bottleneck.set('config_neural_policy', get_sac__bottleneck__new_action_config(config))
+    config.set('envs', [
+        config_bottleneck,
+    ] *scale)
+    config_method.set('raw_horizon', config.raw_horizon)
+    config_method.set('horizon', config.horizon)
+    config.set('methods', [config_method])
+
+    return init(config, mode, Env, Method)
+
+
 def ray_IL_open_loop__woattn__bottleneck(config, mode='train', scale=1):
     from utils.env import EnvInteractiveMultiAgent as Env
     from core.method_supervise_open_loop import IndependentSACsupervise as Method
@@ -223,7 +245,6 @@ def ray_IL_open_loop__woattn__bottleneck(config, mode='train', scale=1):
     config.set('methods', [config_method])
 
     return init(config, mode, Env, Method)
-
 def ray_IL_open_loop__bottleneck(config, mode='train', scale=1):
     from utils.env import EnvInteractiveMultiAgent as Env
     from core.method_supervise_open_loop import IndependentSACsupervise as Method
@@ -232,7 +253,7 @@ def ray_IL_open_loop__bottleneck(config, mode='train', scale=1):
     config_method.set('action_policy_model_dir', \
         '~/github/zdk/recognition-rl/models/IndependentSAC_v0-EnvInteractiveMultiAgent/2022-09-11-15:19:29----ray_isac_adaptive_character__multi_scenario--buffer-rate-0.2/saved_models_method')
     config_method.set('action_policy_model_num', 865800) 
-
+    config_method.set('raw')
     ### env param
     from config.bottleneck import config_env as config_bottleneck
     # config_bottleneck.set('config_neural_policy', get_sac__bottleneck__new_action_config(config))

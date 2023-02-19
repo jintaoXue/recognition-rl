@@ -127,10 +127,10 @@ def main():
 
     elif version == 'v1-4-3-1': 
         scale = 10
-        config.description += '--IL-open-loop_woattn'
+        config.description += '--IL-open-loop_womap'
         config.set('raw_horizon', 30)
-        config.set('horizon', 5)
-        writer, env_master, method = gallery.ray_IL_open_loop__woattn__bottleneck(config, mode, scale)
+        config.set('horizon', 10)
+        writer, env_master, method = gallery.ray_IL_open_loop__womap__bottleneck(config, mode, scale)
 
         env_master.create_tasks(method, func=run_one_episode)
 

@@ -285,7 +285,7 @@ class RecognitionNetNew(rllib.template.Model):
 
     def forward_with_true_svo(self, state: rllib.basic.Data, **kwargs):
         # breakpoint()
-        state = cut_state(state)
+        state = cut_state(state, self.raw_horizon, 10)
         batch_size = state.ego.shape[0]
         num_agents = state.obs.shape[1]
         num_lanes = state.lane.shape[1]
