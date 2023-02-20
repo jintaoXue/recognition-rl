@@ -486,12 +486,27 @@ def main():
 
 
     # ################################################################################################
-    # ##### evaluate,   ##############################################################################
+    # ##### evaluate, diversity ######################################################################
     # ################################################################################################
 
 
 
+    elif version == 'v-2-1':
+        if mode != 'evaluate':
+            raise NotImplementedError
 
+        scale = 1
+        models_ma.isac_adaptive_character__bottleneck__qualitive().update(config)
+        env_master = gallery.evaluate_ray_isac_adaptive_character_diversity__bottleneck(config, mode, scale)
+
+
+    elif version == 'v-2-1':
+        if mode != 'evaluate':
+            raise NotImplementedError
+
+        scale = 1
+        models_ma.isac_adaptive_character__merge().update(config)
+        env_master = gallery.evaluate_ray_isac_adaptive_character_diversity__merge(config, mode, scale)
 
     else:
         raise NotImplementedError
@@ -839,19 +854,7 @@ if __name__ == '__main__':
 
 
 
-    # ################################################################################################
-    # ##### evaluate, diversity ######################################################################
-    # ################################################################################################
 
-
-
-    # elif version == 'v-2-1':
-    #     if mode != 'evaluate':
-    #         raise NotImplementedError
-
-    #     scale = 1
-    #     models_ma.isac_adaptive_character__bottleneck__qualitive().update(config)
-    #     env_master = gallery.evaluate_ray_isac_adaptive_character_diversity__bottleneck(config, mode, scale)
 
 
 
