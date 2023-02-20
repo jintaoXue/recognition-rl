@@ -104,9 +104,10 @@ def main():
     
     elif version == 'v1-4-3': 
         scale = 10
-        config.description += '--IL-open-loop'
-        config.set('raw_horizon', 30)
-        config.set('horizon', 5)
+        
+        config.set('raw_horizon', 20)
+        config.set('horizon', 10)
+        config.description += '--IL-open-loop_hr{}_to_hr{}'.format(config.raw_horizon, config.horizon)
         writer, env_master, method = gallery.ray_IL_open_loop__bottleneck(config, mode, scale)
 
         env_master.create_tasks(method, func=run_one_episode)

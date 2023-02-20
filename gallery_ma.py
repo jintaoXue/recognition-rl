@@ -256,7 +256,6 @@ def ray_IL_open_loop__bottleneck(config, mode='train', scale=1):
     config_method.set('action_policy_model_dir', \
         '~/github/zdk/recognition-rl/models/IndependentSAC_v0-EnvInteractiveMultiAgent/2022-09-11-15:19:29----ray_isac_adaptive_character__multi_scenario--buffer-rate-0.2/saved_models_method')
     config_method.set('action_policy_model_num', 865800) 
-    config_method.set('raw')
     ### env param
     from config.bottleneck import config_env as config_bottleneck
     # config_bottleneck.set('config_neural_policy', get_sac__bottleneck__new_action_config(config))
