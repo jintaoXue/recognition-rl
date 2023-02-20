@@ -732,14 +732,28 @@ class IL_offline__bottleneck(ModelPath):
     # model_num = 145000
 
     # 115 hr = 10 without map
-    model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveMultiAgent/2023-02-19-22:30:38----Nothing--IL-open-loop_womap/saved_models_method'
-    model_num = 145000
-
-    # 115 hr = 10 without attention
-    # model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveMultiAgent/2023-02-20-01:52:15----Nothing--IL-open-loop_woattn/saved_models_method'
+    # model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveMultiAgent/2023-02-19-22:30:38----Nothing--IL-open-loop_womap/saved_models_method'
     # model_num = 145000
 
+    # 115 hr = 10 without attention (problem)
+    model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveMultiAgent/2023-02-20-01:52:15----Nothing--IL-open-loop_woattn/saved_models_method'
+    model_num = 145000
 
+    # 116 hr = 1 
+    model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveMultiAgent/2023-02-20-01:44:04----Nothing--IL_open_loop_hr1__merge/saved_models_method'
+    model_num = 145000
+
+    # 116 hr = 5
+    model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveMultiAgent/2023-02-20-01:44:04----Nothing--IL_open_loop_hr1__merge/saved_models_method'
+    model_num = 145000
+
+    # 116 hr = 10
+    model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveMultiAgent/2023-02-20-01:44:04----Nothing--IL_open_loop_hr1__merge/saved_models_method'
+    model_num = 145000
+
+    # 116 hr = 15
+    model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveMultiAgent/2023-02-20-01:44:04----Nothing--IL_open_loop_hr1__merge/saved_models_method'
+    model_num = 145000
 class IL_offline__merge(ModelPath):
 
     method = 'IndependentSACsupervise'
