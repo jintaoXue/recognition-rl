@@ -65,11 +65,13 @@ class RecognitionNetNewWomap(RecognitionNetNew):
         invalid_polys_recog = ~torch.cat([
             ego_mask,
             obs_mask,
+            route_mask.any(dim=1, keepdim=True),
         ], dim=1)
-        all_embs = torch.cat([ego_embedding_recog.unsqueeze(1), obs_embedding_recog], dim=1)
+        all_embs = torch.cat([ego_embedding_recog.unsqueeze(1), obs_embedding_recog, route_embedding.unsqueeze(1)], dim=1)
+        
         type_embedding = self.type_embedding(state)
 
-        obs_svos, attns = self.global_head_recognition(all_embs, type_embedding[:,:num_agents+1], invalid_polys_recog, num_agents)
+        obs_svos, attns = self.global_head_recognition(all_embs, type_embedding[:,:num_agents+1+route.shape[1]], invalid_polys_recog, num_agents)
         # breakpoint()
         # obs_svos = (1 + self.tanh(obs_svos))/2
         obs_svos = self.tanh(self.recog_feature_mapper(obs_svos))
@@ -117,7 +119,7 @@ class RecognitionNetNewWomap(RecognitionNetNew):
 class RecognitionNetNewWoattn(RecognitionNetNew):
     def __init__(self, config, model_id=0):
         super().__init__(config, model_id)
-        del self.global_head_recognition 
+        # del self.global_head_recognition 
         # self.global_head_recognition = MultiheadAttentionGlobalHead(dim_embedding + dim_character_embedding, nhead=4, dropout=0.0 if config.evaluate else 0.1)
         self.recog_feature_mapper = FeatureMapper(config, model_id, self.dim_embedding, 1)
 
