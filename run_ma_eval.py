@@ -500,7 +500,7 @@ def main():
         env_master = gallery.evaluate_ray_isac_adaptive_character_diversity__bottleneck(config, mode, scale)
 
 
-    elif version == 'v-2-1':
+    elif version == 'v-3-1':
         if mode != 'evaluate':
             raise NotImplementedError
 
