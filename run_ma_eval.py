@@ -381,6 +381,7 @@ def main():
         models_ma.IL_offline__merge().update(config)
         env_master = gallery.evalute_ray_supervise__multiagent__merge(config, mode, scale)
 
+
     elif version == 'v2-4-3-1':
         if mode != 'evaluate':
             raise NotImplementedError
@@ -389,10 +390,33 @@ def main():
         debug_recog = True
         config.set('raw_horizon', 30)
         config.set('horizon', 10)
-        config.description += '--IL-open-loop_merge'
+        config.description += '--IL-open-loop_merge_hr{}'.format(config.horizon)
         models_ma.IL_offline__merge().update(config)
         env_master = gallery.evalute_ray_supervise__multiagent__merge_assign_case(config, mode, scale)
+    
+    elif version == 'v2-4-3-2':
+        if mode != 'evaluate':
+            raise NotImplementedError
 
+        scale = 5
+        debug_recog = True
+        config.set('raw_horizon', 30)
+        config.set('horizon', 10)
+        config.description += '--IL-open-loop_merge_case11_womap'
+        models_ma.IL_offline__merge().update(config)
+        env_master = gallery.evalute_ray_supervise__multiagent__merge_assign_case_womap(config, mode, scale)
+    
+    elif version == 'v2-4-3-3':
+        if mode != 'evaluate':
+            raise NotImplementedError
+
+        scale = 5
+        debug_recog = True
+        config.set('raw_horizon', 30)
+        config.set('horizon', 10)
+        config.description += '--IL-open-loop_merge_case11_woattn'
+        models_ma.IL_offline__merge().update(config)
+        env_master = gallery.evalute_ray_supervise__multiagent__merge_assign_case_woattn(config, mode, scale)
 
     elif version == 'v3-1':
         if mode != 'evaluate':
