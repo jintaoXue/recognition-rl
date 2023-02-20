@@ -115,7 +115,12 @@ class RecognitionNetNewWoMap(RecognitionNetNew):
 
 
 class RecognitionNetNewWoattn(RecognitionNetNew):
-    
+    def __init__(self, config, model_id=0):
+        super().__init__(config, model_id)
+        del self.global_head_recognition 
+        # self.global_head_recognition = MultiheadAttentionGlobalHead(dim_embedding + dim_character_embedding, nhead=4, dropout=0.0 if config.evaluate else 0.1)
+        self.recog_feature_mapper = FeatureMapper(config, model_id, self.dim_embedding, 1)
+
     def forward(self, state: rllib.basic.Data, **kwargs):
         # breakpoint()
         state_sampled = sample_state(state, self.raw_horizon, self.sampled_horizon)
