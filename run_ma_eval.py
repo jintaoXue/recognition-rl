@@ -305,7 +305,7 @@ def main():
         config.set('raw_horizon', 30)
         config.set('horizon', 10)
         debug_recog = True
-        config.description += '--case11_IL-open-loop_bottleneck_womap'.format(config.horizon)
+        config.description += '--case11_IL-open-loop_bottleneck_woattn'.format(config.horizon)
         models_ma.IL_offline__bottleneck().update(config)
         env_master = gallery.evalute_ray_supervise__multiagent__bottleneck_assign_case_woattn(config, mode, scale)
 
