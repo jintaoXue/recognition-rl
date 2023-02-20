@@ -14,7 +14,7 @@ from rllib.template.model import FeatureMapper
 from core.recognition_net import DeepSetModule, MultiheadAttentionGlobalHeadRecognition, RecognitionNetNew, \
                             MultiheadAttentionGlobalHead, VectorizedEmbedding
 
-class RecognitionNetNewWoMap(RecognitionNetNew):
+class RecognitionNetNewWomap(RecognitionNetNew):
 
     def forward(self, state: rllib.basic.Data, **kwargs):
         # breakpoint()

@@ -284,6 +284,30 @@ def main():
         config.description += '--case11_IL-open-loop_bottleneck_hr{}'.format(config.horizon)
         models_ma.IL_offline__bottleneck().update(config)
         env_master = gallery.evalute_ray_supervise__multiagent__bottleneck_assign_case(config, mode, scale)
+    
+    elif version == 'v1-4-3-2':
+        if mode != 'evaluate':
+            raise NotImplementedError
+
+        scale = 5
+        config.set('raw_horizon', 30)
+        config.set('horizon', 10)
+        debug_recog = True
+        config.description += '--case11_IL-open-loop_bottleneck_womap'.format(config.horizon)
+        models_ma.IL_offline__bottleneck().update(config)
+        env_master = gallery.evalute_ray_supervise__multiagent__bottleneck_assign_case_womap(config, mode, scale)
+    
+    elif version == 'v1-4-3-3':
+        if mode != 'evaluate':
+            raise NotImplementedError
+
+        scale = 5
+        config.set('raw_horizon', 30)
+        config.set('horizon', 10)
+        debug_recog = True
+        config.description += '--case11_IL-open-loop_bottleneck_womap'.format(config.horizon)
+        models_ma.IL_offline__bottleneck().update(config)
+        env_master = gallery.evalute_ray_supervise__multiagent__bottleneck_assign_case_woattn(config, mode, scale)
 
     ################################################################################################
     ##### evaluate, recognition, merge #############################################################
