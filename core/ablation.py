@@ -71,7 +71,7 @@ class RecognitionNetNewWomap(RecognitionNetNew):
         
         type_embedding = self.type_embedding(state)
 
-        obs_svos, attns = self.global_head_recognition(all_embs, type_embedding[:,:num_agents+1+route.shape[1]], invalid_polys_recog, num_agents)
+        obs_svos, attns = self.global_head_recognition(all_embs, type_embedding[:,:num_agents+1+1], invalid_polys_recog, num_agents)
         # breakpoint()
         # obs_svos = (1 + self.tanh(obs_svos))/2
         obs_svos = self.tanh(self.recog_feature_mapper(obs_svos))
@@ -116,12 +116,50 @@ class RecognitionNetNewWomap(RecognitionNetNew):
 
 
 
-class RecognitionNetNewWoattn(RecognitionNetNew):
+class RecognitionNetNewWoattn(rllib.template.Model):
     def __init__(self, config, model_id=0):
         super().__init__(config, model_id)
-        # del self.global_head_recognition 
-        # self.global_head_recognition = MultiheadAttentionGlobalHead(dim_embedding + dim_character_embedding, nhead=4, dropout=0.0 if config.evaluate else 0.1)
-        self.recog_feature_mapper = FeatureMapper(config, model_id, self.dim_embedding, 1)
+        ##########需要加载的参数
+        self.raw_horizon = config.raw_horizon
+        self.sampled_horizon = config.horizon 
+
+        dim_embedding = 128
+        dim_character_embedding = 32
+        self.dim_embedding = dim_embedding
+        self.dim_character_embedding = dim_character_embedding
+
+        self.character_embedding = nn.Linear(1, dim_character_embedding)
+        #recognition
+        self.recog_feature_mapper = FeatureMapper(config, model_id, dim_embedding, 1)
+        self.tanh = nn.Tanh()
+
+        self.agent_embedding_recog = DeepSetModule(self.dim_state.agent, 160 //2)
+        self.agent_embedding_recog_v1 = nn.Sequential(
+            nn.Linear(self.dim_state.agent, 160), nn.ReLU(inplace=True),
+            nn.Linear(160, 160), nn.ReLU(inplace=True),
+            nn.Linear(160, 160 //2),
+        )
+        #action
+        self.ego_embedding = DeepSetModule(self.dim_state.agent, dim_embedding //2)
+        self.ego_embedding_v1 = nn.Linear(self.dim_state.agent, dim_embedding //2)
+
+        self.agent_embedding = DeepSetModule(self.dim_state.agent, dim_embedding //2)
+        self.agent_embedding_v1 = nn.Sequential(
+            nn.Linear(self.dim_state.agent, dim_embedding), nn.ReLU(inplace=True),
+            nn.Linear(dim_embedding, dim_embedding), nn.ReLU(inplace=True),
+            nn.Linear(dim_embedding, dim_embedding //2),
+        )
+
+        self.static_embedding = DeepSetModule(self.dim_state.static, dim_embedding +dim_character_embedding)
+        self.type_embedding = VectorizedEmbedding(dim_embedding + dim_character_embedding)
+        
+        # self.dim_feature = dim_embedding + dim_character_embedding + dim_character_embedding
+        # self.actor = torch.load('****.pth')
+        # self.load_state_dict(torch.load('~/github/zdk/recognition-rl/models/IndependentSAC_v0-EnvInteractiveMultiAgent/2022-09-11-15:19:29----ray_isac_adaptive_character__multi_scenario--buffer-rate-0.2/saved_models_method/INDEPENDENTSAC_V0_Actor_0_866200_.pth'))
+        #todo 
+        self.global_head = MultiheadAttentionGlobalHead(dim_embedding +dim_character_embedding, nhead=4, dropout=0.0 if config.evaluate else 0.1)
+        self.dim_feature = dim_embedding+dim_character_embedding + dim_character_embedding
+        self.obs_svos = torch.empty(1,1)
 
     def forward(self, state: rllib.basic.Data, **kwargs):
         # breakpoint()
@@ -196,6 +234,11 @@ class RecognitionNetNewWoattn(RecognitionNetNew):
         outputs = torch.cat([outputs, self.character_embedding(state.character.unsqueeze(1))], dim=1)
 
         return outputs
+    def forward_with_true_svo(self, state: rllib.basic.Data, **kwargs):
+        return RecognitionNetNew.forward_with_true_svo(self ,state, **kwargs)
+    
+    def get_recog_obs_svos(self):
+        return self.obs_svos
 
 
 
