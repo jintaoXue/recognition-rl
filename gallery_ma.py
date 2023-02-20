@@ -263,6 +263,8 @@ def ray_IL_open_loop__bottleneck(config, mode='train', scale=1):
     config.set('envs', [
         config_bottleneck,
     ] *scale)
+    config_method.set('raw_horizon', config.raw_horizon)
+    config_method.set('horizon', config.horizon)
     config.set('methods', [config_method])
 
     return init(config, mode, Env, Method)
@@ -363,6 +365,8 @@ def ray_IL__merge(config, mode='train', scale=1):
     config.set('envs', [
         config_merge,
     ] *scale)
+    config_method.set('raw_horizon', config.raw_horizon)
+    config_method.set('horizon', config.horizon)
     config.set('methods', [config_method])
 
     return init(config, mode, Env, Method)

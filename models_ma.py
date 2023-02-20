@@ -747,8 +747,8 @@ class IL_offline__merge(ModelPath):
     model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveMultiAgent/2023-02-20-01:44:04----Nothing--IL_open_loop_hr1__merge/saved_models_method'
     model_num = 145000
 
-    # # 116 hr = 5 merge
-    # model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveMultiAgent/2023-02-20-01:44:04----Nothing--IL_open_loop_hr1__merge/saved_models_method'
+    # # 115 hr = 5 merge
+    # model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveMultiAgent/2023-02-20-09:18:27----Nothing--IL_open_loop_hr5__merge/saved_models_method'
     # model_num = 145000
 
     # # 116 hr = 10 merge
