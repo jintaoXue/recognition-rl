@@ -377,7 +377,7 @@ def main():
         debug_recog = True
         config.set('raw_horizon', 30)
         config.set('horizon', 10)
-        config.description += '--IL-open-loop_merge'
+        config.description += '--IL-open-loop_merge_hr{}'.format(config.horizon)
         models_ma.IL_offline__merge().update(config)
         env_master = gallery.evalute_ray_supervise__multiagent__merge(config, mode, scale)
 
