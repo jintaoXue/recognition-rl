@@ -116,16 +116,17 @@ class IndependentSACsupervise(MethodSingleAgent):
         real_character = state.obs_character[:,:,-1]
         recog_character = recog_character[~torch.isinf(real_character)]
         real_character = real_character[~torch.isinf(real_character)]
-        
+
         # breakpoint()
         # real_character = torch.where(real_character == np.inf, torch.tensor(-1, dtype=torch.float32, device=state.obs.device), real_character)
         # recog_character = torch.where(recog_character == np.inf, torch.tensor(-1, dtype=torch.float32, device=state.obs.device), recog_character)
         character_loss = self.recog_loss(recog_character, real_character)
         RMSE_loss = torch.sqrt(character_loss)
-        self.actor_optimizer.zero_grad()
-        # character_loss.backward()
-        RMSE_loss.backward()    
-        self.actor_optimizer.step()
+        if len(real_character) != 0:
+            self.actor_optimizer.zero_grad()
+            # character_loss.backward()
+            RMSE_loss.backward()    
+            self.actor_optimizer.step()
         # for name,p in self.actor.fe.named_parameters():
         #     print(name, p)  
         # time.sleep(10)

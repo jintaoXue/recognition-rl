@@ -997,7 +997,7 @@ def evalute_ray_supervise__multiagent__bottleneck_assign_case(config, mode='trai
     ### env param
     from config.bottleneck_evaluate import config_env__fix_svo as config_bottleneck
     config_bottleneck.set('randomization_index', 11)
-    # config_bottleneck.set('raw_horizon'. config.raw_horizon)
+    # config_bottleneck.set('raw_horizon', config.raw_horizon)
     # config_bottleneck.set('horizon', config.horizon)
 
     config.set('envs', [
@@ -1019,7 +1019,7 @@ def evalute_ray_supervise__multiagent__bottleneck_assign_case_womap(config, mode
     ### env param
     from config.bottleneck_evaluate import config_env__fix_svo as config_bottleneck
     config_bottleneck.set('randomization_index', 11)
-    # config_bottleneck.set('raw_horizon'. config.raw_horizon)
+    # config_bottleneck.set('raw_horizon', config.raw_horizon)
     # config_bottleneck.set('horizon', config.horizon)
 
     config.set('envs', [
@@ -1041,7 +1041,7 @@ def evalute_ray_supervise__multiagent__bottleneck_assign_case_woattn(config, mod
     ### env param
     from config.bottleneck_evaluate import config_env__fix_svo as config_bottleneck
     config_bottleneck.set('randomization_index', 11)
-    # config_bottleneck.set('raw_horizon'. config.raw_horizon)
+    # config_bottleneck.set('raw_horizon', config.raw_horizon)
     # config_bottleneck.set('horizon', config.horizon)
 
     config.set('envs', [
@@ -1133,7 +1133,7 @@ def evalute_ray_supervise__multiagent__merge(config, mode='train', scale=1):
 
     ### env param
     from config.merge_evaluate import config_env__with_character as config_merge
-    config_merge.set('raw_horizon'. config.raw_horizon)
+    config_merge.set('raw_horizon', config.raw_horizon)
     config_merge.set('horizon', config.horizon)
     config.set('envs', [
         config_merge,
@@ -1177,7 +1177,7 @@ def evalute_ray_supervise__multiagent__merge_assign_case_womap(config, mode='tra
     ### env param
     from config.merge_evaluate import config_env__with_case_assign as config_merge
     config_merge.set('randomization_index', 11)
-    config_merge.set('raw_horizon'. config.raw_horizon)
+    config_merge.set('raw_horizon', config.raw_horizon)
     config_merge.set('horizon', config.horizon)
 
     config.set('envs', [
@@ -1199,7 +1199,7 @@ def evalute_ray_supervise__multiagent__merge_assign_case_woattn(config, mode='tr
     ### env param
     from config.merge_evaluate import config_env__with_case_assign as config_merge
     config_merge.set('randomization_index', 11)
-    config_merge.set('raw_horizon'. config.raw_horizon)
+    config_merge.set('raw_horizon', config.raw_horizon)
     config_merge.set('horizon', config.horizon)
 
     config.set('envs', [

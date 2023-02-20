@@ -35,7 +35,7 @@ if __name__ == "__main__":
     mode = 'train'
     if config.evaluate == True:
         mode = 'evaluate'
-        config.seed += 2
+        config.seed += 0
     rllib.basic.setup_seed(config.seed)
 
     version = config.version
@@ -59,7 +59,10 @@ if __name__ == "__main__":
         config.set('envs', [
             bottleneck.config_env,
         ])
-
+    if version == 'v1-5':
+        config.set('envs', [
+            merge.config_env,
+        ])
     elif version == 'v6-6-2':
         config.set('envs', [
             bottleneck.config_env__with_character_fix_other_svo,

@@ -518,6 +518,11 @@ class EvaluateSupervise(rllib.EvaluateSingleAgent):
         mean_dev = torch.mean(torch.abs(dev))
         std_dev = torch.std(dev)
         # RMSE_loss = torch.sqrt(character_loss)
+        # RMSE_loss = torch.sqrt(character_loss)
+        # if torch.isinf(dev).any() :breakpoint()
+        # if torch.isnan(dev).any() :breakpoint()
+        # if torch.isinf(mean_dev).any() :breakpoint()
+        # if torch.isnan(std_dev).any() :breakpoint()
         return actions.cpu(), mean_dev, std_dev
 
 
