@@ -752,7 +752,33 @@ def evaluate_ray_isac_adaptive_character_diversity__bottleneck(config, mode='eva
     return env_master
 
 
+def evaluate_ray_isac_adaptive_character_diversity__merge(config, mode='evaluate', scale=5):
+    from universe import EnvInteractiveMultiAgent as Env
+    from core.method_evaluate import EvaluateIndependentSACMean as Method
+    # from core.method_evaluate import EvaluateIndependentSAC as Method
 
+    config.set('num_episodes', 11)
+    ### env param
+    from config.merge_evaluate import config_env__with_character
+
+    from utils.scenarios_merge import ScenarioMergeEvaluate_assign_case as scenario_cls
+    config_env__with_character.set('scenario_cls', scenario_cls)
+
+    config_env__with_character.set('num_vehicles_range', rllib.basic.BaseData(min=20, max=20))
+    config_env__with_character.set('recorder_cls', universe.Recorder)
+    config_env__with_character.set('randomization_index', 11)
+    config.description += f'--data-{config_env__with_character.randomization_index}'
+    config.set('envs', [config_env__with_character] *scale)
+
+    ### method param
+    from config.method import config_isac__adaptive_character as config_method
+    config.set('methods', [config_method])
+
+    ### ! todo: set method
+    env_master = init(config, mode, Env)
+    for config_method in env_master.config_methods:
+        config_method.set('method_cls', Method)
+    return env_master
 
 
 
