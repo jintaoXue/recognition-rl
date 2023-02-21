@@ -210,20 +210,20 @@ def main():
         writer, env_master, method = gallery.ray_IL__merge(config, mode, scale)
 
     elif version == 'v3-4-2':
-        scale = 1
+        scale = 10
         open_loop = True
-        config.set('raw_horizon', 30)
-        config.set('horizon', 1)
-        config.description += '--IL_open_loop_hr{}__merge'.format(config.horizon)
+        config.set('raw_horizon', 20)
+        config.set('horizon', 10)
+        config.description += '--open_loop_hr{}_to_hr{}__merge'.format(config.raw_horizon, config.horizon)
         writer, env_master, method = gallery.ray_IL_open_loop__merge(config, mode, scale)
 
     elif version == 'v3-4-2-1':
-        scale = 1
+        scale = 10
         open_loop = True
 
         config.set('raw_horizon', 30)
         config.set('horizon', 10)
-        config.description += '--IL_open_loop__merge_womap'
+        config.description += '--open_loop_womap__hr{}_to_hr{}__merge'.format(config.raw_horizon, config.horizon)
         writer, env_master, method = gallery.ray_IL_open_loop__merge_womap(config, mode, scale)
 
     elif version == 'v3-4-2-2':
@@ -232,7 +232,7 @@ def main():
 
         config.set('raw_horizon', 30)
         config.set('horizon', 10)
-        config.description += '--IL_open_loop__merge_woattn'
+        config.description += '--open_loop_woattn__hr{}_to_hr{}__merge'.format(config.raw_horizon, config.horizon)
         writer, env_master, method = gallery.ray_IL_open_loop__merge_woattn(config, mode, scale)
     
     ################################################################################################
