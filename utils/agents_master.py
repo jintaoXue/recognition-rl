@@ -102,8 +102,8 @@ class AgentListMaster(universe.AgentsMaster):
     # change in 2022/12/2
     def __init__(self, config: rllib.basic.YamlConfig, topology_map: TopologyMap, **kwargs):
         super().__init__(config, topology_map, **kwargs)
-        self.horizon = config.raw_horizon 
-        # self.horizon = 30
+        # self.horizon = config.raw_horizon 
+        self.horizon = 30
         perception_cls = config.get('perception_cls', Perception)
         self.perception = perception_cls(config, topology_map, self.dim_vehicle_state, self.horizon)
     class GetVehicleState(object):
