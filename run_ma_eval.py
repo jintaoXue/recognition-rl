@@ -390,7 +390,7 @@ def main():
         debug_recog = True
         config.set('raw_horizon', 30)
         config.set('horizon', 10)
-        config.description += '--IL-open-loop_merge_hr{}'.format(config.horizon)
+        config.description += '--open-loop_merge_hr{}_to_hr{}'.format(config.raw_horizon, config.horizon)
         models_ma.IL_offline__merge().update(config)
         env_master = gallery.evalute_ray_supervise__multiagent__merge_assign_case(config, mode, scale)
     
@@ -402,7 +402,7 @@ def main():
         debug_recog = True
         config.set('raw_horizon', 30)
         config.set('horizon', 10)
-        config.description += '--IL-open-loop_merge_case11_womap'
+        config.description += '--open-loop_merge_hr{}_to_hr{}_case11_womap'.format(config.raw_horizon, config.horizon)
         models_ma.IL_offline__merge().update(config)
         env_master = gallery.evalute_ray_supervise__multiagent__merge_assign_case_womap(config, mode, scale)
     
@@ -414,7 +414,7 @@ def main():
         debug_recog = True
         config.set('raw_horizon', 30)
         config.set('horizon', 10)
-        config.description += '--IL-open-loop_merge_case11_woattn'
+        config.description += '--open-loop_merge_hr{}_to_hr{}_case11_woattn'.format(config.raw_horizon, config.horizon)
         models_ma.IL_offline__merge().update(config)
         env_master = gallery.evalute_ray_supervise__multiagent__merge_assign_case_woattn(config, mode, scale)
 
