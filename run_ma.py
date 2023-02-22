@@ -105,7 +105,7 @@ def main():
     elif version == 'v1-4-3': 
         scale = 10
         
-        config.set('raw_horizon', 20)
+        config.set('raw_horizon', 10)
         config.set('horizon', 10)
         config.description += '--IL-open-loop_hr{}_to_hr{}'.format(config.raw_horizon, config.horizon)
         writer, env_master, method = gallery.ray_IL_open_loop__bottleneck(config, mode, scale)
