@@ -48,33 +48,53 @@ def run_one_episode_open_loop(env, method):
     time_env_step = 0.0
     mean_devs = []
     std_devs = []
-    while True:
+    start_training_flag = method.get_training_flag.remote(state)
+    if start_training_flag :
+        while True:
+            if env.config.render:
+                env.render()
+                # import pdb; pdb.set_trace()
 
-        if env.config.render:
-            env.render()
-            # import pdb; pdb.set_trace()
+            tt1 = time.time()
+            action, mean_dev, std_dev = ray.get(method.select_actions_recog.remote(state))
 
-        tt1 = time.time()
-        action, mean_dev, std_dev = ray.get(method.select_actions_recog.remote(state))
+            mean_devs.append(mean_dev)
+            std_devs.append(std_dev)
 
-        mean_devs.append(mean_dev)
-        std_devs.append(std_dev)
+            action = action.cpu().numpy()
+            # print('mean: {}, std: {}'.format(mean_dev, std_dev))
+            tt2 = time.time()
+            experience, done, info = env.step(action)
+            tt3 = time.time()
 
-        action = action.cpu().numpy()
-        # print('mean: {}, std: {}'.format(mean_dev, std_dev))
-        tt2 = time.time()
-        experience, done, info = env.step(action)
-        tt3 = time.time()
+            time_select_action += (tt2-tt1)
+            time_env_step += (tt3-tt2)
+            state = [s.to_tensor().unsqueeze(0) for s in env.state]
+            if done :
+                break
+            # env.writer.add_scalar('recog_accuracy_evalue/episode_{}_mean'.format(env.step_reset), float32(torch.mean(torch.tensor(mean_devs))), env.step_reset)
 
-        time_select_action += (tt2-tt1)
-        time_env_step += (tt3-tt2)
-        state = [s.to_tensor().unsqueeze(0) for s in env.state]
-        if done :
-            break
-    # env.writer.add_scalar('recog_accuracy_evalue/episode_{}_mean'.format(env.step_reset), float32(torch.mean(torch.tensor(mean_devs))), env.step_reset)
+            env.writer.add_scalar('recog_accuracy_evalue/episode_mean'.format(env.step_reset), torch.mean(torch.tensor(mean_devs)), env.step_reset)
+            env.writer.add_scalar('recog_accuracy_evalue/episode_std'.format(env.step_reset), torch.mean(torch.tensor(std_devs)), env.step_reset)
 
-    env.writer.add_scalar('recog_accuracy_evalue/episode_mean'.format(env.step_reset), torch.mean(torch.tensor(mean_devs)), env.step_reset)
-    env.writer.add_scalar('recog_accuracy_evalue/episode_std'.format(env.step_reset), torch.mean(torch.tensor(std_devs)), env.step_reset)
+    else:
+        while True:
+            if env.config.render:
+                env.render()
+
+            tt1 = time.time()
+            action = ray.get(method.select_actions.remote(state)).cpu().numpy()
+            tt2 = time.time()
+            experience, done, info = env.step(action)
+            tt3 = time.time()
+            time_select_action += (tt2-tt1)
+            time_env_step += (tt3-tt2)
+
+            method.store.remote(experience, index=env.env_index)
+            state = [s.to_tensor().unsqueeze(0) for s in env.state]
+            if done:
+                break
+
     env.writer.add_scalar('time_analysis/reset', t2-t1, env.step_reset)
     env.writer.add_scalar('time_analysis/select_action', time_select_action, env.step_reset)
     env.writer.add_scalar('time_analysis/step', time_env_step, env.step_reset)
@@ -317,7 +337,7 @@ def main():
 
     #########training
     if open_loop :
-        env_master.create_tasks(method, func=run_one_episode)
+        env_master.create_tasks(method, func=run_one_episode_open_loop)
 
         for i_episode in range(10000):
             total_steps = ray.get([t.run.remote() for t in env_master.tasks])
@@ -336,9 +356,11 @@ def main():
                 n_iters = 100000
                 num_steps = 500
                 #reload task 
-                del env_master 
-                env_master = gallery.reinitilized_env_master(config, method, 'train', scale = 10)
-                env_master.create_tasks(method, func=run_one_episode_open_loop)
+                method.reset_writer.remote()
+                method.set_training_start.remote()
+                # del env_master 
+                # env_master = gallery.reinitilized_env_master(config, method, 'train', scale = 10)
+                # env_master.create_tasks(method, func=run_one_episode_open_loop)
                 #start roll-out in Env
                 tt1 = time.time()
                 total_steps = ray.get([t.run.remote(n_iters=1) for t in env_master.tasks])

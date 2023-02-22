@@ -52,6 +52,8 @@ class IndependentSACsupervise(MethodSingleAgent):
     save_model_interval = 1000
     sample_reuse = 24
     buffer_count = buffer_size
+
+    training_flag = False
     def __init__(self, config: rllib.basic.YamlConfig, writer):
         super().__init__(config, writer)
 
@@ -164,6 +166,13 @@ class IndependentSACsupervise(MethodSingleAgent):
     def get_sample_reuse(self): 
         return self.sample_reuse
 
+    def set_training_start(self):
+        #use in run_one_episode func
+        self.training_flag = True
+        return 
+    def get_training_flag(self):
+        return self.training_flag
+        
     @torch.no_grad()
     def select_actions(self, state):
         self.select_action_start()
