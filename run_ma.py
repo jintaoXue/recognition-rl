@@ -336,6 +336,8 @@ def main():
                 n_iters = 100000
                 num_steps = 500
                 #reload task 
+                del env_master 
+                env_master = gallery.reinitilized_env_master(config, method, 'train', scale = 10)
                 env_master.create_tasks(method, func=run_one_episode_open_loop)
                 #start roll-out in Env
                 tt1 = time.time()
