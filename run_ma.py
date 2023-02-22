@@ -145,12 +145,12 @@ def main():
         writer, env_master, method = gallery.ray_IL_woattn__bottleneck(config, mode, scale)
     
     elif version == 'v1-4-3': 
-        scale = 1
+        scale = 10
         open_loop = True
         config.set('raw_horizon', 10)
         config.set('horizon', 10)
 
-        config.description += '--IL-open-loop_hr{}_to_hr{}'.format(config.raw_horizon, config.horizon)
+        config.description += '--open-loop_hr{}_to_hr{}_8e5'.format(config.raw_horizon, config.horizon)
         writer, env_master, method = gallery.ray_IL_open_loop__bottleneck(config, mode, scale)
 
 
