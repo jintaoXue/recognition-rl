@@ -42,7 +42,7 @@ class IndependentSACsupervise(MethodSingleAgent):
 
     tau = 0.005
 
-    buffer_size = 800000
+    buffer_size = 1000
     batch_size = 128
 
     start_timesteps = buffer_size
@@ -180,6 +180,27 @@ class IndependentSACsupervise(MethodSingleAgent):
         return action
 
     @torch.no_grad()
+    def select_actions_recog(self, state):
+        self.select_action_start()
+
+        states = rllib.buffer.stack_data(state)
+        self.buffer.pad_state(states)
+        states = states.cat(dim=0)
+        action, _, recog_charater = self.actor.sample_recog(states.to(self.device))
+
+        #计算
+        real_character = states.obs_character[:,:,-1]
+        recog_charater = torch.where(real_character == np.inf, torch.tensor(np.inf, dtype=torch.float32, device=states.obs.device),recog_charater)
+        real_character = real_character[~torch.isinf(real_character)]
+        recog_charater = recog_charater[~torch.isinf(recog_charater)]
+        # character_loss = self.character_loss(recog_charater, real_character)
+        dev = torch.abs(recog_charater-real_character)
+        mean_dev = torch.mean(dev)
+        std_dev = torch.std(dev)
+        action = action.cpu()
+        return action, mean_dev, std_dev
+
+    @torch.no_grad()
     def select_action(self, state):
         self.select_action_start()
         if self.step_select < self.start_timesteps:
@@ -198,67 +219,67 @@ class IndependentSACsupervise(MethodSingleAgent):
 
 
 
-class IndependentSACsuperviseRoll(IndependentSACsupervise):
-    def __init__(self, config: rllib.basic.YamlConfig, writer):
-        super().__init__(config, writer)
-        self.buffer_size = 80000
-        self.sample_reuse = 8
-        self.batch_size = 128
-        self.gamma = 0.99
-        self.num_iters = int(self.buffer_size / self.batch_size) * self.sample_reuse
-        self.buffer: rllib.buffer.RolloutBuffer = config.get('buffer', rllib.buffer.RolloutBuffer)(config, self.device, self.batch_size)
-        self.save_model_interval = 500
+# class IndependentSACsuperviseRoll(IndependentSACsupervise):
+#     def __init__(self, config: rllib.basic.YamlConfig, writer):
+#         super().__init__(config, writer)
+#         self.buffer_size = 80000
+#         self.sample_reuse = 8
+#         self.batch_size = 128
+#         self.gamma = 0.99
+#         self.num_iters = int(self.buffer_size / self.batch_size) * self.sample_reuse
+#         self.buffer: rllib.buffer.RolloutBuffer = config.get('buffer', rllib.buffer.RolloutBuffer)(config, self.device, self.batch_size)
+#         self.save_model_interval = 500
     
-    def update_parameters(self):
-        if len(self.buffer) < self.buffer_size:
-            return
-        self.update_parameters_start()
-        print(prefix(self) + 'update step: ', self.step_update)
+#     def update_parameters(self):
+#         if len(self.buffer) < self.buffer_size:
+#             return
+#         self.update_parameters_start()
+#         print(prefix(self) + 'update step: ', self.step_update)
 
-        for _ in range(self.num_iters):
-            self.step_train += 1
-            '''load data batch'''   
-            experience = self.buffer.sample(self.gamma)
-            state = experience.state
+#         for _ in range(self.num_iters):
+#             self.step_train += 1
+#             '''load data batch'''   
+#             experience = self.buffer.sample(self.gamma)
+#             state = experience.state
 
-            '''character MSE'''
-            t1 = time.time()
-            recog_character = self.actor.forward_with_recog(state)  
-            t2 = time.time()
-            real_character = state.obs_character[:,:,-1]
-            recog_character = recog_character[~torch.isinf(real_character)]
-            real_character = real_character[~torch.isinf(real_character)]
+#             '''character MSE'''
+#             t1 = time.time()
+#             recog_character = self.actor.forward_with_recog(state)  
+#             t2 = time.time()
+#             real_character = state.obs_character[:,:,-1]
+#             recog_character = recog_character[~torch.isinf(real_character)]
+#             real_character = real_character[~torch.isinf(real_character)]
             
-            # breakpoint()
-            # real_character = torch.where(real_character == np.inf, torch.tensor(-1, dtype=torch.float32, device=state.obs.device), real_character)
-            # recog_character = torch.where(recog_character == np.inf, torch.tensor(-1, dtype=torch.float32, device=state.obs.device), recog_character)
-            character_loss = self.recog_loss(recog_character, real_character)
-            RMSE_loss = torch.sqrt(character_loss)
-            self.recog_optimizer.zero_grad()
-            # character_loss.backward()
-            RMSE_loss.backward()    
-            self.recog_optimizer.step()
-            # for name,p in self.actor.recog.named_parameters():
-            #     print(name, p)  
-            # time.sleep(10)
-            # file = open(self.output_dir + '/' + 'character.txt', 'w')
-            # write_character(file, recog_character)
-            # write_character(file, real_character)
-            # write_character(file, recog_character - real_character)
-            # file.write('*******************************\n')
-            # file.close()
+#             # breakpoint()
+#             # real_character = torch.where(real_character == np.inf, torch.tensor(-1, dtype=torch.float32, device=state.obs.device), real_character)
+#             # recog_character = torch.where(recog_character == np.inf, torch.tensor(-1, dtype=torch.float32, device=state.obs.device), recog_character)
+#             character_loss = self.recog_loss(recog_character, real_character)
+#             RMSE_loss = torch.sqrt(character_loss)
+#             self.recog_optimizer.zero_grad()
+#             # character_loss.backward()
+#             RMSE_loss.backward()    
+#             self.recog_optimizer.step()
+#             # for name,p in self.actor.recog.named_parameters():
+#             #     print(name, p)  
+#             # time.sleep(10)
+#             # file = open(self.output_dir + '/' + 'character.txt', 'w')
+#             # write_character(file, recog_character)
+#             # write_character(file, real_character)
+#             # write_character(file, recog_character - real_character)
+#             # file.write('*******************************\n')
+#             # file.close()
 
-            self.writer.add_scalar(f'{self.tag_name}/loss_character',  RMSE_loss.detach().item(), self.step_train)   
-            self.writer.add_scalar(f'{self.tag_name}/recog_time', t2-t1, self.step_train)
+#             self.writer.add_scalar(f'{self.tag_name}/loss_character',  RMSE_loss.detach().item(), self.step_train)   
+#             self.writer.add_scalar(f'{self.tag_name}/recog_time', t2-t1, self.step_train)
 
-        # self._update_model()
-        if self.step_update % self.save_model_interval == 0:
-            self._save_model()
+#         # self._update_model()
+#         if self.step_update % self.save_model_interval == 0:
+#             self._save_model()
 
-        self._save_model()
+#         self._save_model()
 
-        self.buffer.clear()
-        return
+#         self.buffer.clear()
+#         return
 
 class Actor(rllib.template.Model):
     logstd_min = -5
@@ -284,15 +305,15 @@ class Actor(rllib.template.Model):
         mean = self.mean_no(self.mean(x))
         logstd = self.std_no(self.std(x))
         logstd = (self.logstd_max-self.logstd_min) * logstd + (self.logstd_max+self.logstd_min)
-        return mean, logstd *0.5, self.fe.get_recog_obs_svos()
+        return mean, logstd *0.5, None
 
     def forward_with_recog(self, state):        
         # x = self.fe(state)
         x = self.fe(state)
-        # mean = self.mean_no(self.mean(x))
-        # logstd = self.std_no(self.std(x))
-        # logstd = (self.logstd_max-self.logstd_min) * logstd + (self.logstd_max+self.logstd_min)
-        return self.fe.get_recog_obs_svos()
+        mean = self.mean_no(self.mean(x))
+        logstd = self.std_no(self.std(x))
+        logstd = (self.logstd_max-self.logstd_min) * logstd + (self.logstd_max+self.logstd_min)
+        return mean, logstd *0.5, self.fe.get_recog_obs_svos()
 
     def sample(self, state):
         mean, logstd, _ = self(state)
@@ -318,19 +339,28 @@ class Actor(rllib.template.Model):
         return action, logprob, mean
 
 
-    def sample_deprecated(self, state):
-        mean, logstd = self(state)
+    def sample_recog(self, state):
+        mean, logstd, recog_svo = self.forward_with_recog(state)
 
-        dist = Normal(mean, torch.exp(logstd))
+        cov = torch.diag_embed( torch.exp(logstd) )
+        dist = MultivariateNormal(mean, cov)
         u = dist.rsample()
+
+
+        # if mean.shape[0] == 1:
+        #     print('    policy entropy: ', dist.entropy().detach().cpu())
+        #     print('    policy mean:    ', mean.detach().cpu())
+        #     print('    policy std:     ', torch.exp(logstd).detach().cpu())
+        #     print()
+
+
 
         ### Enforcing Action Bound
         action = torch.tanh(u)
-        logprob = dist.log_prob(u) - torch.log(1-action.pow(2) + 1e-6)
-        logprob = logprob.sum(dim=1, keepdim=True)
+        logprob = dist.log_prob(u).unsqueeze(1) \
+                - torch.log(1 - action.pow(2) + 1e-6).sum(dim=1, keepdim=True)
 
-        return action, logprob, mean
-
+        return action, logprob, recog_svo
 
 def load_model(initial_model, model_num=None, model_dir=None):
     if model_dir == None:

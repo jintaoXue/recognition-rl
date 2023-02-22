@@ -38,6 +38,41 @@ def run_one_episode(env, method):
     env.writer.add_scalar('time_analysis/step', time_env_step, env.step_reset)
     return
 
+def run_one_episode_open_loop(self, env, method):
+    t1 = time.time()
+    env.reset()
+    state = [s.to_tensor().unsqueeze(0) for s in env.state]
+    t2 = time.time()
+    time_select_action = 0.0
+    time_env_step = 0.0
+    while True:
+
+        if env.config.render:
+            env.render()
+            # import pdb; pdb.set_trace()
+
+        tt1 = time.time()
+        action, mean_dev, std_dev = method.select_actions_recog(state)
+        action = action.cpu().numpy()
+        # print('mean: {}, std: {}'.format(mean_dev, std_dev))
+        tt2 = time.time()
+        experience, done, info = env.step(action)
+        tt3 = time.time()
+
+        # mean_dev, std_dev = method.test_recog_error(experience)
+        env.writer.add_scalar('recog_accuracy_evalue/episode_{}_mean'.format(self.episode), mean_dev, self.time_step)
+        env.writer.add_scalar('recog_accuracy_evalue/episode_{}_std'.format(self.episode), std_dev, self.time_step)
+
+        time_select_action += (tt2-tt1)
+        time_env_step += (tt3-tt2)
+        # state = [s.to_tensor().unsqueeze(0) for s in env.state]
+        if done :
+            break
+    env.writer.add_scalar('time_analysis/reset', t2-t1, env.step_reset)
+    env.writer.add_scalar('time_analysis/select_action', time_select_action, env.step_reset)
+    env.writer.add_scalar('time_analysis/step', time_env_step, env.step_reset)
+    return
+
 
 def main():
     config = rllib.basic.YamlConfig()
@@ -104,29 +139,13 @@ def main():
     
     elif version == 'v1-4-3': 
         scale = 10
-        
+        open_loop = True
         config.set('raw_horizon', 10)
         config.set('horizon', 10)
+
         config.description += '--IL-open-loop_hr{}_to_hr{}'.format(config.raw_horizon, config.horizon)
         writer, env_master, method = gallery.ray_IL_open_loop__bottleneck(config, mode, scale)
 
-        env_master.create_tasks(method, func=run_one_episode)
-
-        for i_episode in range(10000):
-            total_steps = ray.get([t.run.remote() for t in env_master.tasks])
-            buffer_len = ray.get(method.get_buffer_len.remote())
-            print('totall step in {} episode: {}, data_size = {}'.format(i_episode, sum(total_steps), buffer_len))
-            start_training_step = ray.get(method.get_start_timesteps.remote()) 
-
-            if buffer_len >= start_training_step:
-                batch_size = ray.get(method.get_batch_size.remote())
-                sample_reuse = ray.get(method.get_sample_reuse.remote())
-                n_iters = int(start_training_step / batch_size )*sample_reuse
-                print('open loop:update parameter start, buffer_len:{}, update_iters:{}'.format(buffer_len, n_iters))
-                ray.get(method.update_parameters_.remote(i_episode, n_iters))
-                ray.get(method.close.remote())
-                ray.shutdown()
-                return
 
     elif version == 'v1-4-3-1': 
         scale = 10
@@ -286,8 +305,11 @@ def main():
     else:
         raise NotImplementedError
 
-    if open_loop :
 
+
+
+    #########training
+    if open_loop :
         env_master.create_tasks(method, func=run_one_episode)
 
         for i_episode in range(10000):
@@ -302,7 +324,23 @@ def main():
                 sample_reuse = ray.get(method.get_sample_reuse.remote())
                 n_iters = int(start_training_step / batch_size )*sample_reuse
                 print('open loop:update parameter start, buffer_len:{}, update_iters:{}'.format(buffer_len, n_iters))
-                ray.get(method.update_parameters_.remote(i_episode, n_iters))
+
+                #fix n_iters 
+                n_iters = 100000
+                num_steps = 200
+                #reload task 
+                env_master.create_tasks(method, func=run_one_episode_open_loop)
+                #start roll-out in Env
+                tt1 = time.time()
+                total_steps = ray.get([t.run.remote(n_iters=1) for t in env_master.tasks])
+                tt2 = time.time()
+                print('per roll-out time: {}'.format(tt2 - tt1))
+
+                for i in range(0, num_steps):
+                    _iters = int(n_iters/num_steps)
+                    ray.get(method.update_parameters_.remote(i_episode, n_iters))
+                    total_steps = ray.get([t.run.remote(n_iters=1) for t in env_master.tasks])
+
                 ray.get(method.close.remote())
                 ray.shutdown()
                 return
