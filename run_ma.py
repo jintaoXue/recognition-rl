@@ -73,8 +73,8 @@ def run_one_episode_open_loop(env, method):
             break
     # env.writer.add_scalar('recog_accuracy_evalue/episode_{}_mean'.format(env.step_reset), float32(torch.mean(torch.tensor(mean_devs))), env.step_reset)
 
-    env.writer.add_scalar('recog_accuracy_evalue/episode_{}_mean'.format(env.step_reset), torch.mean(torch.tensor(mean_devs)), env.step_reset)
-    env.writer.add_scalar('recog_accuracy_evalue/episode_{}_std'.format(env.step_reset), torch.mean(torch.tensor(std_devs)), env.step_reset)
+    env.writer.add_scalar('recog_accuracy_evalue/episode_mean'.format(env.step_reset), torch.mean(torch.tensor(mean_devs)), env.step_reset)
+    env.writer.add_scalar('recog_accuracy_evalue/episode_std'.format(env.step_reset), torch.mean(torch.tensor(std_devs)), env.step_reset)
     env.writer.add_scalar('time_analysis/reset', t2-t1, env.step_reset)
     env.writer.add_scalar('time_analysis/select_action', time_select_action, env.step_reset)
     env.writer.add_scalar('time_analysis/step', time_env_step, env.step_reset)
