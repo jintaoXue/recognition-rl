@@ -1137,7 +1137,7 @@ def evalute_ray_supervise__multiagent__merge(config, mode='train', scale=1):
     config_merge.set('horizon', config.horizon)
     config.set('envs', [
         config_merge,
-    ])
+    ]*scale)
 
     ### method param
     from config.method import config_supervise_multi as config_method

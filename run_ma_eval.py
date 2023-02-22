@@ -116,7 +116,7 @@ def main():
         if mode != 'evaluate':
             raise NotImplementedError
 
-        scale = 5
+        scale = 1
         config.description = 'adaptive_bottleneck'
         models_ma.isac__bottleneck__adaptive().update(config)
         env_master = gallery.evaluate_ray_isac_adaptive_character__bottleneck(config, mode, scale)
