@@ -48,7 +48,8 @@ def run_one_episode_open_loop(env, method):
     time_env_step = 0.0
     mean_devs = []
     std_devs = []
-    start_training_flag = method.get_training_flag.remote(state)
+    start_training_flag = ray.get(method.get_training_flag.remote())
+    print(start_training_flag)
     if start_training_flag :
         while True:
             if env.config.render:
@@ -345,7 +346,7 @@ def main():
             print('totall step in {} episode: {}'.format(i_episode, total_steps))
             buffer_len = ray.get(method.get_buffer_len.remote())
             start_training_step = ray.get(method.get_start_timesteps.remote()) 
-
+            print(buffer_len, start_training_step)
             if buffer_len >= start_training_step:
                 batch_size = ray.get(method.get_batch_size.remote())
                 sample_reuse = ray.get(method.get_sample_reuse.remote())
