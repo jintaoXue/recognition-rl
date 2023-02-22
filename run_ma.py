@@ -52,7 +52,7 @@ def run_one_episode_open_loop(env, method):
             # import pdb; pdb.set_trace()
 
         tt1 = time.time()
-        action, mean_dev, std_dev = method.select_actions_recog(state)
+        action, mean_dev, std_dev = ray.get(method.select_actions_recog(state)))
         action = action.cpu().numpy()
         # print('mean: {}, std: {}'.format(mean_dev, std_dev))
         tt2 = time.time()
