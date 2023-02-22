@@ -1,3 +1,4 @@
+from numpy import float32
 import rllib
 import universe
 import ray
@@ -45,6 +46,8 @@ def run_one_episode_open_loop(env, method):
     t2 = time.time()
     time_select_action = 0.0
     time_env_step = 0.0
+    mean_devs = []
+    std_devs = []
     while True:
 
         if env.config.render:
@@ -52,22 +55,26 @@ def run_one_episode_open_loop(env, method):
             # import pdb; pdb.set_trace()
 
         tt1 = time.time()
-        action, mean_dev, std_dev = ray.get(method.select_actions_recog(state)))
+        action, mean_dev, std_dev = ray.get(method.select_actions_recog.remote(state))
+
+        mean_devs.append(mean_dev)
+        std_devs.append(std_dev)
+
         action = action.cpu().numpy()
         # print('mean: {}, std: {}'.format(mean_dev, std_dev))
         tt2 = time.time()
         experience, done, info = env.step(action)
         tt3 = time.time()
 
-        # mean_dev, std_dev = method.test_recog_error(experience)
-        env.writer.add_scalar('recog_accuracy_evalue/episode_{}_mean'.format(self.episode), mean_dev, self.time_step)
-        env.writer.add_scalar('recog_accuracy_evalue/episode_{}_std'.format(self.episode), std_dev, self.time_step)
-
         time_select_action += (tt2-tt1)
         time_env_step += (tt3-tt2)
-        # state = [s.to_tensor().unsqueeze(0) for s in env.state]
+        state = [s.to_tensor().unsqueeze(0) for s in env.state]
         if done :
             break
+    # env.writer.add_scalar('recog_accuracy_evalue/episode_{}_mean'.format(env.step_reset), float32(torch.mean(torch.tensor(mean_devs))), env.step_reset)
+
+    env.writer.add_scalar('recog_accuracy_evalue/episode_{}_mean'.format(env.step_reset), torch.mean(torch.tensor(mean_devs)), env.step_reset)
+    env.writer.add_scalar('recog_accuracy_evalue/episode_{}_std'.format(env.step_reset), torch.mean(torch.tensor(std_devs)), env.step_reset)
     env.writer.add_scalar('time_analysis/reset', t2-t1, env.step_reset)
     env.writer.add_scalar('time_analysis/select_action', time_select_action, env.step_reset)
     env.writer.add_scalar('time_analysis/step', time_env_step, env.step_reset)
@@ -138,7 +145,7 @@ def main():
         writer, env_master, method = gallery.ray_IL_woattn__bottleneck(config, mode, scale)
     
     elif version == 'v1-4-3': 
-        scale = 10
+        scale = 1
         open_loop = True
         config.set('raw_horizon', 10)
         config.set('horizon', 10)
@@ -327,7 +334,7 @@ def main():
 
                 #fix n_iters 
                 n_iters = 100000
-                num_steps = 200
+                num_steps = 500
                 #reload task 
                 env_master.create_tasks(method, func=run_one_episode_open_loop)
                 #start roll-out in Env
@@ -338,7 +345,7 @@ def main():
 
                 for i in range(0, num_steps):
                     _iters = int(n_iters/num_steps)
-                    ray.get(method.update_parameters_.remote(i_episode, n_iters))
+                    ray.get(method.update_parameters_.remote(i_episode, _iters))
                     total_steps = ray.get([t.run.remote(n_iters=1) for t in env_master.tasks])
 
                 ray.get(method.close.remote())

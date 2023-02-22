@@ -42,7 +42,7 @@ class IndependentSACsupervise(MethodSingleAgent):
 
     tau = 0.005
 
-    buffer_size = 1000
+    buffer_size = 800000
     batch_size = 128
 
     start_timesteps = buffer_size
@@ -111,7 +111,7 @@ class IndependentSACsupervise(MethodSingleAgent):
 
         '''character MSE'''
         t1 = time.time()
-        recog_character = self.actor.forward_with_recog(state)   
+        _,_,recog_character = self.actor.forward_with_recog(state)   
         t2 = time.time()
         real_character = state.obs_character[:,:,-1]
         recog_character = recog_character[~torch.isinf(real_character)]
@@ -186,7 +186,8 @@ class IndependentSACsupervise(MethodSingleAgent):
         states = rllib.buffer.stack_data(state)
         self.buffer.pad_state(states)
         states = states.cat(dim=0)
-        action, _, recog_charater = self.actor.sample_recog(states.to(self.device))
+        states =  states.to(self.device) 
+        action, _, recog_charater = self.actor.sample_recog(states)
 
         #计算
         real_character = states.obs_character[:,:,-1]
