@@ -38,7 +38,7 @@ def run_one_episode(env, method):
     env.writer.add_scalar('time_analysis/step', time_env_step, env.step_reset)
     return
 
-def run_one_episode_open_loop(self, env, method):
+def run_one_episode_open_loop(env, method):
     t1 = time.time()
     env.reset()
     state = [s.to_tensor().unsqueeze(0) for s in env.state]
