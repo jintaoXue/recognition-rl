@@ -771,14 +771,14 @@ class IL_offline__merge(ModelPath):
     model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveMultiAgent/2023-02-21-03:28:01----Nothing--open_loop_hr10_to_hr10__merge/saved_models_method'
     model_num = 145000
 
-    #115 hr20 -> 10 merge 
-    model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveMultiAgent/2023-02-21-03:28:04----Nothing--open_loop_hr20_to_hr10__merge/saved_models_method'
-    model_num = 145000
+    # #115 hr20 -> 10 merge 
+    # model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveMultiAgent/2023-02-21-03:28:04----Nothing--open_loop_hr20_to_hr10__merge/saved_models_method'
+    # model_num = 145000
 
-    #115 hr 10 -> 10 womap
-    model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveMultiAgent/2023-02-21-10:08:55----Nothing--open_loop_womap__hr10_to_hr10__merge/saved_models_method'
-    model_num = 145000
+    # #115 hr 10 -> 10 womap
+    # model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveMultiAgent/2023-02-21-10:08:55----Nothing--open_loop_womap__hr10_to_hr10__merge/saved_models_method'
+    # model_num = 145000
 
-    #116 hr 10 -> 10 woattn
-    model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveMultiAgent/2023-02-21-08:01:53----Nothing--open_loop_woattn__hr10_to_hr10__merge/saved_models_method'
-    model_num = 145000
+    # #116 hr 10 -> 10 woattn
+    # model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveMultiAgent/2023-02-21-08:01:53----Nothing--open_loop_woattn__hr10_to_hr10__merge/saved_models_method'
+    # model_num = 145000

@@ -24,6 +24,8 @@ class Debug(object):
         time_env_step = 0.0
         ## add debug 
         self.episode += 1
+        mean_devs = []
+        std_devs = []
         if (self.episode < self.debug_episode) : return
 
         while True:
@@ -34,6 +36,8 @@ class Debug(object):
 
             tt1 = time.time()
             action, mean_dev, std_dev = method.select_actions(state)
+            mean_devs.append(mean_dev)
+            std_devs.append(std_dev)
             action = action.cpu().numpy()
             # print('mean: {}, std: {}'.format(mean_dev, std_dev))
             env.writer.add_scalar('recog_accuracy/episode_{}_mean'.format(self.episode), mean_dev, self.time_step)
@@ -49,7 +53,10 @@ class Debug(object):
             if done:
                 self.time_step = 0 
                 break
-        
+
+        env.writer.add_scalar('recog_accuracy_whole_step/episode_mean', torch.mean(torch.tensor(mean_devs)), env.step_reset)
+        env.writer.add_scalar('recog_accuracy_whole_step/episode_std', torch.mean(torch.tensor(std_devs)), env.step_reset)
+
         env.writer.add_scalar('time_analysis/reset', t2-t1, env.step_reset)
         env.writer.add_scalar('time_analysis/select_action', time_select_action, env.step_reset)
         env.writer.add_scalar('time_analysis/step', time_env_step, env.step_reset)
@@ -121,14 +128,22 @@ def main():
         models_ma.isac__bottleneck__adaptive().update(config)
         env_master = gallery.evaluate_ray_isac_adaptive_character__bottleneck(config, mode, scale)
     
-    elif version == 'vtrue-1':
+    elif version == 'vtrue-1': 
         if mode != 'evaluate':
             raise NotImplementedError
-
-        scale = 11
-        config.description = 'adaptive_bottleneck_assign_svo'
-        models_ma.isac__bottleneck__adaptive().update(config)
-        env_master = gallery.evaluate_ray_isac_adaptive_character__bottleneck_assign_svo(config, mode, scale)
+        import numpy as np
+        for svo in np.linspace(0, 1, num=11):
+            svo = round(svo,1)
+            config.description = 'evaluate' + '--fix_{}__adaptive_bottleneck'.format(svo)
+            models_ma.isac__bottleneck__adaptive().update(config)
+            env_master = gallery.evaluate_ray_isac_adaptive_character__bottleneck_fix_svo(config,svo,mode)
+            env_master.create_tasks(func=run_one_episode)
+            ray.get([t.run.remote(n_iters=config.num_episodes) for t in env_master.tasks])
+            del env_master
+            ray.shutdown()
+            ray.init(num_cpus=psutil.cpu_count(), num_gpus=torch.cuda.device_count(), include_dashboard=False)
+        ray.shutdown()
+        return
         # svo = config.svo
         # config.description = 'evaluate' + '--fix_{}__bottleneck'.format(svo)
         # models_ma.isac__bottleneck__adaptive().update(config)
@@ -259,8 +274,8 @@ def main():
 
         scale = 5
         debug_recog = True
-        config.set('raw_horizon', 30)
-        config.set('horizon', 5)
+        config.set('raw_horizon', 10)
+        config.set('horizon', 10)
         config.description += '--IL-open-loop_bottleneck'
         models_ma.IL_offline__bottleneck().update(config)
         env_master = gallery.evalute_ray_supervise__multiagent__bottleneck(config, mode, scale)
@@ -300,18 +315,18 @@ def main():
         config.description += '--case11_IL-open-loop_bottleneck_woattn'.format(config.horizon)
         models_ma.IL_offline__bottleneck().update(config)
         env_master = gallery.evalute_ray_supervise__multiagent__bottleneck_assign_case_woattn(config, mode, scale)
-    
-    elif version == 'v1-4-3-4':
+
+    elif version == 'v1-4-3-3':
         if mode != 'evaluate':
             raise NotImplementedError
 
-        scale = 11
-        config.set('raw_horizon', 10)
+        scale = 5
+        config.set('raw_horizon', 30)
         config.set('horizon', 10)
         debug_recog = True
-        config.description += '---open-loop_bottleneck_assgin_svo'.format(config.horizon)
+        config.description += '--case11_IL-open-loop_bottleneck_woattn'.format(config.horizon)
         models_ma.IL_offline__bottleneck().update(config)
-        env_master = gallery.evalute_ray_supervise__multiagent__bottleneck_assign_character(config, mode, scale)
+        env_master = gallery.evalute_ray_supervise__multiagent__bottleneck_assign_case_woattn(config, mode, scale)
 
     ################################################################################################
     ##### evaluate, recognition, merge #############################################################
