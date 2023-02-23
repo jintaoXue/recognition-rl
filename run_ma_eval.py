@@ -317,7 +317,7 @@ def main():
         config.set('raw_horizon', 10)
         config.set('horizon', 10)
         debug_recog = True
-        config.description += '--case11_IL-open-loop_bottleneck_woattn'.format(config.horizon)
+        config.description += '---open-loop_bottleneck_assgin_svo'.format(config.horizon)
         models_ma.IL_offline__bottleneck().update(config)
         env_master = gallery.evalute_ray_supervise__multiagent__bottleneck_assign_character(config, mode, scale)
 
