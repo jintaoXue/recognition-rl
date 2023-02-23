@@ -281,6 +281,15 @@ def main():
         config.set('horizon', 10)
         config.description += '--open_loop_woattn__hr{}_to_hr{}__merge'.format(config.raw_horizon, config.horizon)
         writer, env_master, method = gallery.ray_IL_open_loop__merge_woattn(config, mode, scale)
+
+    elif version == 'v3-4-2-3':
+        scale = 10
+        open_loop = True
+
+        config.set('raw_horizon', 30)
+        config.set('horizon', 10)
+        config.description += '--open_loop_woattn__hr{}_to_hr{}__merge'.format(config.raw_horizon, config.horizon)
+        writer, env_master, method = gallery.ray_IL_open_loop__merge_woattn(config, mode, scale)
     
     ################################################################################################
     ##### roundabout ###############################################################################

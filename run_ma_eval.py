@@ -272,7 +272,7 @@ def main():
         if mode != 'evaluate':
             raise NotImplementedError
 
-        scale = 5
+        scale = 1
         debug_recog = True
         config.set('raw_horizon', 10)
         config.set('horizon', 10)
@@ -327,6 +327,18 @@ def main():
         config.description += '--case11_IL-open-loop_bottleneck_woattn'.format(config.horizon)
         models_ma.IL_offline__bottleneck().update(config)
         env_master = gallery.evalute_ray_supervise__multiagent__bottleneck_assign_case_woattn(config, mode, scale)
+    
+    elif version == 'v1-4-3-4':
+        if mode != 'evaluate':
+            raise NotImplementedError
+
+        scale = 11
+        config.set('raw_horizon', 10)
+        config.set('horizon', 10)
+        debug_recog = True
+        config.description += '---open-loop_bottleneck_assgin_svo_4.13'.format(config.horizon)
+        models_ma.IL_offline__bottleneck().update(config)
+        env_master = gallery.evalute_ray_supervise__multiagent__bottleneck_assign_character(config, mode, scale)
 
     ################################################################################################
     ##### evaluate, recognition, merge #############################################################
@@ -436,6 +448,31 @@ def main():
         config.description += '--open-loop_merge_hr{}_to_hr{}_case11_woattn'.format(config.raw_horizon, config.horizon)
         models_ma.IL_offline__merge().update(config)
         env_master = gallery.evalute_ray_supervise__multiagent__merge_assign_case_woattn(config, mode, scale)
+
+    elif version == 'v2-4-3-4':
+        if mode != 'evaluate':
+            raise NotImplementedError
+
+        scale = 5
+        debug_recog = True
+        config.set('raw_horizon', 30)
+        config.set('horizon', 10)
+        config.description += '--open-loop_merge_hr{}_to_hr{}_case11_woattn'.format(config.raw_horizon, config.horizon)
+        models_ma.IL_offline__merge().update(config)
+        env_master = gallery.evalute_ray_supervise__multiagent__merge_assign_case_woattn(config, mode, scale)
+
+    elif version == 'v2-4-3-5':
+        if mode != 'evaluate':
+            raise NotImplementedError
+
+        scale = 5
+        debug_recog = True
+        config.set('raw_horizon', 10)
+        config.set('horizon', 10)
+        config.description += '---open-loop_hr{}_to_hr{}merge_assgin_svo_4.13'.format(config.raw_horizon, config.horizon)
+        models_ma.IL_offline__merge().update(config)
+        env_master = gallery.evalute_ray_supervise__multiagent__merge_assign_character(config, mode, scale)
+
 
     elif version == 'v3-1':
         if mode != 'evaluate':

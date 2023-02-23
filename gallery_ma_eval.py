@@ -1061,6 +1061,27 @@ def evalute_ray_supervise__multiagent__bottleneck_assign_case_woattn(config, mod
     config.set('methods', [config_method])
     return init_recog(config, mode, Env, Method)
 
+def evalute_ray_supervise__multiagent__bottleneck_assign_character(config, mode='train', scale=5):
+    from universe import EnvInteractiveMultiAgent as Env
+    #todo
+    from core.method_evaluate import EvaluateSupervise as Method
+
+    ### env param
+    from config.bottleneck_evaluate import config_env__with_character_assign as config_bottleneck
+    # config_bottleneck.set('raw_horizon', config.raw_horizon)
+    # config_bottleneck.set('horizon', config.horizon)
+
+    config.set('envs', [
+        config_bottleneck
+    ]*scale)
+
+    ### method param
+    from config.method import config_supervise_multi as config_method
+    config_method.set('raw_horizon', config.raw_horizon)
+    config_method.set('horizon', config.horizon)
+    config.set('methods', [config_method])
+    return init_recog(config, mode, Env, Method)
+
 #################################################################################
 ##############evaluate recog merge###############################################
 #################################################################################
@@ -1219,3 +1240,23 @@ def evalute_ray_supervise__multiagent__merge_assign_case_woattn(config, mode='tr
     config.set('methods', [config_method])
     return init_recog(config, mode, Env, Method)
 
+def evalute_ray_supervise__multiagent__merge_assign_character(config, mode='train', scale=5):
+    from universe import EnvInteractiveMultiAgent as Env
+    #todo
+    from core.method_evaluate import EvaluateSupervise as Method
+
+    ### env param
+    from config.merge_evaluate import config_env__with_character_assign as config_merge
+    # config_bottleneck.set('raw_horizon', config.raw_horizon)
+    # config_bottleneck.set('horizon', config.horizon)
+
+    config.set('envs', [
+        config_merge
+    ]*scale)
+
+    ### method param
+    from config.method import config_supervise_multi as config_method
+    config_method.set('raw_horizon', config.raw_horizon)
+    config_method.set('horizon', config.horizon)
+    config.set('methods', [config_method])
+    return init_recog(config, mode, Env, Method)
