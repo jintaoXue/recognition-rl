@@ -353,6 +353,15 @@ def main():
         models_ma.isac_adaptive_character__merge().update(config)
         env_master = gallery.evaluate_ray_isac_adaptive_character__merge(config, mode, scale)
     
+    elif version == 'vtrue-2-1':
+        if mode != 'evaluate':
+            raise NotImplementedError
+
+        scale = 11
+        config.description = 'adaptive_merge_fix_svo'
+        models_ma.isac_adaptive_character__merge().update(config)
+        env_master = gallery.evaluate_ray_isac_adaptive_character__merge_assign(config, mode, scale)
+
     elif version == 'vtrue-3': 
         if mode != 'evaluate':
             raise NotImplementedError

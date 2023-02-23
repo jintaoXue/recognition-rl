@@ -1100,6 +1100,21 @@ def evaluate_ray_isac_adaptive_character__merge(config, mode='evaluate', scale=5
 
     return init_recog(config, mode, Env, Method)
 
+def evaluate_ray_isac_adaptive_character__merge_assign(config, mode='evaluate', scale=5):
+    from universe import EnvInteractiveMultiAgent as Env
+    from core.method_evaluate import EvaluateIndependentSAC as Method
+
+    ### env param
+    from config.merge_evaluate import config_env__with_character_assign
+    config.set('envs', [config_env__with_character_assign] *scale)
+
+    ### method param
+    from config.method import config_isac__adaptive_character as config_method
+    config.set('methods', [config_method])
+
+    return init_recog(config, mode, Env, Method)
+
+
 def evaluate_ray_isac_adaptive_character__merge_fix_svo(config, svo, mode='evaluate', scale=1):
     from utils.env import EnvInteractiveMultiAgentFixSvo as Env
     from core.method_evaluate import EvaluateIndependentSAC as Method
