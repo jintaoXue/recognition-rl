@@ -704,6 +704,7 @@ class IL__bottleneck(ModelPath):
     model_num = 730000
     model_num = 190000
     model_num = 220000
+
 class IL_offline__bottleneck(ModelPath):
 
     method = 'IndependentSACsupervise'
@@ -745,6 +746,10 @@ class IL_offline__bottleneck(ModelPath):
 
     #116 hr 10 -> 10
     model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveMultiAgent/2023-02-21-01:29:21----Nothing--IL-open-loop_hr10_to_hr10/saved_models_method'
+    model_num = 145000
+
+    #116 hr without map 10 -> 10
+    model_dir = ''
     model_num = 145000
 
 class IL_offline__merge(ModelPath):

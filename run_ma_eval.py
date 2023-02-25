@@ -297,7 +297,7 @@ def main():
             raise NotImplementedError
 
         scale = 5
-        config.set('raw_horizon', 30)
+        config.set('raw_horizon', 10)
         config.set('horizon', 10)
         debug_recog = True
         config.description += '--case11_IL-open-loop_bottleneck_womap'.format(config.horizon)
