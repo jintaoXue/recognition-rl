@@ -749,7 +749,7 @@ class IL_offline__bottleneck(ModelPath):
     model_num = 145000
 
     #116 hr without map 10 -> 10
-    model_dir = ''
+    model_dir = '~/github/zdk/recognition-rl/results/IndependentSACsupervise-EnvInteractiveMultiAgent/2023-02-25-15:20:05----Nothing--open-loop_womaphr_hr10_to_hr10_8e5/saved_models_method'
     model_num = 145000
 
 class IL_offline__merge(ModelPath):

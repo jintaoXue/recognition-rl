@@ -177,7 +177,7 @@ def main():
 
     elif version == 'v1-4-3-1': 
         scale = 10
-        config.description += '--IL-open-loop_womap'
+        config.description += '--open-loop_womaphr_hr{}_to_hr{}_8e5'.format(config.raw_horizon, config.horizon)
         config.set('raw_horizon', 10)
         config.set('horizon', 10)
         writer, env_master, method = gallery.ray_IL_open_loop__womap__bottleneck(config, mode, scale)
