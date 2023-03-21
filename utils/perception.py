@@ -35,9 +35,9 @@ class PerceptionPointNet(object):
 
 
         self.historical_timestamps = -np.array([range(self.horizon)], dtype=np.float32).T[::-1] /self.decision_frequency
-        # sampling_resolution = 4.0
+        sampling_resolution = 4.13
         '''route resolution before sampling: 2.059351921081543, after sampling: 2.0951883792877197'''
-        sampling_resolution = 2.0
+        # sampling_resolution = 2.0
         '''route resolution before sampling: 2.059351921081543, after sampling: 4.252692222595215'''
 
         self.perp_route = PerceptionVectorizedRoute(config, sampling_resolution=sampling_resolution)

@@ -29,7 +29,7 @@ config_env = rllib.basic.YamlConfig(
     ),
     dataset_cls=dataset_cls,
 
-    scenario_randomization_cls=scenarios_template.ScenarioRandomization,
+    scenario_randomization_cls=scenarios_template.ScenarioRandomizationRoundabout,
     scenario_cls=scenarios_roundabout.ScenarioRoundabout,
     boundary=rllib.basic.BaseData(x_min=-20, y_min=-60, x_max=110, y_max=60),
     center=rllib.basic.BaseData(x=45, y=0),

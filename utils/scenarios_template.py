@@ -5,7 +5,12 @@ import universe
 import numpy as np
 import random
 
-
+#roundabout class
+from universe.common.geo import Vector, Transform
+from universe.common.actor import ActorBoundingBox, check_collision
+from universe.common.global_path import GlobalPath
+import copy
+from typing import List, Dict
 
 class ScenarioRandomization(universe.ScenarioRandomization):
     def __init__(self, *args, **kwargs):
@@ -20,6 +25,35 @@ class ScenarioRandomization(universe.ScenarioRandomization):
 
     def __getitem__(self, vi):
         return super().__getitem__(vi) + rllib.basic.BaseData(character=self.characters[vi])
+
+
+
+class ScenarioRandomizationRoundabout(ScenarioRandomization):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def __init__(self, spawn_transforms: Dict[Transform, GlobalPath], bbx_vectors: List[Vector], num_vehicles):
+        self._spawn_transforms = spawn_transforms
+        self.num_vehicles = num_vehicles
+
+        if num_vehicles > len(spawn_transforms):
+            msg = 'requested {} vehicles, but could only find {} spawn points'.format(num_vehicles, len(self._spawn_transforms))
+            print(rllib.basic.prefix(self) + 'warning: {}'.format(msg))
+        
+        self.spawn_transforms: List[Transform] = np.random.choice(list(self._spawn_transforms.keys()), size=num_vehicles, replace=False)
+        self.bbx_vectors = np.random.choice(bbx_vectors, size=num_vehicles, replace=False)
+        
+        bbxs = np.array([ActorBoundingBox(t, bbx.x, bbx.y) for t, bbx in zip(self.spawn_transforms, self.bbx_vectors)])
+        valid_flag = ~check_collision(bbxs)
+        self.spawn_transforms = self.spawn_transforms[valid_flag]
+        self.global_paths = np.array([copy.deepcopy(self._spawn_transforms[sp]) for sp in self.spawn_transforms])
+        self.num_vehicles = len(self.global_paths)
+
+        self.characters = self.get_characters()
+        return
+
+
+
 
 class ScenarioRandomization_fix_svo(universe.ScenarioRandomization):
     def __init__(self, svo,*args, **kwargs):

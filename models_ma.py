@@ -71,7 +71,7 @@ class isac_no_character__bottleneck(ModelPath):
 class isac_robust_character__bottleneck(ModelPath):
     method = 'independentsac_v0'
 
-    model_dir = '~/github/zdk/recognition-rl/results/IndependentSAC_v0-EnvInteractiveMultiAgent/2022-09-13-22:44:39----ray_isac_robust_character__multi_scenario/saved_models_method'
+    model_dir = '~/github/zdk/recognition-rl/models/IndependentSAC_v0-EnvInteractiveMultiAgent/2022-09-13-22:44:39----ray_isac_robust_character__multi_scenario/saved_models_method'
     model_num = 567600
 
     model_num = 568600  ### good but not our story

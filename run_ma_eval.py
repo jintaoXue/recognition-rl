@@ -148,7 +148,14 @@ def main():
         # config.description = 'evaluate' + '--fix_{}__bottleneck'.format(svo)
         # models_ma.isac__bottleneck__adaptive().update(config)
         # env_master = gallery.evaluate_ray_isac_adaptive_character__bottleneck_fix_svo(config,svo,mode)
-
+    elif version == 'vtrue-2': 
+        if mode != 'evaluate':
+            raise NotImplementedError
+        import numpy as np
+        scale = 11
+        config.description = 'evaluate' + '--fix_svo__adaptive_bottleneck'
+        models_ma.isac__bottleneck__adaptive().update(config)
+        env_master = gallery.evaluate_ray_isac_adaptive_character__bottleneck_fix_svo(config,mode, scale)
 
     elif version == 'v1-4-0':
         if mode != 'evaluate':
@@ -415,7 +422,7 @@ def main():
 
         scale = 5
         debug_recog = True
-        config.set('raw_horizon', 30)
+        config.set('raw_horizon', 10)
         config.set('horizon', 10)
         config.description += '--IL-open-loop_merge_hr{}'.format(config.horizon)
         models_ma.IL_offline__merge().update(config)
@@ -487,12 +494,23 @@ def main():
         if mode != 'evaluate':
             raise NotImplementedError
 
-        scale = 1
+        scale = 10
         # scale = 1
         config.description = 'isac_copo__bottleneck'
 
         models_ma.isac_robust_character__bottleneck().update(config)
         env_master = gallery.evaluate_ray_isac_robust_character__bottleneck(config, mode, scale)
+    
+    elif version == 'v3-1-0':
+        if mode != 'evaluate':
+            raise NotImplementedError
+
+        scale = 10
+        # scale = 1
+        config.description = 'isac_copo__bottleneck'
+
+        models_ma.isac_robust_character__bottleneck().update(config)
+        env_master = gallery.evaluate_ray_isac_robust_character__bottleneck_assign(config, mode, scale)
     
     #### find succes_rate
     elif version == 'v3-1-1': 
@@ -554,7 +572,13 @@ def main():
     # ##### evaluate, diversity ######################################################################
     # ################################################################################################
 
+    elif version == 'v-1-5':
+            if mode != 'evaluate':
+                raise NotImplementedError
 
+            scale = 11
+            models_ma.isac_robust_character__bottleneck().update(config)
+            env_master = gallery.evaluate_ray_isac_robust_character_assign__bottleneck(config, mode, scale)
 
     elif version == 'v-2-1':
         if mode != 'evaluate':
