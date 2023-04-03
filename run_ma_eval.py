@@ -597,6 +597,23 @@ def main():
         models_ma.isac_adaptive_character__merge().update(config)
         env_master = gallery.evaluate_ray_isac_adaptive_character_diversity__merge(config, mode, scale)
 
+    elif version == 'v-4-1':
+        if mode != 'evaluate':
+            raise NotImplementedError
+
+        scale = 1
+        models_ma.IL_offline__bottleneck().update(config)
+        env_master = gallery.evaluate_ray_recog__social_behavior__bottleneck(config, mode, scale)
+    
+    elif version == 'v-4-2':
+        if mode != 'evaluate':
+            raise NotImplementedError
+
+        scale = 1
+        models_ma.IL_offline__merge().update(config)
+        env_master = gallery.evaluate_ray_recog__social_behavior__merge(config, mode, scale)
+    
+
     else:
         raise NotImplementedError
 

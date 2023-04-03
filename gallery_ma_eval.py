@@ -1288,3 +1288,44 @@ def evalute_ray_supervise__multiagent__merge_assign_character(config, mode='trai
     config_method.set('horizon', config.horizon)
     config.set('methods', [config_method])
     return init_recog(config, mode, Env, Method)
+
+##################################Recog Social Behavior for Video###################################
+
+def evaluate_ray_recog__social_behavior__bottleneck(config, mode='evaluate', scale=5):
+    from core.env_eval import EnvInteractiveMultiAgent_v1 as Env
+
+    ### env param
+    from config.bottleneck_evaluate import config_env__with_character
+    config_env__with_character.set('num_steps', 200)
+    config_env__with_character.set('num_vehicles_range', rllib.basic.BaseData(min=10, max=10))
+    config_env__with_character.set('recorder_cls', universe.Recorder)
+    config_env__with_character.set('spawn_interval', 2)
+    config.set('envs', [config_env__with_character] *scale)
+
+    ### method param
+    from config.method import config_isac__adaptive_character as config_method
+    config.set('methods', [config_method])
+
+    return init_recog(config, mode, Env)
+
+def evaluate_ray_recog__social_behavior__merge(config, mode='evaluate', scale=5):
+    from core.env_eval import EnvInteractiveMultiAgent_v1 as Env
+    from core.method_evaluate import EvaluateSupervise as Method
+    ### env param
+    from config.bottleneck_evaluate import config_env__with_character
+    config_env__with_character.set('num_steps', 200)
+    config_env__with_character.set('num_vehicles_range', rllib.basic.BaseData(min=10, max=10))
+    config_env__with_character.set('recorder_cls', universe.Recorder)
+    config_env__with_character.set('spawn_interval', 2)
+    config.set('envs', [config_env__with_character] *scale)
+
+    ### method param
+    from config.method import config_supervise_multi as config_method
+
+    config_method.set('raw_horizon', config.raw_horizon)
+    config_method.set('horizon', config.horizon)
+    config.set('methods', [config_method])
+
+
+    return init_recog(config, mode, Env, Method)
+
