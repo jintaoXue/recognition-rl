@@ -1312,7 +1312,7 @@ def evaluate_ray_recog__social_behavior__merge(config, mode='evaluate', scale=5)
     from core.env_eval import EnvInteractiveMultiAgent_v1 as Env
     from core.method_evaluate import EvaluateSupervise as Method
     ### env param
-    from config.bottleneck_evaluate import config_env__with_character
+    from config.merge_evaluate import config_env__with_character
     config_env__with_character.set('num_steps', 200)
     config_env__with_character.set('num_vehicles_range', rllib.basic.BaseData(min=10, max=10))
     config_env__with_character.set('recorder_cls', universe.Recorder)

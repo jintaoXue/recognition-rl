@@ -602,6 +602,9 @@ def main():
             raise NotImplementedError
 
         scale = 1
+        debug_recog = True
+        config.set('raw_horizon', 10)
+        config.set('horizon', 10)
         models_ma.IL_offline__bottleneck().update(config)
         env_master = gallery.evaluate_ray_recog__social_behavior__bottleneck(config, mode, scale)
     
@@ -610,6 +613,9 @@ def main():
             raise NotImplementedError
 
         scale = 1
+        debug_recog = True
+        config.set('raw_horizon', 10)
+        config.set('horizon', 10)
         models_ma.IL_offline__merge().update(config)
         env_master = gallery.evaluate_ray_recog__social_behavior__merge(config, mode, scale)
     
