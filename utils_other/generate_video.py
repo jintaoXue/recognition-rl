@@ -18,8 +18,10 @@ def parse_args():
 args = parse_args()
 
 png_names = os.listdir(args.image_dir)
-png_names = sorted(png_names, key=lambda x: eval(x.split('-')[-1][:-4]))
+
 png_names = sorted(png_names, key=lambda x: eval(x.split('-')[0]))
+# png_names[0].split('-')[0]
+# png_names = sorted(png_names, key=lambda x: eval(x.split('-')[0]))
 
 '''
 pip install imageio
